@@ -6,6 +6,7 @@ Python 3 implementation of d3stryr-3stripes
 ## Requirements:
 1. Python 3 (Google how to get it)
    Required modules: selenium, requests, virtualenv (optional - but is used in the instructions)
+   
    If you don't have virtualenv and want to be able to follow the directions completely then install it with:
    
    ```
