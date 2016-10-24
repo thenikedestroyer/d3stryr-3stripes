@@ -22,7 +22,13 @@ Python 3 implementation of d3stryr-3stripes
 ## Installing:
 
 1. Either use git to clone this repository or click on "Download Zip"
-2. Navigate to the `d3stryr-3stripes` or `d3stryr-3stripes-master` depending on what you did in step 1.
+2. Navigate to the `d3stryr-3stripes` or `d3stryr-3stripes-master` depending on what you did in step 1. 
+   
+   I will assume that if you are using `git clone` then you already know how to navigate to the appropriate folder. For everyone else, unzip `d3stryr-3stripes-master.zip`.  Then move the folder into your home directory. Then open up a terminal window and type the following to navigate to the `d3stryr-3stripes-master` folder:
+   ```
+   cd d3stryr-3stripes-master
+   ```
+
 3. Create a virtual environment (only needs to be done once per install):
 
    ```
