@@ -114,6 +114,7 @@ Then run:
 ## To-Do List
   * Comment parts of the code so that it can be used as a learning tool.
   * Add in the abililty to manually solve captchas if desired.
+  * Interface w/ a MySQL DB for token harvesting locally.
 
 ## Not-Gonna-Do List
   * Auto-checkout. I much prefer 10,000 people getting a pair versus 1,000 people getting 10 pairs.
