@@ -2,7 +2,6 @@ from random import randint
 
 def agent():
   """Returns a random user-agent."""
-
   browsers=[
       "Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4",
       "Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4",
@@ -26,9 +25,7 @@ def agent():
       "Mozilla/5.0 (Linux; U; Android 2.2; en-us; SCH-I800 Build/FROYO) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1",
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36",
   ]
-
   string = browsers[randint(0,len(browsers)-1)]
-
   return string
 
 class color:
@@ -73,16 +70,20 @@ def lr_(string):
 def y_(string):
   return color.yellow+str(string)+color.reset
 
+import os
+import time
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 
-def launchChrome(session,cartURL):
-  chrome_options = Options()
-  browser = webdriver.Chrome(chrome_options=chrome_options)
+def launchChrome(session,cartURL,sleeping):
+  chromedriver = "./chromedriver"
+  os.environ["webdriver.chrome.driver"] = chromedriver
+  browser = webdriver.Chrome(chromedriver)
   browser.get(cartURL)
   for key, val in session.cookies.iteritems():
     browser.add_cookie({'name':key,'value':val})
+  time.sleep(sleeping)
   browser.refresh()
   temp=input("Press Enter to Continue")
   browser.quit()
@@ -91,25 +92,22 @@ def launchChrome(session,cartURL):
 import configparser
 import json
 import requests
-import time
 
-def getACaptchaToken(apikey2captcha,sitekey,pageURL,proxy2Captcha):
-  config = configparser.ConfigParser()
-  configFilePath = "config.cfg"
-  config.read(configFilePath)
+requests.packages.urllib3.disable_warnings()
 
-  sleeping=config.getint("sleeping","sleeping")
-
-  captchaSession=requests.Session()
-  captchaSession.cookies.clear()
-  captchaSession.verify=False
+def getACaptchaToken(apikey2captcha,sitekey,marketDomain,proxy2Captcha,sleeping):
+  session=requests.Session()
+  session.verify=False
+  session.cookies.clear()
+  pageurl="http://www."+marketDomain
+  print (d_()+s_("pageurl")+lb_(pageurl))
   while True:
     data={
      "key":apikey2captcha,
      "action":"getbalance",
      "json":1,
     }
-    response=captchaSession.get(url="http://2captcha.com/res.php",params=data)
+    response=session.get(url="http://2captcha.com/res.php",params=data)
     JSON=json.loads(response.text)
     if JSON["status"] == 1:
       balance=JSON["request"]
@@ -125,10 +123,10 @@ def getACaptchaToken(apikey2captcha,sitekey,pageURL,proxy2Captcha):
        "googlekey":sitekey,
        "proxy":proxy2Captcha,
        "proxytype":"HTTP",
-       "pageurl":pageURL,
+       "pageurl":pageurl,
        "json":1
       }
-      response=captchaSession.post(url="http://2captcha.com/in.php",data=data)
+      response=session.post(url="http://2captcha.com/in.php",data=data)
       JSON=json.loads(response.text)
       if JSON["status"] == 1:
         CAPTCHAID=JSON["request"]
@@ -149,7 +147,7 @@ def getACaptchaToken(apikey2captcha,sitekey,pageURL,proxy2Captcha):
        "json":1,
        "id":CAPTCHAID,
       }
-      response=captchaSession.get(url="http://2captcha.com/res.php",params=data)
+      response=session.get(url="http://2captcha.com/res.php",params=data)
       JSON=json.loads(response.text)
       if JSON["status"] == 1:
         TOKEN=JSON["request"]
@@ -164,7 +162,7 @@ def getACaptchaToken(apikey2captcha,sitekey,pageURL,proxy2Captcha):
      "action":"getbalance",
      "json":1,
     }
-    response=captchaSession.get(url="http://2captcha.com/res.php",params=data)
+    response=session.get(url="http://2captcha.com/res.php",params=data)
     JSON=json.loads(response.text)
     if JSON["status"] == 1:
       balance=JSON["request"]
@@ -173,3 +171,162 @@ def getACaptchaToken(apikey2captcha,sitekey,pageURL,proxy2Captcha):
       print (d_()+x_("Balance"))
     if TOKEN is not None:
       return TOKEN
+
+def getClientResponse(clientId,marketLocale,parametersLocale,masterPid):
+  headers = {
+    'User-Agent':agent(),
+  }
+  session=requests.Session()
+  session.verify=False
+  session.cookies.clear()
+  skus=masterPid+","
+  for x in range(510,820,10):
+    skus=skus+masterPid+"_"+str(x)+",";
+  if parametersLocale == "US":
+    clientStockURL="http://production-us-adidasgroup.demandware.net/s/adidas-"+marketLocale+"/dw/shop/v16_5/products/("+skus+")?client_id="+clientId+"&expand=availability,variations,prices"
+  else:
+    clientStockURL="http://production-store-adidasgroup.demandware.net/s/adidas-"+marketLocale+"/dw/shop/v16_5/products/("+skus+")?client_id="+clientId+"&expand=availability,variations,prices"
+  response=session.get(url=clientStockURL,headers=headers)
+  return response
+
+def getVariantResponse(market,marketLocale,marketDomain,parametersLocale,masterPid):
+  headers = {
+    'User-Agent':agent(),
+  }
+  session=requests.Session()
+  session.verify=False
+  session.cookies.clear()
+  if market == "PT":
+    variantStockURL="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+marketLocale+"-Site/"+"MLT"+"/Product-GetVariants?pid="+masterPid
+  else:
+    variantStockURL="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+marketLocale+"-Site/"+market+"/Product-GetVariants?pid="+masterPid
+  response=session.get(url=variantStockURL,headers=headers)
+  return response
+
+def canonicalizeProductInfoClient(productJSON,masterPid):
+  productInfo={}
+  productInfo["productStock"]={}
+  for data in productJSON["data"]:
+    if data["id"] == masterPid:
+      try:
+        productInfo["productName"]=data["name"]
+      except:
+        productInfo["productName"]="/"
+      try:
+        productInfo["productColor"]=data["c_defaultColor"]
+      except:
+        productInfo["productColor"]="/"
+      try:
+        productInfo["productOrderable"]=data["inventory"]["orderable"]
+      except:
+        productInfo["productOrderable"]=False
+      try:
+        productInfo["productPrice"]=data["price"]
+      except:
+        productInfo["productPrice"]=0
+      try:
+        productInfo["productCount"]=productJSON["count"]-1
+      except:
+        productInfo["productCount"]=0
+      try:
+        productInfo["productATS"]=data["inventory"]["ats"]
+      except:
+        productInfo["productATS"]=0
+      try:
+        productInfo["productStockLevel"]=data["inventory"]["stock_level"]
+      except:
+        productInfo["productStockLevel"]=0
+    else:
+      try:
+        productInfo["productStock"][data["c_sizeSearchValue"]]={}
+        productInfo["productStock"][data["c_sizeSearchValue"]]["ATS"]=int(data["inventory"]["ats"])
+        productInfo["productStock"][data["c_sizeSearchValue"]]["pid"]=data["id"]
+      except:
+        print(d_()+x_("Client Inventory"))
+  return productInfo
+
+def canonicalizeProductInfoVariant(productJSON):
+  productInfo={}
+  productInfo["productStock"]={}
+  productInfo["productName"]="/"
+  productInfo["productColor"]="/"
+  productInfo["productOrderable"]="/"
+  try:
+    productInfo["productPrice"]=productJSON["variations"]["variants"][0]["pricing"]["standard"]
+  except:
+    productInfo["productPrice"]=0
+  try:
+    productInfo["productCount"]=len(productJSON["variations"]["variants"])
+  except:
+    productInfo["productCount"]=0
+  productInfo["productATS"]=0
+  try:
+    for variant in productJSON["variations"]["variants"]:
+      productInfo["productATS"]=productInfo["productATS"]+int(variant["ATS"])
+      productInfo["productStock"][variant["attributes"]["size"]]={}
+      productInfo["productStock"][variant["attributes"]["size"]]["ATS"]=int(variant["ATS"])
+      productInfo["productStock"][variant["attributes"]["size"]]["pid"]=variant["id"]
+  except:
+    print(d_()+x_("Variant Inventory"))
+  productInfo["productStockLevel"]=productInfo["productATS"]
+  return productInfo
+
+def printProductInfo(productInfo):
+  print(d_()+s_("Product Name")+lb_(productInfo["productName"]))
+  print(d_()+s_("Product Color")+lb_(productInfo["productColor"]))
+  print(d_()+s_("Price")+lb_(productInfo["productPrice"]))
+  print(d_()+s_("Orderable")+lb_(productInfo["productOrderable"]))
+  print(d_()+s_("ATS")+lb_(str(productInfo["productATS"]).rjust(6," ")))
+  print(d_()+s_("Stock Level")+lb_(str(productInfo["productStockLevel"]).rjust(6," ")))
+  print(d_()+s_("Size Inventory"))
+  for size in sorted(productInfo["productStock"]):
+    print(d_()+s_(size.ljust(5," ")+" / "+productInfo["productStock"][size]["pid"])+lb_(str(productInfo["productStock"][size]["ATS"]).rjust(6," ")))
+  return
+
+def addToCart(pid,market,marketLocale,marketDomain,processCaptcha,captchaToken,processCaptchaDuplicate,duplicate,cookies,sleeping):
+  atcSession=requests.Session()
+  atcSession.verify=False
+  atcSession.cookies.clear()
+  if marketLocale == "PT":
+    baseADCUrl="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+"MLT"+"-Site/"+market
+  else:
+    baseADCUrl="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+marketLocale+"-Site/"+market
+  atcURL=baseADCUrl+"/Cart-MiniAddProduct"
+  cartURL=baseADCUrl.replace("http://","https://")+"/Cart-Show"
+  searchURL=baseADCUrl.replace("http://","https://")+"/Search-GetSuggestions?isSuggestions=true&isCategories=false&isProducts=true&q="+pid.split("_")[0]
+  headers = {
+    'User-Agent':agent(),
+    'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Referer':"http://www."+marketDomain+"/",
+  }
+  response=atcSession.get(url=searchURL,headers=headers)
+  headers = {
+    'User-Agent':agent(),
+    'Accept':'application/json, text/javascript, */*; q=0.01',
+    'Referer':"http://www."+marketDomain+"/",
+  }
+  data={}
+  if processCaptcha:
+    data["g-recaptcha-response"]=captchaToken
+  if processCaptchaDuplicate:
+    headers["Cookie"]=cookies
+    atcURL=atcURL+"?clientId="+clientId
+    data[duplicate]=captchaToken
+  data["pid"]=pid
+  data["Quantity"]="1"
+  data["request"]="ajax"
+  data["responseformat"]="json"
+  response=atcSession.post(url=atcURL,data=data,headers=headers)
+  atcJSON=json.loads(response.text)
+  print (d_()+s_("JSON")+"\n"+y_(json.dumps(atcJSON,indent=2)))
+  try:
+    if atcJSON["result"]=="SUCCESS":
+      print(d_()+s_("Success")+lb_(atcJSON["basket"][-1]["product_id"]+" : " +str(atcJSON["basket"][-1]["quantity"])+" x "+str(atcJSON["basket"][-1]["price"])))
+      launchChrome(atcSession,cartURL,sleeping)
+    else:
+      print (d_()+x_("JSON")+"\n"+lr_(json.dumps(atcJSON,indent=2)))
+  except:
+    if "Access Denied" in response.text:
+      print (d_()+x_("ATC JSON RESULTS")+lr_("Access Denied"))
+    else:
+      print (d_()+x_("ATC JSON RESULTS")+lr_("Unable to parse response")+"\n"+y_(response.text))
