@@ -66,7 +66,7 @@ What do I do? Spin up my own VMs in the cloud and run squid3 to setup a temporar
 ```
 apikey2captcha = xXxXxXxXxXxXxXxXxXxXxXxXxXxXx
 ```
-Required when processCaptcha is `True`. This is your 2Captcha API key
+Required when processCaptcha is `True`. This is your 2Captcha API key [where to get one](https://2captcha.com/)
 
 ```
 processCaptcha = False
@@ -111,3 +111,9 @@ Then run:
 ```
 ./d3stryr-3stripes.py
 ```
+## To-Do List
+  * Comment parts of the code so that it can be used as a learning tool.
+  * Add in the abililty to manually solve captchas if desired.
+
+## Not-Gonna-Do List
+  * Auto-checkout. I much prefer 10,000 people getting a pair versus 1,000 people getting 10 pairs.
