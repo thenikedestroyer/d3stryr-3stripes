@@ -6,6 +6,11 @@ Python 3 implementation of d3stryr-3stripes
 ## Requirements:
 1. Python 3 (Google how to get it)
    Required modules: selenium, requests, virtualenv (optional - but is used in the instructions)
+   If you don't have virtualenv and want to be able to follow the directions completely then install it with:
+   
+   ```
+   pip3 install virtualenv
+   ```
 
 2. chromedriver - [https://sites.google.com/a/chromium.org/chromedriver/](https://sites.google.com/a/chromium.org/chromedriver/)
 
@@ -27,7 +32,7 @@ Python 3 implementation of d3stryr-3stripes
 4. Activate the virtual environment (needs to be done for once for an active session in your terminal):
 
    ```
-   source bin/activiate
+   source bin/activate
    ```
    
 5. Install the requirements (needs to be done once per install):
@@ -59,14 +64,14 @@ Defines the SKU for the item you wish to cart. The SKU must exist for the region
 ```
 proxy2Captcha = user:password@ip:port
 ```
-Required when processCaptcha is `True`. This defines the proxy 2Captcha will used to solve the captcha on. Yes, you need to provide them with a proxy that they can access. So be you either need to provide user:password credentials OR whitelist their IP addresses.
+Required when processCaptcha is `True`. This defines the proxy 2Captcha will used to solve the captcha on. Yes, you need to provide them with a proxy that they can access. So you either need to provide user:password credentials OR whitelist their IP addresses.
 
 What do I do? Spin up my own VMs in the cloud and run squid3 to setup a temporary proxy with open access. Then tear down the VMs after the drop.
 
 ```
 apikey2captcha = xXxXxXxXxXxXxXxXxXxXxXxXxXxXx
 ```
-Required when processCaptcha is `True`. This is your 2Captcha API key [where to get one](https://2captcha.com/)
+Required when processCaptcha is `True`. This is your 2Captcha API key. [Where to get one](https://2captcha.com/)
 
 ```
 processCaptcha = False
@@ -114,6 +119,7 @@ Then run:
 ## To-Do List
   * Comment parts of the code so that it can be used as a learning tool.
   * Add in the abililty to manually solve captchas if desired.
+  * Adjust terminal coloring for Windows.
   * Interface w/ a MySQL DB for token harvesting locally.
 
 ## Not-Gonna-Do List
