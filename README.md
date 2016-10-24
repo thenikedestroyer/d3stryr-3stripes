@@ -8,7 +8,7 @@ Python 3 implementation of d3stryr-3stripes
 2. chromedriver - [https://sites.google.com/a/chromium.org/chromedriver/](https://sites.google.com/a/chromium.org/chromedriver/)
 
    Needed to launch Chrome.
-   Download the appropriate version for your OS and place the chromedriver file in the same location as d3stryr-3stripes.py
+   Download the appropriate version for your OS and place the `chromedriver` file in the same location as `d3stryr-3stripes.py`
 
 ## Installing:
 
