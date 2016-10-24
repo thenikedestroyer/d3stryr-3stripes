@@ -5,6 +5,7 @@ Python 3 implementation of d3stryr-3stripes
 
 ## Requirements:
 1. Python 3 (Google how to get it)
+   
    Required modules: selenium, requests, virtualenv (optional - but is used in the instructions)
    
    If you don't have virtualenv and want to be able to follow the directions completely then install it with:
@@ -125,3 +126,18 @@ Then run:
 
 ## Not-Gonna-Do List
   * Auto-checkout. I much prefer 10,000 people getting a pair versus 1,000 people getting 10 pairs.
+
+## Common Problems
+  * If the command `pip3 install virtualenv` does not work then you will need to install pip3. More than likely the command will be:
+    
+    ```
+    easy_install pip3
+    ```
+    
+    or 
+    
+    ```
+    easy_install pip
+    ```
+    If that doesnt work then Google "how to install pip3 python3" for your OS.
+  * If you get a browser window with "data;" as the URL then you will need to download the latest chromedriver version for your OS.  See the instructions at the top of this README.
