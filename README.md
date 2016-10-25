@@ -76,6 +76,15 @@ Defines the SKU for the item you wish to cart. The SKU must exist for the region
 ```
 proxy2Captcha = user:password@ip:port
 ```
+or
+```
+proxy2Captcha = ip:port
+```
+or
+```
+proxy2Captcha = localhost
+```
+
 Required when processCaptcha is `True`. This defines the proxy 2Captcha will used to solve the captcha on. Yes, you need to provide them with a proxy that they can access. So you either need to provide user:password credentials OR whitelist their IP addresses.
 
 What do I do? Spin up my own VMs in the cloud and run squid3 to setup a temporary proxy with open access. Then tear down the VMs after the drop.
