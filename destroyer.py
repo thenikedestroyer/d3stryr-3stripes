@@ -28,29 +28,56 @@ def agent():
   string = browsers[randint(0,len(browsers)-1)]
   return string
 
-class color:
-  reset='\033[0m'
-  bold='\033[01m'
-  disable='\033[02m'
-  underline='\033[04m'
-  reverse='\033[07m'
-  strikethrough='\033[09m'
-  invisible='\033[08m'
-  black='\033[30m'
-  red='\033[31m'
-  green='\033[32m'
-  orange='\033[33m'
-  blue='\033[34m'
-  purple='\033[35m'
-  cyan='\033[36m'
-  lightgrey='\033[37m'
-  darkgrey='\033[90m'
-  lightred='\033[91m'
-  lightgreen='\033[92m'
-  yellow='\033[93m'
-  lightblue='\033[94m'
-  pink='\033[95m'
-  lightcyan='\033[96m'
+import os
+
+if "nt" in  os.name:
+  class color:
+    reset=''
+    bold=''
+    disable=''
+    underline=''
+    reverse=''
+    strikethrough=''
+    invisible=''
+    black=''
+    red=''
+    green=''
+    orange=''
+    blue=''
+    purple=''
+    cyan=''
+    lightgrey=''
+    darkgrey=''
+    lightred=''
+    lightgreen=''
+    yellow=''
+    lightblue=''
+    pink=''
+    lightcyan=''
+else:
+  class color:
+    reset='\033[0m'
+    bold='\033[01m'
+    disable='\033[02m'
+    underline='\033[04m'
+    reverse='\033[07m'
+    strikethrough='\033[09m'
+    invisible='\033[08m'
+    black='\033[30m'
+    red='\033[31m'
+    green='\033[32m'
+    orange='\033[33m'
+    blue='\033[34m'
+    purple='\033[35m'
+    cyan='\033[36m'
+    lightgrey='\033[37m'
+    darkgrey='\033[90m'
+    lightred='\033[91m'
+    lightgreen='\033[92m'
+    yellow='\033[93m'
+    lightblue='\033[94m'
+    pink='\033[95m'
+    lightcyan='\033[96m'
 
 import datetime
 
@@ -70,7 +97,6 @@ def lr_(string):
 def y_(string):
   return color.yellow+str(string)+color.reset
 
-import os
 import time
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
