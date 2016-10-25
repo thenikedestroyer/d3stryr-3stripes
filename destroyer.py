@@ -187,7 +187,7 @@ def launchChrome(session,baseADCUrl,cartURL,sleeping):
   #We store the browsing session in ChromeFolder so we can manually delete it if necessary
   chrome_options.add_argument("--user-data-dir=ChromeFolder")
   browser = webdriver.Chrome(chromedriver,chrome_options=chrome_options)
-  browser.get(cartURL)
+  browser.get(baseADCUrl)
   #Push cookies from request to Google Chrome
   for key, val in session.cookies.iteritems():
     if key == "pagecontext_geo_country":
@@ -196,8 +196,8 @@ def launchChrome(session,baseADCUrl,cartURL,sleeping):
       print(d_()+z_("Debug:Key")+o_(key))
       print(d_()+z_("Debug:Val")+o_(val))
     browser.add_cookie({'name':key,'value':val})
-  browser.refresh()
-  browser.refresh()
+  time.sleep(sleeping)
+  browser.get(cartURL)
   temp=input("Press Enter to Continue")
   browser.quit()
   return
@@ -416,15 +416,27 @@ def canonicalizeProductInfoVariant(productJSON):
 
 def getProductInfo():
   if useVariantInventory:
-    print(d_()+s_("Variant Endpoint"))
-    response=getVariantResponse()
-    productJSON=json.loads(response.text)
-    productInfo=canonicalizeProductInfoVariant(productJSON)
+    try:
+      print(d_()+s_("Variant Endpoint"))
+      response=getVariantResponse()
+      productJSON=json.loads(response.text)
+      productInfo=canonicalizeProductInfoVariant(productJSON)
+    except:
+      print(d_()+x_("Variant Endpoint"))
+      if debug:
+        print(d_()+z_("Debug")+o_("Variant Endpoint Response -"+response.text))
+
   if useClientInventory:
-    print(d_()+s_("Client Endpoint"))
-    response=getClientResponse()
-    productJSON=json.loads(response.text)
-    productInfo=canonicalizeProductInfoClient(productJSON)
+    try:
+      print(d_()+s_("Client Endpoint"))
+      response=getClientResponse()
+      productJSON=json.loads(response.text)
+      productInfo=canonicalizeProductInfoClient(productJSON)
+    except:
+      print(d_()+x_("Client Endpoint"))
+      if debug:
+        print(d_()+z_("Debug")+o_("Client Endpoint Response -"+response.text))
+
   return productInfo
 
 def printProductInfo(productInfo):
@@ -468,13 +480,15 @@ def addToCart(pid,captchaToken):
   We do a request to a searchURL for the masterPid in hopes of establishing cookies for a session.
   This does not seem to help reduce the occurrences of soft ban on stalled Cart-Shows after multiple page refreshes.
   """
-  searchURL=baseADCUrl.replace("http://","https://")+"/Search-GetSuggestions?isSuggestions=true&isCategories=false&isProducts=true&q="+pid.split("_")[0]
+  """
+  searchURL=baseADCUrl.replace("http://","https://")+"/Search-GetSuggestions?isSuggestions=true&isCategories=false&isProducts=true&q="+masterPid
   headers = {
     'User-Agent':agent(),
     'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
     'Referer':"http://www."+marketDomain+"/",
   }
   response=atcSession.get(url=searchURL,headers=headers)
+  """
   headers = {
     'User-Agent':agent(),
     'Accept':'application/json, text/javascript, */*; q=0.01',
