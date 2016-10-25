@@ -128,6 +128,17 @@ Then run:
 ```
 ./d3stryr-3stripes.py
 ```
+## Program Flow
+*  The script will look up the either the Variant endpoint for inventory or the Client endpoint for inventory (or it may do both - with Client stock being used for the remainder of the run).
+*  The script will cycle through your size list and check to see if inventory value is greater than 0.
+*  If inventory is available it will attempt to cart that size.
+*  If `processCaptcha = True` then the script will attempt to get a captcha token.
+*  The script then builds the payload for the necessary add-to-cart request.
+*  If the response is successful then the script will open up a Chrome browser and attempt to transfer the session over.
+*  Chrome will try to access the main locale page first. Then waits several seconds and then navigates to the Cart-Show page.
+*  If you get an empty Cart-Show page but the basket in the upper-right has a "1" showing then refresh the page once using (CTRL-R or CMD+R)
+*  If nothing appears then quit the browser and move on to the next pair because any further refreshing will result in a soft-ban.
+
 ## To-Do List
   * Comment parts of the code so that it can be used as a learning tool.
   * Add in the abililty to manually solve captchas if desired.
