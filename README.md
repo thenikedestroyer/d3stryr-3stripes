@@ -126,13 +126,19 @@ That is it. That is all that needs to be adjusted when clientId and sitekey are 
 If the clientId, sitekey, duplicate, or cookie needs to be adjusted - it will be done in `config.cfg`
 
 ## Running
+If you are starting from a new terminal and the `d3stryr-3stripes-master` folder is in your home directory then navigate (change into) the `d3stryr-3stripes-master` folder:
+
+```
+cd d3stryr-3stripes-master
+```
+
 Make sure you have activated the virtual environment:
 
 ```
 source bin/activate
 ```
 
-Then run:
+Then you are read to run:
 
 ```
 ./d3stryr-3stripes.py
