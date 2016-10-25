@@ -32,6 +32,8 @@ duplicate=config.get("duplicate","duplicate")
 cookies=config.get("cookie","cookie")
 #Pull the amount of time to sleep in seconds when needed
 sleeping=config.getint("sleeping","sleeping")
+#Are we debugging?
+debug=config.getboolean("debug","debug")
 
 #We will use os to acquire details of the operating system so we can determine if we are on Windows or not.
 import os
@@ -101,6 +103,9 @@ def s_(string):
 #Color for exceptions
 def x_(string):
   return color.lightred+" ["+str(string).center(21," ")+"]"+color.reset+" "
+#Color for debugging
+def z_(string):
+  return color.orange+" ["+str(string).center(21," ")+"]"+color.reset+" "
 #Colorize text with lightblue
 def lb_(string):
   return color.lightblue+str(string)+color.reset
@@ -127,6 +132,9 @@ def printRunParameters():
   print(d_()+s_("Use Duplicate")+lb_(processCaptchaDuplicate))
   print(d_()+s_("Product ID")+lb_(masterPid))
   print(d_()+s_("Desired Size")+lb_(mySizes))
+  if debug:
+    print(d_()+z_("Sleeping")+o_(sleeping))
+    print(d_()+z_("Debug")+o_(debug))
   return
 
 #randint allows us to obtain an random integer between two integer values a and b: int=randint(a,b)
@@ -180,8 +188,14 @@ def launchChrome(session,baseADCUrl,cartURL,sleeping):
   chrome_options.add_argument("--user-data-dir=ChromeFolder")
   browser = webdriver.Chrome(chromedriver,chrome_options=chrome_options)
   browser.get(baseADCUrl)
+  browser.get(cartURL)
   #Push cookies from request to Google Chrome
   for key, val in session.cookies.iteritems():
+    if key == "pagecontext_geo_country":
+      val = marketLocale
+    if debug:
+      print(d_()+z_("Debug:Key")+o_(key))
+      print(d_()+z_("Debug:Val")+o_(val))
     browser.add_cookie({'name':key,'value':val})
   time.sleep(sleeping)
   browser.get(cartURL)
@@ -287,6 +301,8 @@ def getClientResponse():
     clientStockURL="http://production-us-adidasgroup.demandware.net/s/adidas-"+marketLocale+"/dw/shop/v16_5/products/("+skus+")?client_id="+clientId+"&expand=availability,variations,prices"
   else:
     clientStockURL="http://production-store-adidasgroup.demandware.net/s/adidas-"+marketLocale+"/dw/shop/v16_5/products/("+skus+")?client_id="+clientId+"&expand=availability,variations,prices"
+  if debug:
+    print(d_()+z_("Debug")+o_(clientStockURL))
   response=session.get(url=clientStockURL,headers=headers)
   return response
 
@@ -302,6 +318,8 @@ def getVariantResponse():
     variantStockURL="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+marketLocale+"-Site/"+"MLT"+"/Product-GetVariants?pid="+masterPid
   else:
     variantStockURL="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+marketLocale+"-Site/"+market+"/Product-GetVariants?pid="+masterPid
+  if debug:
+    print(d_()+z_("Debug")+o_(variantStockURL))
   response=session.get(url=variantStockURL,headers=headers)
   return response
 
@@ -310,7 +328,11 @@ def canonicalizeProductInfoClient(productJSON):
   productInfo={}
   productInfo["productStock"]={}
   #Because of how we order the skus in clientStockURL 0-index is always masterPid info in the JSON response.
-  data = productJSON["data"][0]
+  try:
+    data = productJSON["data"][0]
+  except:
+    print(d_()+x_("Parse Client JSON"))
+    return productInfo
   try:
     productInfo["productName"]=data["name"]
   except:
@@ -361,6 +383,8 @@ def canonicalizeProductInfoClient(productJSON):
         productInfo["productStock"][adidasSize2Size[data["id"]]]["pid"]=data["id"]
       except:
         print(d_()+x_("Client Inventory"))
+  if debug:
+    print(d_()+z_("Debug")+o_(json.dumps(productInfo,indent=2)))
   return productInfo
 
 def canonicalizeProductInfoVariant(productJSON):
@@ -387,6 +411,8 @@ def canonicalizeProductInfoVariant(productJSON):
   except:
     print(d_()+x_("Variant Inventory"))
   productInfo["productStockLevel"]=productInfo["productATS"]
+  if debug:
+    print(d_()+z_("Debug")+o_(json.dumps(productInfo,indent=2)))
   return productInfo
 
 def getProductInfo():
@@ -417,7 +443,7 @@ def printProductInfo(productInfo):
 def processAddToCart(productInfo):
   captchaToken=""
   for mySize in mySizes:
-#   try:
+    try:
       mySizeATS=productInfo["productStock"][mySize]["ATS"]
       if mySizeATS == 0:
         continue
@@ -426,7 +452,7 @@ def processAddToCart(productInfo):
       if processCaptcha:
         captchaToken=getACaptchaToken()
       addToCart(pid,captchaToken)
-#   except:
+    except:
       print (d_()+x_("Add-To-Cart")+lr_(mySize+" : "+"Not Found"))
 
 def addToCart(pid,captchaToken):
@@ -443,8 +469,6 @@ def addToCart(pid,captchaToken):
   We do a request to a searchURL for the masterPid in hopes of establishing cookies for a session.
   This does not seem to help reduce the occurrences of soft ban on stalled Cart-Shows after multiple page refreshes.
   """
-  #Comment out this request to product search
-  """
   searchURL=baseADCUrl.replace("http://","https://")+"/Search-GetSuggestions?isSuggestions=true&isCategories=false&isProducts=true&q="+pid.split("_")[0]
   headers = {
     'User-Agent':agent(),
@@ -452,7 +476,6 @@ def addToCart(pid,captchaToken):
     'Referer':"http://www."+marketDomain+"/",
   }
   response=atcSession.get(url=searchURL,headers=headers)
-  """
   headers = {
     'User-Agent':agent(),
     'Accept':'application/json, text/javascript, */*; q=0.01',
@@ -475,20 +498,23 @@ def addToCart(pid,captchaToken):
   data["Quantity"]="1"
   data["request"]="ajax"
   data["responseformat"]="json"
+  if debug:
+    print(d_()+z_("Debug")+o_(json.dumps(data,indent=2)))
+    print(d_()+z_("Debug")+o_(atcURL))
   response=atcSession.post(url=atcURL,data=data,headers=headers)
   #Im told I could just do atcJSON=resposne.json but I'm a creature of habit.
   #If threaded then you'll want to revisit and adjust.
   atcJSON=json.loads(response.text)
   print (d_()+s_("JSON")+"\n"+y_(json.dumps(atcJSON,indent=2)))
-#  try:
-  if atcJSON["result"]=="SUCCESS":
-    print(d_()+s_("Success")+lb_(atcJSON["basket"][-1]["product_id"]+" : " +str(atcJSON["basket"][-1]["quantity"])+" x "+str(atcJSON["basket"][-1]["price"])))
-    #We pass the request session to launchChrome so we can upload cookies to Chrome (transfering a session to the browser).
-    launchChrome(atcSession,baseADCUrl,cartURL,sleeping)
-  else:
-    print (d_()+x_("JSON")+"\n"+lr_(json.dumps(atcJSON,indent=2)))
-# except:
-  if "Access Denied" in response.text:
-    print (d_()+x_("ATC JSON RESULTS")+lr_("Access Denied"))
-  else:
-    print (d_()+x_("ATC JSON RESULTS")+lr_("Unable to parse response")+"\n"+y_(response.text))
+  try:
+    if atcJSON["result"]=="SUCCESS":
+      print(d_()+s_("Success")+lb_(atcJSON["basket"][-1]["product_id"]+" : " +str(atcJSON["basket"][-1]["quantity"])+" x "+str(atcJSON["basket"][-1]["price"])))
+      #We pass the request session to launchChrome so we can upload cookies to Chrome (transfering a session to the browser).
+      launchChrome(atcSession,baseADCUrl,cartURL,sleeping)
+    else:
+      print (d_()+x_("JSON")+"\n"+lr_(json.dumps(atcJSON,indent=2)))
+  except:
+    if "Access Denied" in response.text:
+      print (d_()+x_("ATC JSON RESULTS")+lr_("Access Denied"))
+    else:
+      print (d_()+x_("ATC JSON RESULTS")+lr_("Unable to parse response")+"\n"+y_(response.text))
