@@ -1,3 +1,135 @@
+import configparser
+#Parse configuration file
+config = configparser.ConfigParser()
+configFilePath = "config.cfg"
+config.read(configFilePath)
+#Get the size array
+mySizes=config.get("user","mySizes").split(",")
+#Strip leading and trailing whitespaces if present in each array index and store back into mySizes array
+mySizes = [size.strip() for size in mySizes]
+#Pull user info for locale
+marketLocale=config.get("user","marketLocale")
+parametersLocale=config.get("user","parametersLocale")
+#Pull user info for masterPid
+masterPid=config.get("user","masterPid")
+#Pull 2captcha info
+proxy2Captcha=config.get("user","proxy2Captcha")
+apikey2captcha=config.get("user","apikey2captcha")
+#Pull run parameters for handing inventory endpoints
+useClientInventory=config.getboolean("user","useClientInventory")
+useVariantInventory=config.getboolean("user","useVariantInventory")
+#Pull run parameters for handing captchas
+processCaptcha=config.getboolean("user","processCaptcha")
+processCaptchaDuplicate=config.getboolean("user","processCaptchaDuplicate")
+#Pull info based on marketLocale
+market=config.get("market",marketLocale)
+marketDomain=config.get("marketDomain",marketLocale)
+#Pull info based on parametersLocel
+clientId=config.get("clientId",parametersLocale)
+sitekey=config.get("sitekey",parametersLocale)
+#Pull info necessary for a Yeezy drop
+duplicate=config.get("duplicate","duplicate")
+cookies=config.get("cookie","cookie")
+#Pull the amount of time to sleep in seconds when needed
+sleeping=config.getint("sleeping","sleeping")
+
+#We will use os to acquire details of the operating system so we can determine if we are on Windows or not.
+import os
+
+if "nt" in  os.name:
+#We remove ANSI coloring for Windows
+  class color:
+    reset=''
+    bold=''
+    disable=''
+    underline=''
+    reverse=''
+    strikethrough=''
+    invisible=''
+    black=''
+    red=''
+    green=''
+    orange=''
+    blue=''
+    purple=''
+    cyan=''
+    lightgrey=''
+    darkgrey=''
+    lightred=''
+    lightgreen=''
+    yellow=''
+    lightblue=''
+    pink=''
+    lightcyan=''
+else:
+#We use ANSI coloring for OSX/Linux
+  class color:
+    reset='\033[0m'
+    bold='\033[01m'
+    disable='\033[02m'
+    underline='\033[04m'
+    reverse='\033[07m'
+    strikethrough='\033[09m'
+    invisible='\033[08m'
+    black='\033[30m'
+    red='\033[31m'
+    green='\033[32m'
+    orange='\033[33m'
+    blue='\033[34m'
+    purple='\033[35m'
+    cyan='\033[36m'
+    lightgrey='\033[37m'
+    darkgrey='\033[90m'
+    lightred='\033[91m'
+    lightgreen='\033[92m'
+    yellow='\033[93m'
+    lightblue='\033[94m'
+    pink='\033[95m'
+    lightcyan='\033[96m'
+
+#We use datetime to acquire the date and time
+import datetime
+
+#In a threaded setup you can identify a printed line by its threadId - I just call it destroyerId
+def d_(destroyerId=None):
+  if destroyerId is not None:
+    return "Destroyer # "+str(destroyerId).rjust(4," ")+" "+str(datetime.datetime.now().time().strftime("%I:%M:%S.%f")[:-3])
+  else:
+    return "Destroyer # BASE "+str(datetime.datetime.now().time().strftime("%I:%M:%S.%f")[:-3])
+def s_(string):
+  return color.lightgrey+" ["+str(string).center(21," ")+"]"+color.reset+" "
+#Color for exceptions
+def x_(string):
+  return color.lightred+" ["+str(string).center(21," ")+"]"+color.reset+" "
+#Colorize text with lightblue
+def lb_(string):
+  return color.lightblue+str(string)+color.reset
+#Colorize text with lightred
+def lr_(string):
+  return color.lightred+str(string)+color.reset
+#Colorize text with yellow
+def y_(string):
+  return color.yellow+str(string)+color.reset
+#Colorize text with orange
+def o_(string):
+  return color.orange+str(string)+color.reset
+
+def printRunParameters():
+  print(d_()+s_("Market Locale")+lb_(marketLocale))
+  print(d_()+s_("Parameters Locale")+lb_(parametersLocale))
+  print(d_()+s_("Market")+lb_(market))
+  print(d_()+s_("Market Domain")+lb_(marketDomain))
+  print(d_()+s_("Market Client ID")+lb_(clientId))
+  print(d_()+s_("Market Site Key")+lb_(sitekey))
+  print(d_()+s_("Captcha Duplicate")+lb_(duplicate))
+  print(d_()+s_("Cookie")+lb_(cookies))
+  print(d_()+s_("Process Captcha")+lb_(processCaptcha))
+  print(d_()+s_("Use Duplicate")+lb_(processCaptchaDuplicate))
+  print(d_()+s_("Product ID")+lb_(masterPid))
+  print(d_()+s_("Desired Size")+lb_(mySizes))
+  return
+
+#randint allows us to obtain an random integer between two integer values a and b: int=randint(a,b)
 from random import randint
 
 def agent():
@@ -25,91 +157,30 @@ def agent():
       "Mozilla/5.0 (Linux; U; Android 2.2; en-us; SCH-I800 Build/FROYO) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1",
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36",
   ]
+  #In this usage we acquire a random index of the browser array.
   string = browsers[randint(0,len(browsers)-1)]
   return string
 
-import os
-
-if "nt" in  os.name:
-  class color:
-    reset=''
-    bold=''
-    disable=''
-    underline=''
-    reverse=''
-    strikethrough=''
-    invisible=''
-    black=''
-    red=''
-    green=''
-    orange=''
-    blue=''
-    purple=''
-    cyan=''
-    lightgrey=''
-    darkgrey=''
-    lightred=''
-    lightgreen=''
-    yellow=''
-    lightblue=''
-    pink=''
-    lightcyan=''
-else:
-  class color:
-    reset='\033[0m'
-    bold='\033[01m'
-    disable='\033[02m'
-    underline='\033[04m'
-    reverse='\033[07m'
-    strikethrough='\033[09m'
-    invisible='\033[08m'
-    black='\033[30m'
-    red='\033[31m'
-    green='\033[32m'
-    orange='\033[33m'
-    blue='\033[34m'
-    purple='\033[35m'
-    cyan='\033[36m'
-    lightgrey='\033[37m'
-    darkgrey='\033[90m'
-    lightred='\033[91m'
-    lightgreen='\033[92m'
-    yellow='\033[93m'
-    lightblue='\033[94m'
-    pink='\033[95m'
-    lightcyan='\033[96m'
-
-import datetime
-
-def d_(destroyerId=None):
-  if destroyerId is not None:
-    return "Destroyer # "+str(destroyerId).rjust(4," ")+" "+str(datetime.datetime.now().time().strftime("%I:%M:%S.%f")[:-3])
-  else:
-    return "Destroyer # BASE "+str(datetime.datetime.now().time().strftime("%I:%M:%S.%f")[:-3])
-def s_(string):
-  return color.lightgrey+" ["+str(string).center(20," ")+"]"+color.reset+" "
-def x_(string):
-  return color.lightred+" ["+str(string).center(20," ")+"]"+color.reset+" "
-def lb_(string):
-  return color.lightblue+str(string)+color.reset
-def lr_(string):
-  return color.lightred+str(string)+color.reset
-def y_(string):
-  return color.yellow+str(string)+color.reset
-
+#We use time to sleep
 import time
+#We use selenium for browser automation
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 
 def launchChrome(session,baseADCUrl,cartURL,sleeping):
   if "nt" in  os.name:
+  #Es ventanas?
     chromedriver = "C:\Windows\chromedriver.exe"
   else:
+  #Es manzanas?
     chromedriver = "./chromedriver"
   os.environ["webdriver.chrome.driver"] = chromedriver
-  browser = webdriver.Chrome(chromedriver)
+  chrome_options = Options()
+  #We store the browsing session in ChromeFolder so we can manually delete it if necessary
+  chrome_options.add_argument("--user-data-dir=ChromeFolder")
+  browser = webdriver.Chrome(chromedriver,chrome_options=chrome_options)
   browser.get(baseADCUrl)
+  #Push cookies from request to Google Chrome
   for key, val in session.cookies.iteritems():
     browser.add_cookie({'name':key,'value':val})
   time.sleep(sleeping)
@@ -124,7 +195,7 @@ import requests
 
 requests.packages.urllib3.disable_warnings()
 
-def getACaptchaToken(apikey2captcha,sitekey,marketDomain,proxy2Captcha,sleeping):
+def getACaptchaToken():
   session=requests.Session()
   session.verify=False
   session.cookies.clear()
@@ -201,7 +272,7 @@ def getACaptchaToken(apikey2captcha,sitekey,marketDomain,proxy2Captcha,sleeping)
     if TOKEN is not None:
       return TOKEN
 
-def getClientResponse(clientId,marketLocale,parametersLocale,masterPid):
+def getClientResponse():
   headers = {
     'User-Agent':agent(),
   }
@@ -219,7 +290,7 @@ def getClientResponse(clientId,marketLocale,parametersLocale,masterPid):
   response=session.get(url=clientStockURL,headers=headers)
   return response
 
-def getVariantResponse(market,marketLocale,marketDomain,parametersLocale,masterPid):
+def getVariantResponse():
   headers = {
     'User-Agent':agent(),
   }
@@ -234,7 +305,7 @@ def getVariantResponse(market,marketLocale,marketDomain,parametersLocale,masterP
   response=session.get(url=variantStockURL,headers=headers)
   return response
 
-def canonicalizeProductInfoClient(productJSON,masterPid):
+def canonicalizeProductInfoClient(productJSON):
   #Initialize a dictionary.
   productInfo={}
   productInfo["productStock"]={}
@@ -318,6 +389,19 @@ def canonicalizeProductInfoVariant(productJSON):
   productInfo["productStockLevel"]=productInfo["productATS"]
   return productInfo
 
+def getProductInfo():
+  if useVariantInventory:
+    print(d_()+s_("Variant Endpoint"))
+    response=getVariantResponse()
+    productJSON=json.loads(response.text)
+    productInfo=canonicalizeProductInfoVariant(productJSON)
+  if useClientInventory:
+    print(d_()+s_("Client Endpoint"))
+    response=getClientResponse()
+    productJSON=json.loads(response.text)
+    productInfo=canonicalizeProductInfoClient(productJSON)
+  return productInfo
+
 def printProductInfo(productInfo):
   print(d_()+s_("Product Name")+lb_(productInfo["productName"]))
   print(d_()+s_("Product Color")+lb_(productInfo["productColor"]))
@@ -330,7 +414,22 @@ def printProductInfo(productInfo):
     print(d_()+s_(size.ljust(5," ")+" / "+productInfo["productStock"][size]["pid"])+lb_(str(productInfo["productStock"][size]["ATS"]).rjust(6," ")))
   return
 
-def addToCart(pid,market,marketLocale,marketDomain,processCaptcha,captchaToken,processCaptchaDuplicate,duplicate,cookies,sleeping):
+def processAddToCart(productInfo):
+  captchaToken=""
+  for mySize in mySizes:
+#   try:
+      mySizeATS=productInfo["productStock"][mySize]["ATS"]
+      if mySizeATS == 0:
+        continue
+      print (d_()+s_("Add-To-Cart")+mySize+" : "+str(mySizeATS))
+      pid=productInfo["productStock"][mySize]["pid"]
+      if processCaptcha:
+        captchaToken=getACaptchaToken()
+      addToCart(pid,captchaToken)
+#   except:
+      print (d_()+x_("Add-To-Cart")+lr_(mySize+" : "+"Not Found"))
+
+def addToCart(pid,captchaToken):
   atcSession=requests.Session()
   atcSession.verify=False
   atcSession.cookies.clear()
@@ -344,6 +443,8 @@ def addToCart(pid,market,marketLocale,marketDomain,processCaptcha,captchaToken,p
   We do a request to a searchURL for the masterPid in hopes of establishing cookies for a session.
   This does not seem to help reduce the occurrences of soft ban on stalled Cart-Shows after multiple page refreshes.
   """
+  #Comment out this request to product search
+  """
   searchURL=baseADCUrl.replace("http://","https://")+"/Search-GetSuggestions?isSuggestions=true&isCategories=false&isProducts=true&q="+pid.split("_")[0]
   headers = {
     'User-Agent':agent(),
@@ -351,6 +452,7 @@ def addToCart(pid,market,marketLocale,marketDomain,processCaptcha,captchaToken,p
     'Referer':"http://www."+marketDomain+"/",
   }
   response=atcSession.get(url=searchURL,headers=headers)
+  """
   headers = {
     'User-Agent':agent(),
     'Accept':'application/json, text/javascript, */*; q=0.01',
@@ -378,15 +480,15 @@ def addToCart(pid,market,marketLocale,marketDomain,processCaptcha,captchaToken,p
   #If threaded then you'll want to revisit and adjust.
   atcJSON=json.loads(response.text)
   print (d_()+s_("JSON")+"\n"+y_(json.dumps(atcJSON,indent=2)))
-  try:
-    if atcJSON["result"]=="SUCCESS":
-      print(d_()+s_("Success")+lb_(atcJSON["basket"][-1]["product_id"]+" : " +str(atcJSON["basket"][-1]["quantity"])+" x "+str(atcJSON["basket"][-1]["price"])))
-      #We pass the request session to launchChrome so we can upload cookies to Chrome (transfering a session to the browser).
-      launchChrome(atcSession,baseADCUrl,cartURL,sleeping)
-    else:
-      print (d_()+x_("JSON")+"\n"+lr_(json.dumps(atcJSON,indent=2)))
-  except:
-    if "Access Denied" in response.text:
-      print (d_()+x_("ATC JSON RESULTS")+lr_("Access Denied"))
-    else:
-      print (d_()+x_("ATC JSON RESULTS")+lr_("Unable to parse response")+"\n"+y_(response.text))
+#  try:
+  if atcJSON["result"]=="SUCCESS":
+    print(d_()+s_("Success")+lb_(atcJSON["basket"][-1]["product_id"]+" : " +str(atcJSON["basket"][-1]["quantity"])+" x "+str(atcJSON["basket"][-1]["price"])))
+    #We pass the request session to launchChrome so we can upload cookies to Chrome (transfering a session to the browser).
+    launchChrome(atcSession,baseADCUrl,cartURL,sleeping)
+  else:
+    print (d_()+x_("JSON")+"\n"+lr_(json.dumps(atcJSON,indent=2)))
+# except:
+  if "Access Denied" in response.text:
+    print (d_()+x_("ATC JSON RESULTS")+lr_("Access Denied"))
+  else:
+    print (d_()+x_("ATC JSON RESULTS")+lr_("Unable to parse response")+"\n"+y_(response.text))
