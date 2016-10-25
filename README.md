@@ -42,9 +42,14 @@ Python 3 implementation of d3stryr-3stripes
    Dont forget the period at the end!
 
 4. Activate the virtual environment (needs to be done for once for an active session in your terminal):
-
+   
+   Mac/Linux:
    ```
    source bin/activate
+   ```
+   Windows:
+   ```
+   Scripts\activate
    ```
    
 5. Install the requirements (needs to be done once per install):
