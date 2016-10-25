@@ -76,15 +76,18 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 
-def launchChrome(session,cartURL,sleeping):
-  chromedriver = "./chromedriver"
+def launchChrome(session,baseADCUrl,cartURL,sleeping):
+  if "nt" in  os.name:
+    chromedriver = "C:\Windows\chromedriver.exe"
+  else:
+    chromedriver = "./chromedriver"
   os.environ["webdriver.chrome.driver"] = chromedriver
   browser = webdriver.Chrome(chromedriver)
-  browser.get(cartURL)
+  browser.get(baseADCUrl)
   for key, val in session.cookies.iteritems():
     browser.add_cookie({'name':key,'value':val})
   time.sleep(sleeping)
-  browser.refresh()
+  browser.get(cartURL)
   temp=input("Press Enter to Continue")
   browser.quit()
   return
@@ -353,7 +356,7 @@ def addToCart(pid,market,marketLocale,marketDomain,processCaptcha,captchaToken,p
     if atcJSON["result"]=="SUCCESS":
       print(d_()+s_("Success")+lb_(atcJSON["basket"][-1]["product_id"]+" : " +str(atcJSON["basket"][-1]["quantity"])+" x "+str(atcJSON["basket"][-1]["price"])))
       #We pass the request session to launchChrome so we can upload cookies to Chrome (transfering a session to the browser).
-      launchChrome(atcSession,cartURL,sleeping)
+      launchChrome(atcSession,baseADCUrl,cartURL,sleeping)
     else:
       print (d_()+x_("JSON")+"\n"+lr_(json.dumps(atcJSON,indent=2)))
   except:
