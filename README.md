@@ -138,7 +138,7 @@ Make sure you have activated the virtual environment:
 source bin/activate
 ```
 
-Then you are read to run:
+Then you are ready to run:
 
 ```
 ./d3stryr-3stripes.py
@@ -177,3 +177,6 @@ Then you are read to run:
     ```
     If that doesnt work then Google "how to install pip3 python3" for your OS.
   * If you get a browser window with "data;" as the URL then you will need to download the latest chromedriver version for your OS.  See the instructions at the top of this README.
+
+## Common Curiosities
+  * Variant Inventory vs. Client Inventory - 
