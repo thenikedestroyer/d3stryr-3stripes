@@ -182,6 +182,7 @@ def getClientResponse(clientId,marketLocale,parametersLocale,masterPid):
   skus=masterPid+","
   for x in range(510,820,10):
     skus=skus+masterPid+"_"+str(x)+",";
+  #Other countries will use US format like MX. They can just request US value for parametersLocale in config.cfg
   if parametersLocale == "US":
     clientStockURL="http://production-us-adidasgroup.demandware.net/s/adidas-"+marketLocale+"/dw/shop/v16_5/products/("+skus+")?client_id="+clientId+"&expand=availability,variations,prices"
   else:
@@ -196,6 +197,7 @@ def getVariantResponse(market,marketLocale,marketDomain,parametersLocale,masterP
   session=requests.Session()
   session.verify=False
   session.cookies.clear()
+  #Not sure why I even bother making a case for Portugal if dude on twitter keeps telling it doesnt work. Da fuq is MLT?
   if market == "PT":
     variantStockURL="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+marketLocale+"-Site/"+"MLT"+"/Product-GetVariants?pid="+masterPid
   else:
@@ -204,43 +206,59 @@ def getVariantResponse(market,marketLocale,marketDomain,parametersLocale,masterP
   return response
 
 def canonicalizeProductInfoClient(productJSON,masterPid):
+  #Initialize a dictionary.
   productInfo={}
   productInfo["productStock"]={}
+  #Because of how we order the skus in clientStockURL 0-index is always masterPid info in the JSON response.
+  data = productJSON["data"][0]
+  try:
+    productInfo["productName"]=data["name"]
+  except:
+    productInfo["productName"]="/"
+  try:
+    productInfo["productColor"]=data["c_defaultColor"]
+  except:
+    productInfo["productColor"]="/"
+  try:
+    productInfo["productOrderable"]=data["inventory"]["orderable"]
+  except:
+    productInfo["productOrderable"]=False
+  try:
+    productInfo["productPrice"]=data["price"]
+  except:
+    productInfo["productPrice"]=0
+  try:
+    productInfo["productCount"]=productJSON["count"]-1
+  except:
+    productInfo["productCount"]=0
+  try:
+    productInfo["productATS"]=data["inventory"]["ats"]
+  except:
+    productInfo["productATS"]=0
+  try:
+    productInfo["productStockLevel"]=data["inventory"]["stock_level"]
+  except:
+    productInfo["productStockLevel"]=0
+  """
+  Because data[""c_sizeFTW"] and data["c_sizeSearchValue"] yield nonsense for some EU locales:
+  Build a dictionary to convert adidas _XXX sizing to canonical sizing.
+  """
+  adidasSize2Size={}
+  for variant in data["variation_attributes"][0]["values"]:
+    adidasSize2Size[masterPid+"_"+variant["value"]]=variant["name"]
+  """
+  We could avoid:
+    if data["id"] != masterPid:
+  by using a for loop to iterate through:
+    range(1,len(productJSON["data"])):
+  But I doubt there is a performance hit here. Because this is only done once even if threading is introducde in the future.
+  """
   for data in productJSON["data"]:
-    if data["id"] == masterPid:
+    if data["id"] != masterPid:
       try:
-        productInfo["productName"]=data["name"]
-      except:
-        productInfo["productName"]="/"
-      try:
-        productInfo["productColor"]=data["c_defaultColor"]
-      except:
-        productInfo["productColor"]="/"
-      try:
-        productInfo["productOrderable"]=data["inventory"]["orderable"]
-      except:
-        productInfo["productOrderable"]=False
-      try:
-        productInfo["productPrice"]=data["price"]
-      except:
-        productInfo["productPrice"]=0
-      try:
-        productInfo["productCount"]=productJSON["count"]-1
-      except:
-        productInfo["productCount"]=0
-      try:
-        productInfo["productATS"]=data["inventory"]["ats"]
-      except:
-        productInfo["productATS"]=0
-      try:
-        productInfo["productStockLevel"]=data["inventory"]["stock_level"]
-      except:
-        productInfo["productStockLevel"]=0
-    else:
-      try:
-        productInfo["productStock"][data["c_sizeSearchValue"]]={}
-        productInfo["productStock"][data["c_sizeSearchValue"]]["ATS"]=int(data["inventory"]["ats"])
-        productInfo["productStock"][data["c_sizeSearchValue"]]["pid"]=data["id"]
+        productInfo["productStock"][adidasSize2Size[data["id"]]]={}
+        productInfo["productStock"][adidasSize2Size[data["id"]]]["ATS"]=int(data["inventory"]["ats"])
+        productInfo["productStock"][adidasSize2Size[data["id"]]]["pid"]=data["id"]
       except:
         print(d_()+x_("Client Inventory"))
   return productInfo
@@ -293,6 +311,10 @@ def addToCart(pid,market,marketLocale,marketDomain,processCaptcha,captchaToken,p
     baseADCUrl="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+marketLocale+"-Site/"+market
   atcURL=baseADCUrl+"/Cart-MiniAddProduct"
   cartURL=baseADCUrl.replace("http://","https://")+"/Cart-Show"
+  """
+  We do a request to a searchURL for the masterPid in hopes of establishing cookies for a session.
+  This does not seem to help reduce the occurrences of soft ban on stalled Cart-Shows after multiple page refreshes.
+  """
   searchURL=baseADCUrl.replace("http://","https://")+"/Search-GetSuggestions?isSuggestions=true&isCategories=false&isProducts=true&q="+pid.split("_")[0]
   headers = {
     'User-Agent':agent(),
@@ -306,22 +328,31 @@ def addToCart(pid,market,marketLocale,marketDomain,processCaptcha,captchaToken,p
     'Referer':"http://www."+marketDomain+"/",
   }
   data={}
+  #If we are processing captcha then add to our payload.
   if processCaptcha:
     data["g-recaptcha-response"]=captchaToken
+  #If we need captcha duplicate then add to our payload.
   if processCaptchaDuplicate:
-    headers["Cookie"]=cookies
+    #If cookies need to be set then add to our payload.
+    if "neverywhere" not in cookies:
+      headers["Cookie"]=cookies
+    #Alter the atcURL for the captcha duplicate case
     atcURL=atcURL+"?clientId="+clientId
+    #Add captcha duplicate  to our payload.
     data[duplicate]=captchaToken
   data["pid"]=pid
   data["Quantity"]="1"
   data["request"]="ajax"
   data["responseformat"]="json"
   response=atcSession.post(url=atcURL,data=data,headers=headers)
+  #Im told I could just do atcJSON=resposne.json but I'm a creature of habit.
+  #If threaded then you'll want to revisit and adjust.
   atcJSON=json.loads(response.text)
   print (d_()+s_("JSON")+"\n"+y_(json.dumps(atcJSON,indent=2)))
   try:
     if atcJSON["result"]=="SUCCESS":
       print(d_()+s_("Success")+lb_(atcJSON["basket"][-1]["product_id"]+" : " +str(atcJSON["basket"][-1]["quantity"])+" x "+str(atcJSON["basket"][-1]["price"])))
+      #We pass the request session to launchChrome so we can upload cookies to Chrome (transfering a session to the browser).
       launchChrome(atcSession,cartURL,sleeping)
     else:
       print (d_()+x_("JSON")+"\n"+lr_(json.dumps(atcJSON,indent=2)))

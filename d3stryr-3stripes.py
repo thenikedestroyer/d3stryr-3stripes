@@ -21,7 +21,8 @@ if __name__ == "__main__":
   marketLocale=config.get("user","marketLocale")
   parametersLocale=config.get("user","parametersLocale")
   masterPid=config.get("user","masterPid")
-  mySizes=config.get("user","mySizes").replace(" ","").split(",")
+  mySizes=config.get("user","mySizes").split(",")
+  mySizes = [size.strip() for size in mySizes]
   proxy2Captcha=config.get("user","proxy2Captcha")
   apikey2captcha=config.get("user","apikey2captcha")
   processCaptcha=config.getboolean("user","processCaptcha")
