@@ -187,7 +187,6 @@ def launchChrome(session,baseADCUrl,cartURL,sleeping):
   #We store the browsing session in ChromeFolder so we can manually delete it if necessary
   chrome_options.add_argument("--user-data-dir=ChromeFolder")
   browser = webdriver.Chrome(chromedriver,chrome_options=chrome_options)
-  browser.get(baseADCUrl)
   browser.get(cartURL)
   #Push cookies from request to Google Chrome
   for key, val in session.cookies.iteritems():
@@ -197,8 +196,8 @@ def launchChrome(session,baseADCUrl,cartURL,sleeping):
       print(d_()+z_("Debug:Key")+o_(key))
       print(d_()+z_("Debug:Val")+o_(val))
     browser.add_cookie({'name':key,'value':val})
-  time.sleep(sleeping)
-  browser.get(cartURL)
+  browser.refresh()
+  browser.refresh()
   temp=input("Press Enter to Continue")
   browser.quit()
   return
