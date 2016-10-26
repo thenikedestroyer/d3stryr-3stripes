@@ -12,6 +12,10 @@ marketLocale=config.get("user","marketLocale")
 parametersLocale=config.get("user","parametersLocale")
 #Pull user info for masterPid
 masterPid=config.get("user","masterPid")
+#Token Harvesting info
+manuallyHarvestTokens=config.getboolean("harvest","manuallyHarvestTokens")
+numberOfTokens=config.getint("harvest","numberOfTokens")
+captchaTokens=[]
 #Pull 2captcha info
 proxy2Captcha=config.get("user","proxy2Captcha")
 apikey2captcha=config.get("user","apikey2captcha")
@@ -132,6 +136,8 @@ def printRunParameters():
   print(d_()+s_("Use Duplicate")+lb_(processCaptchaDuplicate))
   print(d_()+s_("Product ID")+lb_(masterPid))
   print(d_()+s_("Desired Size")+lb_(mySizes))
+  print(d_()+s_("Manual Token Harvest")+lb_(manuallyHarvestTokens))
+  print(d_()+s_("Tokens to Harvest")+lb_(numberOfTokens))
   if debug:
     print(d_()+z_("Sleeping")+o_(sleeping))
     print(d_()+z_("Debug")+o_(debug))
@@ -190,14 +196,13 @@ def launchChrome(session,baseADCUrl,cartURL,sleeping):
   browser.get(baseADCUrl)
   #Push cookies from request to Google Chrome
   for key, val in session.cookies.iteritems():
-    if key == "pagecontext_geo_country":
-      val = marketLocale
     if debug:
       print(d_()+z_("Debug:Key")+o_(key))
       print(d_()+z_("Debug:Val")+o_(val))
     browser.add_cookie({'name':key,'value':val})
   time.sleep(sleeping)
-  browser.get(cartURL)
+  browser.get(baseADCUrl+"/Cart-ProductCount")
+  browser.get(cartURL.replace("/Cart-Show","/CODelivery-Start"))
   temp=input("Press Enter to Continue")
   browser.quit()
   return
@@ -451,8 +456,11 @@ def printProductInfo(productInfo):
     print(d_()+s_(size.ljust(5," ")+" / "+productInfo["productStock"][size]["pid"])+lb_(str(productInfo["productStock"][size]["ATS"]).rjust(6," ")))
   return
 
+from collections import deque
+
 def processAddToCart(productInfo):
-  captchaToken=""
+  if manuallyHarvestTokens:
+    harvestTokens()
   for mySize in mySizes:
     try:
       mySizeATS=productInfo["productStock"][mySize]["ATS"]
@@ -460,13 +468,25 @@ def processAddToCart(productInfo):
         continue
       print (d_()+s_("Add-To-Cart")+mySize+" : "+str(mySizeATS))
       pid=productInfo["productStock"][mySize]["pid"]
+      #Check if we need to process captcha
+      captchaToken=""
       if processCaptcha:
-        captchaToken=getACaptchaToken()
-      addToCart(pid,captchaToken)
+        #See if we have any manual tokens available
+        if len(captchaTokens) > 0:
+          #Use a manual token
+          #Create a double-ended queue
+          captchaTokensQueue=deque(captchaTokens)
+          #Pop the oldest captcha token which is the leftmost element
+          captchaToken=captchaTokensQueue.popleft()
+        else:
+          #No manual tokens to pop - so lets use 2captcha
+          captchaToken=getACaptchaToken()
+      addToCartChromeAJAX(pid,captchaToken)
+#     addToCartRequestTransferToChrome(pid,captchaToken)
     except:
       print (d_()+x_("Add-To-Cart")+lr_(mySize+" : "+"Not Found"))
 
-def addToCart(pid,captchaToken):
+def addToCartRequestTransferToChrome(pid,captchaToken):
   atcSession=requests.Session()
   atcSession.verify=False
   atcSession.cookies.clear()
@@ -476,19 +496,6 @@ def addToCart(pid,captchaToken):
     baseADCUrl="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+marketLocale+"-Site/"+market
   atcURL=baseADCUrl+"/Cart-MiniAddProduct"
   cartURL=baseADCUrl.replace("http://","https://")+"/Cart-Show"
-  """
-  We do a request to a searchURL for the masterPid in hopes of establishing cookies for a session.
-  This does not seem to help reduce the occurrences of soft ban on stalled Cart-Shows after multiple page refreshes.
-  """
-  """
-  searchURL=baseADCUrl.replace("http://","https://")+"/Search-GetSuggestions?isSuggestions=true&isCategories=false&isProducts=true&q="+masterPid
-  headers = {
-    'User-Agent':agent(),
-    'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Referer':"http://www."+marketDomain+"/",
-  }
-  response=atcSession.get(url=searchURL,headers=headers)
-  """
   headers = {
     'User-Agent':agent(),
     'Accept':'application/json, text/javascript, */*; q=0.01',
@@ -531,3 +538,83 @@ def addToCart(pid,captchaToken):
       print (d_()+x_("ATC JSON RESULTS")+lr_("Access Denied"))
     else:
       print (d_()+x_("ATC JSON RESULTS")+lr_("Unable to parse response")+"\n"+y_(response.text))
+
+def addToCartChromeAJAX(pid,captchaToken):
+  if marketLocale == "PT":
+    baseADCUrl="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+"MLT"+"-Site/"+market
+  else:
+    baseADCUrl="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+marketLocale+"-Site/"+market
+  atcURL=baseADCUrl+"/Cart-MiniAddProduct"
+  cartURL=baseADCUrl.replace("http://","https://")+"/Cart-Show"
+  data={}
+  #If we are processing captcha then add to our payload.
+  if processCaptcha:
+    data["g-recaptcha-response"]=captchaToken
+  #If we need captcha duplicate then add to our payload.
+  if processCaptchaDuplicate:
+    #If cookies need to be set then add to our payload.
+    if "neverywhere" not in cookies:
+      headers["Cookie"]=cookies
+    #Alter the atcURL for the captcha duplicate case
+    atcURL=atcURL+"?clientId="+clientId
+    #Add captcha duplicate  to our payload.
+    data[duplicate]=captchaToken
+  data["masterPid"]=masterPid
+  data["pid"]=pid
+  data["Quantity"]="1"
+  data["request"]="ajax"
+  data["responseformat"]="json"
+  script="""
+  $.ajax({
+    url: '"""+atcURL+"""',
+    data: """+json.dumps(data,indent=2)+""",
+    method: 'POST',
+    crossDomain: true,
+    contentType: 'application/x-www-form-urlencoded',
+    xhrFields: {
+        withCredentials: true
+    },
+    complete: function(data, status, xhr) {
+      console.log(status);
+      console.log(data);
+    }
+  });
+  """
+  if debug:
+    print(d_()+z_("Debug")+o_(json.dumps(data,indent=2)))
+    print(d_()+z_("Debug")+o_(atcURL))
+    print(d_()+z_("Debug")+o_(script))
+  if "nt" in  os.name:
+  #Es ventanas?
+    chromedriver = "C:\Windows\chromedriver.exe"
+  else:
+  #Es manzanas?
+    chromedriver = "./chromedriver"
+  os.environ["webdriver.chrome.driver"] = chromedriver
+  chrome_options = Options()
+  #We store the browsing session in ChromeFolder so we can manually delete it if necessary
+  chrome_options.add_argument("--user-data-dir=ChromeFolder")
+  browser = webdriver.Chrome(chromedriver,chrome_options=chrome_options)
+  browser.delete_all_cookies()
+  browser.get(baseADCUrl)
+  results=browser.execute_script(script)
+  time.sleep(sleeping)
+  browser.get(baseADCUrl+"/Cart-ProductCount")
+  productCount=browser.find_element_by_tag_name('body').text
+  productCount=productCount.replace('"',"")
+  productCount=productCount.strip()
+  if debug:
+    print(d_()+z_("Debug")+o_("Product Count"+" : "+productCount))
+  if (len(productCount) == 1) and (int(productCount) > 0):
+    results=browser.execute_script("window.location='"+cartURL+"'")
+    temp=input("Press Enter to Continue")
+  else:
+    print (d_()+x_("Product Count")+lr_(productCount))
+  #Need to delete all the cookes for this session or else we will have the previous size in cart
+  browser.delete_all_cookies()
+  browser.quit()
+  return
+
+def harvestTokensManually():
+  print (d_()+x_("Manual Token Harvest")+lr_("Not yet implemented!"))
+  return
