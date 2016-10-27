@@ -4,7 +4,7 @@ Instructions for manual token harvesting.
 1.  Open up `config.cfg` with a text editor and provide the necessary values for the `[harvest]` section:
    *  `manuallyHarvestTokens` - must be set to `True` if you want to turn on manual token harvesting.
    *  `numberOfTokens` - set the number of tokens you must correctly harvest before the script start adding-to-cart.
-   *  `harvestDomain` - the domain that we are spoofing on 127.0.0.1 (localhost). Leave this as `dev.adidas.com`.
+   *  `harvestDomain` - the domain that we are spoofing on 127.0.0.1 (localhost). Leave this as `dev.adidas.com`
    *  `phpServerPort` - the PHP server port.
    
 2.  You must launch the php server from within the `d3stryr-3stripes` or `d3stryr-3stripes-master` folder:
