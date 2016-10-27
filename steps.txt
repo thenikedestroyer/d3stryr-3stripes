@@ -1,0 +1,10 @@
+1) start the script
+2) the script asks you to add proxies, i should be able to copy from cilpboard in the format ip:port and ip:port:user:pass
+3) the script asks you how many accounts do you want to run ( example 6)
+4) it asks me the following info for the account 1 : adidas mail , password , product id , size , notification mail
+5) it asks me the same info of poin 4 for account 2... and the scripts continue untile i fill the info of each account in this case
+6) the script asks me when it have to start the tasks
+7) the script have to make the login in the adidas website using the info of account 1then account 2 and so goes on
+8) script compose the http request to add the product and the size and solve the recaptcha using 2catcha api key ( my script already do this task so you can copy the source code )
+9) the script after have link ready for each account ask me when it have to send the requests to adidas website
+10) if the script successfully add the product to the cart it send a notification mail
