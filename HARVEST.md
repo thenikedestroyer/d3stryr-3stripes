@@ -16,6 +16,7 @@ Instructions for manual token harvesting.
     ```
     
     Windows
+
     **Dont fucking ask me about Windows.** 
 
 3.  Open another terminal window and launch the `d3stryr-3stripes.py` script.
