@@ -250,9 +250,8 @@ def getACaptchaToken():
       JSON=json.loads(response.text)
       if JSON["status"] == 1:
         CAPTCHAID=JSON["request"]
-        XCAPTCHAID="🐨 🐢 🐨 🐢 🐨 🐢 🐨 🐢 🐨 🐢"
         proceed=True
-        print (d_()+s_("Captcha ID")+lb_(XCAPTCHAID))
+        print (d_()+s_("Captcha ID")+lb_(CAPTCHAID))
       else:
         print (d_()+x_("Response")+y_(response.text))
         print (d_()+x_("Sleeping")+y_(str(sleeping)+" seconds"))
