@@ -15,6 +15,8 @@ masterPid=config.get("user","masterPid")
 #Token Harvesting info
 manuallyHarvestTokens=config.getboolean("harvest","manuallyHarvestTokens")
 numberOfTokens=config.getint("harvest","numberOfTokens")
+phpServerPort=config.get("harvest","phpServerPort")
+harvestDomain=config.get("harvest","harvestDomain")
 captchaTokens=[]
 #Pull 2captcha info
 proxy2Captcha=config.get("user","proxy2Captcha")
@@ -248,8 +250,9 @@ def getACaptchaToken():
       JSON=json.loads(response.text)
       if JSON["status"] == 1:
         CAPTCHAID=JSON["request"]
+        XCAPTCHAID="🐨 🐢 🐨 🐢 🐨 🐢 🐨 🐢 🐨 🐢"
         proceed=True
-        print (d_()+s_("Captcha ID")+lb_(CAPTCHAID))
+        print (d_()+s_("Captcha ID")+lb_(XCAPTCHAID))
       else:
         print (d_()+x_("Response")+y_(response.text))
         print (d_()+x_("Sleeping")+y_(str(sleeping)+" seconds"))
@@ -420,29 +423,59 @@ def canonicalizeProductInfoVariant(productJSON):
   return productInfo
 
 def getProductInfo():
-  if useVariantInventory:
-    try:
-      print(d_()+s_("Variant Endpoint"))
-      response=getVariantResponse()
-      productJSON=json.loads(response.text)
-      productInfo=canonicalizeProductInfoVariant(productJSON)
-    except:
-      print(d_()+x_("Variant Endpoint"))
-      if debug:
-        print(d_()+z_("Debug")+o_("Variant Endpoint Response -"+response.text))
-
   if useClientInventory:
     try:
       print(d_()+s_("Client Endpoint"))
       response=getClientResponse()
       productJSON=json.loads(response.text)
-      productInfo=canonicalizeProductInfoClient(productJSON)
+      productInfoClient=canonicalizeProductInfoClient(productJSON)
+      return productInfoClient
     except:
       print(d_()+x_("Client Endpoint"))
       if debug:
         print(d_()+z_("Debug")+o_("Client Endpoint Response -"+response.text))
-
-  return productInfo
+  #If we reached this point then useClientInventory didn't successfully return.
+  #So lets proceed with useVariantInventory.
+  try:
+    print(d_()+s_("Variant Endpoint"))
+    response=getVariantResponse()
+    productJSON=json.loads(response.text)
+    productInfoVariant=canonicalizeProductInfoVariant(productJSON)
+    return productInfoVariant
+  except:
+    print(d_()+x_("Variant Endpoint"))
+    if debug:
+      print(d_()+z_("Debug")+o_("Variant Endpoint Response -"+response.text))
+  #If we reached this point then useVariantInventory did not successfully reutrn.
+  #So lets produce at minimum size inventory.
+  #We will refer to this as Fallback for productInfo (when both client and variant produces no inventory result).
+  productInfoFallback={}
+  productInfoFallback["productStock"]={}
+  productInfoFallback["productName"]="/"
+  productInfoFallback["productColor"]="/"
+  productInfoFallback["productOrderable"]="/"
+  productInfoFallback["productPrice"]=0
+  productInfoFallback["productCount"]=-1
+  productInfoFallback["productATS"]=-1
+  productInfoFallback["productStockLevel"]=-1
+  #US vs EU sizing seems to be off by 0.5 size
+  if parametersLocale == "US":
+    literalSize=4.5
+    for variant in range(540, 750, 10):
+      stringLiteralSize=str(literalSize).replace(".0","")
+      productInfoFallback["productStock"][stringLiteralSize]={}
+      productInfoFallback["productStock"][stringLiteralSize]["ATS"]=1
+      productInfoFallback["productStock"][stringLiteralSize]["pid"]=masterPid+"_"+str(variant)
+      literalSize=literalSize+.5
+  else:
+    literalSize=4.5
+    for variant in range(550, 750, 10):
+      stringLiteralSize=str(literalSize).replace(".0","")
+      productInfoFallback["productStock"][stringLiteralSize]={}
+      productInfoFallback["productStock"][stringLiteralSize]["ATS"]=1
+      productInfoFallback["productStock"][stringLiteralSize]["pid"]=masterPid+"_"+str(variant)
+      literalSize=literalSize+.5
+  return productInfoFallback
 
 def printProductInfo(productInfo):
   print(d_()+s_("Product Name")+lb_(productInfo["productName"]))
@@ -459,8 +492,12 @@ def printProductInfo(productInfo):
 from collections import deque
 
 def processAddToCart(productInfo):
+  captchaTokensReversed=[]
   if manuallyHarvestTokens:
-    harvestTokens()
+    harvestTokensManually()
+    for index in range(0,len(captchaTokens)):
+      captchaTokensReversed.append(captchaTokens.pop())
+
   for mySize in mySizes:
     try:
       mySizeATS=productInfo["productStock"][mySize]["ATS"]
@@ -472,12 +509,10 @@ def processAddToCart(productInfo):
       captchaToken=""
       if processCaptcha:
         #See if we have any manual tokens available
-        if len(captchaTokens) > 0:
+        if len(captchaTokensReversed) > 0:
           #Use a manual token
-          #Create a double-ended queue
-          captchaTokensQueue=deque(captchaTokens)
-          #Pop the oldest captcha token which is the leftmost element
-          captchaToken=captchaTokensQueue.popleft()
+          captchaToken=captchaTokensReversed.pop()
+          print (d_()+s_("Number of Tokens Left")+lb_(len(captchaTokensReversed)))
         else:
           #No manual tokens to pop - so lets use 2captcha
           captchaToken=getACaptchaToken()
@@ -607,7 +642,7 @@ def addToCartChromeAJAX(pid,captchaToken):
     print(d_()+z_("Debug")+o_("Product Count"+" : "+productCount))
   if (len(productCount) == 1) and (int(productCount) > 0):
     results=browser.execute_script("window.location='"+cartURL+"'")
-    temp=input("Press Enter to Continue")
+    temp=input("Press Enter to Close the Browser & Continue")
   else:
     print (d_()+x_("Product Count")+lr_(productCount))
   #Need to delete all the cookes for this session or else we will have the previous size in cart
@@ -615,6 +650,145 @@ def addToCartChromeAJAX(pid,captchaToken):
   browser.quit()
   return
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions
+
+def activateCaptcha(driver):
+  #Activate the catpcha widget
+  iframe=driver.find_element_by_css_selector('iframe[src*="api2/anchor"]')
+  driver.switch_to_frame(iframe)
+  try:
+    CheckBox=WebDriverWait(driver, sleeping).until(expected_conditions.presence_of_element_located((By.ID ,"recaptcha-anchor")))
+  except:
+    try:
+      CheckBox=WebDriverWait(driver, sleeping).until(expected_conditions.presence_of_element_located((By.ID ,"recaptcha-anchor")))
+    except:
+      print (d_()+x_("Activate Captcha")+lr_("Failed to find checkbox"))
+  CheckBox.click()
+
+def checkSolution(driver,mainWindow):
+  #Check to see if we solved the captcha
+  solved=False
+  while not solved:
+    driver.switch_to.window(mainWindow)
+    try:
+      iframe=driver.find_element_by_css_selector('iframe[src*="api2/anchor"]')
+    except:
+      print (d_()+x_("Check Solution")+lr_("Failed to find checkbox"))
+      return
+    driver.switch_to_frame(iframe)
+    try:
+      temp=driver.find_element_by_xpath('//span[@aria-checked="true"]')
+      print (d_()+s_("Check Solution")+lb_("Solved"))
+      solved=True
+    except:
+      solved=False
+    time.sleep(1)
+  return solved
+
+def getToken(driver,mainWindow):
+  #We parse the token from the page
+  token=None
+  driver.switch_to.window(mainWindow)
+  try:
+    Submit=WebDriverWait(driver, sleeping).until(expected_conditions.presence_of_element_located((By.ID ,"submit")))
+    Submit.click()
+    time.sleep(1)
+  except:
+    print (d_()+x_("Captcha Submit")+lr_("Failed to click submit"))
+  tokenElement=driver.find_element_by_css_selector('p#token')
+  token=tokenElement.get_attribute("value")
+  if token is not None:
+    print (d_()+s_("Get Token")+lb_(token))
+  return token
+
 def harvestTokensManually():
-  print (d_()+x_("Manual Token Harvest")+lr_("Not yet implemented!"))
-  return
+  print (d_()+s_("Manual Token Harvest")+lb_("Number of tokens harvested: "+str(len(captchaTokens))))
+  #We will create the harvest.php on the fly based on locale and sitekey values in config.cfg
+  htmlSource="""
+    <?php
+     $siteKey = '"""+sitekey+"""';
+     $lang = 'en';
+    ?>
+     <?php if (isset($_POST['g-recaptcha-response'])): ?>
+    <html>
+     <head>
+       <title>adidas Official Website | adidas</title>
+     </head>
+     <body>
+     <?php $token=$_POST['g-recaptcha-response']; ?>
+         <p id="token" value="<?php echo $token; ?>" style="padding: 3px; word-break: break-all; word-wrap: break-word;"><?php echo $token; ?></p>
+     <?php else: ?>
+    <html>
+     <head>
+       <title>d3stryr 3stripes Manual Token Harvesting | adidas</title>
+            <style type="text/css">
+                body {
+                    margin: 1em 5em 0 5em;
+                    font-family: sans-serif;
+                }
+                fieldset {
+                    display: inline;
+                    padding: 1em;
+                }
+            </style>
+     </head>
+     <body>
+        <p>Token Harvesting</p>
+        <form action="/harvest.php" method="post">
+            <fieldset>
+                <div class="g-recaptcha" data-sitekey="<?php echo $siteKey; ?>"></div>
+                <script type="text/javascript" src="https://www.google.com/recaptcha/api.js">
+                </script>
+                <p><input type="submit" value="Submit" id="submit"/></p>
+            </fieldset>
+        </form>
+     <?php endif; ?>
+     </body>
+    </html>"""
+  with open("harvest.php","w") as htmlFile:
+    htmlFile.write(htmlSource)
+  if "nt" in  os.name:
+  #Es ventanas?
+    chromedriver = "C:\Windows\chromedriver.exe"
+  else:
+  #Es manzanas?
+    chromedriver = "./chromedriver"
+  os.environ["webdriver.chrome.driver"] = chromedriver
+  chrome_options = Options()
+  windowSize=[
+    #browser
+    "640,640",
+  ]
+  #Custom window size.
+  chrome_options.add_argument("window-size="+windowSize[0])
+  #We store the browsing session in ChromeFolder so we can manually delete it if necessary
+  chrome_options.add_argument("--user-data-dir=ChromeFolder")
+  browser = webdriver.Chrome(chromedriver,chrome_options=chrome_options)
+  browser.delete_all_cookies()
+  url="http://"+harvestDomain+":"+phpServerPort+"/harvest.php"
+  while len(captchaTokens) < numberOfTokens:
+    browser.get(url)
+    mainWindow = browser.current_window_handle
+    try:
+      activateCaptcha(driver=browser)
+    except:
+      print (d_()+x_("Page Load Failed")+lr_("Did you launch the PHP server?"))
+      print (d_()+x_("Page Load Failed")+lr_("Falling back to 2captcha"))
+      browser.delete_all_cookies()
+      browser.quit()
+      return
+    solved=checkSolution(driver=browser,mainWindow=mainWindow)
+    token=getToken(driver=browser,mainWindow=mainWindow)
+    if token is not None:
+      if len(captchaTokens) == 0:
+        startTime = time.time()
+      captchaTokens.append(token)
+      print (d_()+s_("Token Added"))
+      print (d_()+s_("Manual Token Harvest")+lb_("Number of tokens harvested: "+str(len(captchaTokens))))
+    currentTime = time.time()
+    elapsedTime = currentTime - startTime
+    print (d_()+s_("Total Time Elapsed")+lb_(str(round(elapsedTime,2)) + " seconds"))
+  browser.delete_all_cookies()
+  browser.quit()
