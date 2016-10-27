@@ -184,4 +184,4 @@ Then you are ready to run:
   * If you get a browser window with "data;" as the URL then you will need to download the latest chromedriver version for your OS.  See the instructions at the top of this README.
 
 ## Common Curiosities
-  * Variant Inventory vs. Client Inventory - 
+  * Variant Inventory vs. Client Inventory - Client inventory provides the lastest inventory for a given product (provided that the clientId is correct). The variant inventory does not reflect the latest inventory numbers - it has been observed to reflect the inventory on product release.  
