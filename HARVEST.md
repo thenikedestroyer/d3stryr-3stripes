@@ -14,6 +14,9 @@ Instructions for manual token harvesting.
     cd d3stryr-3stripes-master
     php -S dev.adidas.com:8000
     ```
+    
+    Windows
+    **Dont fucking ask me about Windows.** 
 
 3.  Open another terminal window and launch the `d3stryr-3stripes.py` script.
 
