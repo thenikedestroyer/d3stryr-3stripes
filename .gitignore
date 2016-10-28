@@ -13,3 +13,5 @@ Thumbs.db
 # Compiled Python files
 *.pyc
 
+#d3stryr-3stripes configuration file
+config.cfg
