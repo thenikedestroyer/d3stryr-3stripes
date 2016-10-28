@@ -31,6 +31,7 @@ processCaptchaDuplicate=config.getboolean("user","processCaptchaDuplicate")
 market=config.get("market",marketLocale)
 marketDomain=config.get("marketDomain",marketLocale)
 #Pull info based on parametersLocel
+apiEnv=config.get("clientId","apiEnv")
 clientId=config.get("clientId",parametersLocale)
 sitekey=config.get("sitekey",parametersLocale)
 #Pull info necessary for a Yeezy drop
@@ -250,8 +251,9 @@ def getACaptchaToken():
       JSON=json.loads(response.text)
       if JSON["status"] == 1:
         CAPTCHAID=JSON["request"]
+        XCAPTCHAID="🐨 🐢 🐨 🐢 🐨 🐢 🐨 🐢 🐨 🐢"
         proceed=True
-        print (d_()+s_("Captcha ID")+lb_(CAPTCHAID))
+        print (d_()+s_("Captcha ID")+lb_(XCAPTCHAID))
       else:
         print (d_()+x_("Response")+y_(response.text))
         print (d_()+x_("Sleeping")+y_(str(sleeping)+" seconds"))
@@ -304,9 +306,9 @@ def getClientResponse():
     skus=skus+masterPid+"_"+str(x)+",";
   #Other countries will use US format like MX. They can just request US value for parametersLocale in config.cfg
   if parametersLocale == "US":
-    clientStockURL="http://production-us-adidasgroup.demandware.net/s/adidas-"+marketLocale+"/dw/shop/v16_5/products/("+skus+")?client_id="+clientId+"&expand=availability,variations,prices"
+    clientStockURL="http://"+apiEnv+"-us-adidasgroup.demandware.net/s/adidas-"+marketLocale+"/dw/shop/v15_6/products/("+skus+")?client_id="+clientId+"&expand=availability,variations,prices"
   else:
-    clientStockURL="http://production-store-adidasgroup.demandware.net/s/adidas-"+marketLocale+"/dw/shop/v16_5/products/("+skus+")?client_id="+clientId+"&expand=availability,variations,prices"
+    clientStockURL="http://"+apiEnv+"-store-adidasgroup.demandware.net/s/adidas-"+marketLocale+"/dw/shop/v15_6/products/("+skus+")?client_id="+clientId+"&expand=availability,variations,prices"
   if debug:
     print(d_()+z_("Debug")+o_(clientStockURL))
   response=session.get(url=clientStockURL,headers=headers)
@@ -374,6 +376,7 @@ def canonicalizeProductInfoClient(productJSON):
   adidasSize2Size={}
   for variant in data["variation_attributes"][0]["values"]:
     adidasSize2Size[masterPid+"_"+variant["value"]]=variant["name"]
+
   """
   We could avoid:
     if data["id"] != masterPid:
