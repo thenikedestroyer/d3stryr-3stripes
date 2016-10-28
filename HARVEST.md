@@ -1,7 +1,7 @@
 # Manual Token Harvesting
 **ESSENTIAL** Adding dev.adidas.com to your hosts file. This step only needs to be done once on your machine. 
 
-1.  Type (or copy & paste) the following command below into the terminal window and then hit enter:
+0.  Type (or copy & paste) the following command below into the terminal window and then hit enter:
 
    Mac
    ```
