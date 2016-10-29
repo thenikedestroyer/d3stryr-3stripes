@@ -1,6 +1,14 @@
 # Folder view configuration files
 .DS_Store
 Desktop.ini
+__pycache__
+ChromeFolder
+Include
+Lib
+Scripts
+selenium
+tcl
+
 
 # Thumbnail cache files
 ._*
