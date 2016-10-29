@@ -150,8 +150,8 @@ def printRunParameters():
   print(d_()+s_("Manual Token Harvest")+lb_(manuallyHarvestTokens))
   print(d_()+s_("Tokens to Harvest")+lb_(numberOfTokens))
   if debug:
-    print(d_()+o_("Sleeping")+o_(sleeping))
-    print(d_()+o_("Debug")+o_(debug))
+    print(d_()+z_("Sleeping")+o_(sleeping))
+    print(d_()+z_("Debug")+o_(debug))
   return
 
 def checkParameters():
