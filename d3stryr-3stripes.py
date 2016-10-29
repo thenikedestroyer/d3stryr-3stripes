@@ -4,6 +4,7 @@ import json
 #Imports from destroyer.py
 from destroyer import d_,x_,lr_
 from destroyer import printRunParameters
+from destroyer import checkParameters
 from destroyer import getProductInfo
 from destroyer import printProductInfo
 from destroyer import processAddToCart
@@ -11,6 +12,8 @@ from destroyer import processAddToCart
 if __name__ == "__main__":
   #Print the run parameters
   printRunParameters()
+  #Check for dumb asses
+  checkParameters()
   #Get product info
   productInfo=getProductInfo()
   #Print product info
