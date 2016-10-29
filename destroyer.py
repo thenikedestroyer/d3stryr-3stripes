@@ -26,6 +26,10 @@ useClientInventory=config.getboolean("user","useClientInventory")
 useVariantInventory=config.getboolean("user","useVariantInventory")
 #Pull run parameters for handing captchas
 processCaptcha=config.getboolean("user","processCaptcha")
+#Because end-users refuse to read and understand the config.cfg file lets go ahead
+#and set processCaptcha to True if harvest is turned on.
+if manuallyHarvestTokens:
+  processCaptcha = True
 processCaptchaDuplicate=config.getboolean("user","processCaptchaDuplicate")
 #Pull info based on marketLocale
 market=config.get("market",marketLocale)
@@ -41,6 +45,9 @@ cookies=config.get("cookie","cookie")
 sleeping=config.getint("sleeping","sleeping")
 #Are we debugging?
 debug=config.getboolean("debug","debug")
+
+#Set this for parameters checking
+hypedSkus=["AHypedSkuForAnAdidasShoe","AnotherHypedSkuForAnAdidasShoe"]
 
 #We will use os to acquire details of the operating system so we can determine if we are on Windows or not.
 import os
@@ -131,6 +138,7 @@ def printRunParameters():
   print(d_()+s_("Parameters Locale")+lb_(parametersLocale))
   print(d_()+s_("Market")+lb_(market))
   print(d_()+s_("Market Domain")+lb_(marketDomain))
+  print(d_()+s_("API Environment")+lb_(apiEnv))
   print(d_()+s_("Market Client ID")+lb_(clientId))
   print(d_()+s_("Market Site Key")+lb_(sitekey))
   print(d_()+s_("Captcha Duplicate")+lb_(duplicate))
@@ -142,9 +150,44 @@ def printRunParameters():
   print(d_()+s_("Manual Token Harvest")+lb_(manuallyHarvestTokens))
   print(d_()+s_("Tokens to Harvest")+lb_(numberOfTokens))
   if debug:
-    print(d_()+z_("Sleeping")+o_(sleeping))
-    print(d_()+z_("Debug")+o_(debug))
+    print(d_()+o_("Sleeping")+o_(sleeping))
+    print(d_()+o_("Debug")+o_(debug))
   return
+
+def checkParameters():
+  if (marketLocale == "US") and (parametersLocale != "US"):
+    print(d_()+z_("config.cfg")+lr_("Invalid marketLocale and parametersLocale combination."))
+  if (useClientInventory) and (useVariantInventory):
+    print(d_()+z_("config.cfg")+lr_("You should not set both inventory methods to True."))
+  if (not manuallyHarvestTokens):
+  #User is not token harvesting
+    if (processCaptcha):
+      if (apikey2captcha == "xXx"):
+        print(d_()+z_("config.cfg")+lr_("You need a valid apikey2captcha if you want to use 2captcha service! Visit 2captcha.com"))
+      if (proxy2Captcha == "localhost"):
+        print(d_()+z_("config.cfg")+lr_("Unless you are testing - you should consider providing an IP whitelisted proxy for 2captcha to use."))
+  else:
+    #User is token harvesting
+    if (not processCaptcha):
+    #This should have been automatically set in the printRunParameters but lets check.
+      print(d_()+z_("config.cfg")+lr_("You want to manually harvest tokens but you have not set processCaptcha to True. Much reading you have done."))
+    if (numberOfTokens < 1):
+      print(d_()+z_("config.cfg")+lr_("Your config.cfg makes no fucking sense. Why is numberOfTokens set to zero? And what are you requesting to harvest tokens?"))
+    if (numberOfTokens > 5):
+      print(d_()+z_("config.cfg")+lr_("You requested to harvest a large number of tokens. You wont be able to ATC until after you harvest all of the tokens. And tokens have a lifespan of ~ 120 seconds."))
+    try:
+      temp=int(phpServerPort)
+    except:
+      print(d_()+z_("config.cfg")+lr_("You have supplied an invalid phpServerPort value. Only numeric values accepted."))
+  if (sleeping < 3):
+      print(d_()+z_("config.cfg")+lr_("Your sleeping value is less than 3 seconds. It might not offer enough time between events."))
+  if (masterPid in str(hypedSkus)):
+    if (not processCaptchaDuplicate):
+      print(d_()+z_("config.cfg")+lr_("This item is likely to make use of a captcha duplicate."))
+    if ("neverywhere" in cookies):
+      print(d_()+z_("config.cfg")+lr_("This item is likely to make use of a cookie."))
+  if (not debug):
+      print(d_()+z_("config.cfg")+lr_("debug is turned off. If you run into any issues dont bother tweeting them to me. Because I will ask you why debug is turned off."))
 
 #randint allows us to obtain an random integer between two integer values a and b: int=randint(a,b)
 from random import randint
@@ -765,8 +808,8 @@ def harvestTokensManually():
   ]
   #Custom window size.
   chrome_options.add_argument("window-size="+windowSize[0])
-  #We store the browsing session in ChromeFolder so we can manually delete it if necessary
-  chrome_options.add_argument("--user-data-dir=ChromeFolder")
+  #We store the browsing session in ChromeTokenHarvestFolder so we can manually delete it if necessary
+  chrome_options.add_argument("--user-data-dir=ChromeTokenHarvestFolder")
   browser = webdriver.Chrome(chromedriver,chrome_options=chrome_options)
   browser.delete_all_cookies()
   url="http://"+harvestDomain+":"+phpServerPort+"/harvest.php"
@@ -778,7 +821,6 @@ def harvestTokensManually():
     except:
       print (d_()+x_("Page Load Failed")+lr_("Did you launch the PHP server?"))
       print (d_()+x_("Page Load Failed")+lr_("Falling back to 2captcha"))
-      browser.delete_all_cookies()
       browser.quit()
       return
     solved=checkSolution(driver=browser,mainWindow=mainWindow)
@@ -792,5 +834,4 @@ def harvestTokensManually():
     currentTime = time.time()
     elapsedTime = currentTime - startTime
     print (d_()+s_("Total Time Elapsed")+lb_(str(round(elapsedTime,2)) + " seconds"))
-  browser.delete_all_cookies()
   browser.quit()
