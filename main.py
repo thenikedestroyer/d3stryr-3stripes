@@ -4,7 +4,7 @@ import time
 # We use selenium for browser automation
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-import config_parser
+import userinput_handler
 
 
 debug = False
@@ -59,5 +59,5 @@ def launch_chrome():
   browser.quit()
   return
 
-config_parser.start()
+userinput_handler.start()
 
