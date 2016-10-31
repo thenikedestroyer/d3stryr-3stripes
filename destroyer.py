@@ -52,6 +52,9 @@ hypedSkus=["AHypedSkuForAnAdidasShoe","AnotherHypedSkuForAnAdidasShoe"]
 #Code to indicate a shitty exit from the script
 exitCode = 1
 
+#Lets try to keep a revision tracking via commit number.
+revision="c.66"
+
 #We will use os to acquire details of the operating system so we can determine if we are on Windows or not.
 import os
 
@@ -114,7 +117,7 @@ def d_(destroyerId=None):
   if destroyerId is not None:
     return "Destroyer # "+str(destroyerId).rjust(4," ")+" "+str(datetime.datetime.now().time().strftime("%I:%M:%S.%f")[:-3])
   else:
-    return "Destroyer # BASE "+str(datetime.datetime.now().time().strftime("%I:%M:%S.%f")[:-3])
+    return "Destroyer # "+revision+" "+str(datetime.datetime.now().time().strftime("%I:%M:%S.%f")[:-3])
 def s_(string):
   return color.lightgrey+" ["+str(string).center(21," ")+"]"+color.reset+" "
 #Color for exceptions
