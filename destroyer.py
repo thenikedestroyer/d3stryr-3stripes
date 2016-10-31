@@ -15,8 +15,8 @@ masterPid=config.get("user","masterPid")
 #Token Harvesting info
 manuallyHarvestTokens=config.getboolean("harvest","manuallyHarvestTokens")
 numberOfTokens=config.getint("harvest","numberOfTokens")
-phpServerPort=config.get("harvest","phpServerPort")
 harvestDomain=config.get("harvest","harvestDomain")
+phpServerPort=config.get("harvest","phpServerPort")
 captchaTokens=[]
 #Pull 2captcha info
 proxy2Captcha=config.get("user","proxy2Captcha")
@@ -48,6 +48,9 @@ debug=config.getboolean("debug","debug")
 
 #Set this for parameters checking
 hypedSkus=["AHypedSkuForAnAdidasShoe","AnotherHypedSkuForAnAdidasShoe"]
+
+#Code to indicate a shitty exit from the script
+exitCode = 1
 
 #We will use os to acquire details of the operating system so we can determine if we are on Windows or not.
 import os
@@ -149,14 +152,21 @@ def printRunParameters():
   print(d_()+s_("Desired Size")+lb_(mySizes))
   print(d_()+s_("Manual Token Harvest")+lb_(manuallyHarvestTokens))
   print(d_()+s_("Tokens to Harvest")+lb_(numberOfTokens))
+  print(d_()+s_("Harvest Domain")+lb_(harvestDomain))
+  print(d_()+s_("Harvest Port")+lb_(phpServerPort))
   if debug:
     print(d_()+z_("Sleeping")+o_(sleeping))
     print(d_()+z_("Debug")+o_(debug))
   return
 
+#Import sys so we can exit the script when its likely to fail
+import sys
+
 def checkParameters():
+  nah = False
   if (marketLocale == "US") and (parametersLocale != "US"):
     print(d_()+z_("config.cfg")+lr_("Invalid marketLocale and parametersLocale combination."))
+    nah = True
   if (useClientInventory) and (useVariantInventory):
     print(d_()+z_("config.cfg")+lr_("You should not set both inventory methods to True."))
   if (not manuallyHarvestTokens):
@@ -164,6 +174,7 @@ def checkParameters():
     if (processCaptcha):
       if (apikey2captcha == "xXx"):
         print(d_()+z_("config.cfg")+lr_("You need a valid apikey2captcha if you want to use 2captcha service! Visit 2captcha.com"))
+        nah = True
       if (proxy2Captcha == "localhost"):
         print(d_()+z_("config.cfg")+lr_("Unless you are testing - you should consider providing an IP whitelisted proxy for 2captcha to use."))
   else:
@@ -171,14 +182,17 @@ def checkParameters():
     if (not processCaptcha):
     #This should have been automatically set in the printRunParameters but lets check.
       print(d_()+z_("config.cfg")+lr_("You want to manually harvest tokens but you have not set processCaptcha to True. Much reading you have done."))
+      nah = True
     if (numberOfTokens < 1):
-      print(d_()+z_("config.cfg")+lr_("Your config.cfg makes no fucking sense. Why is numberOfTokens set to zero? And what are you requesting to harvest tokens?"))
+      print(d_()+z_("config.cfg")+lr_("Your config.cfg makes no fucking sense. Why is numberOfTokens set to zero? And why are you requesting to harvest tokens?"))
+      nah = True
     if (numberOfTokens > 5):
       print(d_()+z_("config.cfg")+lr_("You requested to harvest a large number of tokens. You wont be able to ATC until after you harvest all of the tokens. And tokens have a lifespan of ~ 120 seconds."))
     try:
       temp=int(phpServerPort)
     except:
       print(d_()+z_("config.cfg")+lr_("You have supplied an invalid phpServerPort value. Only numeric values accepted."))
+      nah = True
   if (sleeping < 3):
       print(d_()+z_("config.cfg")+lr_("Your sleeping value is less than 3 seconds. It might not offer enough time between events."))
   if (masterPid in str(hypedSkus)):
@@ -188,6 +202,12 @@ def checkParameters():
       print(d_()+z_("config.cfg")+lr_("This item is likely to make use of a cookie."))
   if (not debug):
       print(d_()+z_("config.cfg")+lr_("debug is turned off. If you run into any issues dont bother tweeting them to me. Because I will ask you why debug is turned off."))
+
+  if nah:
+    #Flush stdout
+    sys.stdout.flush()
+    #Exit the script prematurely
+    sys.exit(exitCode)
 
 #randint allows us to obtain an random integer between two integer values a and b: int=randint(a,b)
 from random import randint
@@ -228,12 +248,26 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 def launchChrome(session,baseADCUrl,cartURL,sleeping):
+  chromedriver=None
   if "nt" in  os.name:
   #Es ventanas?
-    chromedriver = "C:\Windows\chromedriver.exe"
+    if os.path.isfile("C:\Windows\chromedriver.exe"):
+      chromedriver = "C:\Windows\chromedriver.exe"
+    elif os.path.isfile("chromedriver.exe"):
+      chromedriver = "chromedriver.exe"
+    else:
+      print (d_()+x_("Chromedriver.exe")+lr_("was not found in the current folder nor in C:\Windows"))
+      sys.stdout.flush()
+      sys.exit(exitCode)
+
   else:
   #Es manzanas?
-    chromedriver = "./chromedriver"
+    if os.path.isfile("./chromedriver"):
+      chromedriver = "./chromedriver"
+    else:
+      print (d_()+x_("chromedriver")+lr_("was not found in the current folder."))
+      sys.stdout.flush()
+      sys.exit(exitCode)
   os.environ["webdriver.chrome.driver"] = chromedriver
   chrome_options = Options()
   #We store the browsing session in ChromeFolder so we can manually delete it if necessary
@@ -424,7 +458,7 @@ def canonicalizeProductInfoClient(productJSON):
     if data["id"] != masterPid:
   by using a for loop to iterate through:
     range(1,len(productJSON["data"])):
-  But I doubt there is a performance hit here. Because this is only done once even if threading is introducde in the future.
+  But I doubt there is a performance hit here. Because this is only done once even if threading is introduce in the future.
   """
   for data in productJSON["data"]:
     if data["id"] != masterPid:
@@ -439,6 +473,7 @@ def canonicalizeProductInfoClient(productJSON):
   return productInfo
 
 def canonicalizeProductInfoVariant(productJSON):
+  #Creating a standard format of the data representation using a dictionary
   productInfo={}
   productInfo["productStock"]={}
   productInfo["productName"]="/"
@@ -490,7 +525,7 @@ def getProductInfo():
     print(d_()+x_("Variant Endpoint"))
     if debug:
       print(d_()+z_("Debug")+o_("Variant Endpoint Response -"+response.text))
-  #If we reached this point then useVariantInventory did not successfully reutrn.
+  #If we reached this point then useVariantInventory did not successfully return.
   #So lets produce at minimum size inventory.
   #We will refer to this as Fallback for productInfo (when both client and variant produces no inventory result).
   productInfoFallback={}
