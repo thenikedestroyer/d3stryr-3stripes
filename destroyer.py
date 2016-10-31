@@ -55,7 +55,7 @@ exitCode = 1
 #We will use os to acquire details of the operating system so we can determine if we are on Windows or not.
 import os
 
-if "nt" in  os.name:
+if "nt" in os.name:
 #We remove ANSI coloring for Windows
   class color:
     reset=''
@@ -243,51 +243,6 @@ def agent():
 
 #We use time to sleep
 import time
-#We use selenium for browser automation
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-
-def launchChrome(session,baseADCUrl,cartURL,sleeping):
-  chromedriver=None
-  if "nt" in  os.name:
-  #Es ventanas?
-    if os.path.isfile("C:\Windows\chromedriver.exe"):
-      chromedriver = "C:\Windows\chromedriver.exe"
-    elif os.path.isfile("chromedriver.exe"):
-      chromedriver = "chromedriver.exe"
-    else:
-      print (d_()+x_("Chromedriver.exe")+lr_("was not found in the current folder nor in C:\Windows"))
-      sys.stdout.flush()
-      sys.exit(exitCode)
-
-  else:
-  #Es manzanas?
-    if os.path.isfile("./chromedriver"):
-      chromedriver = "./chromedriver"
-    else:
-      print (d_()+x_("chromedriver")+lr_("was not found in the current folder."))
-      sys.stdout.flush()
-      sys.exit(exitCode)
-  os.environ["webdriver.chrome.driver"] = chromedriver
-  chrome_options = Options()
-  #We store the browsing session in ChromeFolder so we can manually delete it if necessary
-  chrome_options.add_argument("--user-data-dir=ChromeFolder")
-  browser = webdriver.Chrome(chromedriver,chrome_options=chrome_options)
-  browser.get(baseADCUrl)
-  #Push cookies from request to Google Chrome
-  for key, val in session.cookies.iteritems():
-    if debug:
-      print(d_()+z_("Debug:Key")+o_(key))
-      print(d_()+z_("Debug:Val")+o_(val))
-    browser.add_cookie({'name':key,'value':val})
-  time.sleep(sleeping)
-  browser.get(baseADCUrl+"/Cart-ProductCount")
-  browser.get(cartURL.replace("/Cart-Show","/CODelivery-Start"))
-  temp=input("Press Enter to Continue")
-  browser.quit()
-  return
-
-import configparser
 import json
 import requests
 
@@ -568,8 +523,6 @@ def printProductInfo(productInfo):
     print(d_()+s_(size.ljust(5," ")+" / "+productInfo["productStock"][size]["pid"])+lb_(str(productInfo["productStock"][size]["ATS"]).rjust(6," ")))
   return
 
-from collections import deque
-
 def processAddToCart(productInfo):
   captchaTokensReversed=[]
   if manuallyHarvestTokens:
@@ -596,62 +549,12 @@ def processAddToCart(productInfo):
           #No manual tokens to pop - so lets use 2captcha
           captchaToken=getACaptchaToken()
       addToCartChromeAJAX(pid,captchaToken)
-#     addToCartRequestTransferToChrome(pid,captchaToken)
     except:
       print (d_()+x_("Add-To-Cart")+lr_(mySize+" : "+"Not Found"))
 
-def addToCartRequestTransferToChrome(pid,captchaToken):
-  atcSession=requests.Session()
-  atcSession.verify=False
-  atcSession.cookies.clear()
-  if marketLocale == "PT":
-    baseADCUrl="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+"MLT"+"-Site/"+market
-  else:
-    baseADCUrl="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+marketLocale+"-Site/"+market
-  atcURL=baseADCUrl+"/Cart-MiniAddProduct"
-  cartURL=baseADCUrl.replace("http://","https://")+"/Cart-Show"
-  headers = {
-    'User-Agent':agent(),
-    'Accept':'application/json, text/javascript, */*; q=0.01',
-    'Referer':"http://www."+marketDomain+"/",
-  }
-  data={}
-  #If we are processing captcha then add to our payload.
-  if processCaptcha:
-    data["g-recaptcha-response"]=captchaToken
-  #If we need captcha duplicate then add to our payload.
-  if processCaptchaDuplicate:
-    #If cookies need to be set then add to our payload.
-    if "neverywhere" not in cookies:
-      headers["Cookie"]=cookies
-    #Alter the atcURL for the captcha duplicate case
-    atcURL=atcURL+"?clientId="+clientId
-    #Add captcha duplicate  to our payload.
-    data[duplicate]=captchaToken
-  data["pid"]=pid
-  data["Quantity"]="1"
-  data["request"]="ajax"
-  data["responseformat"]="json"
-  if debug:
-    print(d_()+z_("Debug")+o_(json.dumps(data,indent=2)))
-    print(d_()+z_("Debug")+o_(atcURL))
-  response=atcSession.post(url=atcURL,data=data,headers=headers)
-  #Im told I could just do atcJSON=resposne.json but I'm a creature of habit.
-  #If threaded then you'll want to revisit and adjust.
-  atcJSON=json.loads(response.text)
-  print (d_()+s_("JSON")+"\n"+y_(json.dumps(atcJSON,indent=2)))
-  try:
-    if atcJSON["result"]=="SUCCESS":
-      print(d_()+s_("Success")+lb_(atcJSON["basket"][-1]["product_id"]+" : " +str(atcJSON["basket"][-1]["quantity"])+" x "+str(atcJSON["basket"][-1]["price"])))
-      #We pass the request session to launchChrome so we can upload cookies to Chrome (transfering a session to the browser).
-      launchChrome(atcSession,baseADCUrl,cartURL,sleeping)
-    else:
-      print (d_()+x_("JSON")+"\n"+lr_(json.dumps(atcJSON,indent=2)))
-  except:
-    if "Access Denied" in response.text:
-      print (d_()+x_("ATC JSON RESULTS")+lr_("Access Denied"))
-    else:
-      print (d_()+x_("ATC JSON RESULTS")+lr_("Unable to parse response")+"\n"+y_(response.text))
+#We use selenium for browser automation
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 def addToCartChromeAJAX(pid,captchaToken):
   if marketLocale == "PT":
@@ -698,17 +601,35 @@ def addToCartChromeAJAX(pid,captchaToken):
     print(d_()+z_("Debug")+o_(json.dumps(data,indent=2)))
     print(d_()+z_("Debug")+o_(atcURL))
     print(d_()+z_("Debug")+o_(script))
-  if "nt" in  os.name:
+  chromedriver=None
+  if "nt" in os.name:
   #Es ventanas?
-    chromedriver = "C:\Windows\chromedriver.exe"
+    if os.path.isfile("chromedriver.exe"):
+    #Lets check to see if chromedriver.exe is in the current directory
+      chromedriver = "chromedriver.exe"
+    elif os.path.isfile("C:\Windows\chromedriver.exe"):
+    #Lets check to see if chromedriver.exe is in C:\Windows
+      chromedriver = "C:\Windows\chromedriver.exe"
+    else:
+    #Lets see if the end-user will read this and fix their own problem before tweeting
+      print (d_()+x_("Chromedriver.exe")+lr_("was not found in the current folder nor in C:\Windows"))
+      sys.stdout.flush()
+      sys.exit(exitCode)
   else:
   #Es manzanas?
-    chromedriver = "./chromedriver"
+    if os.path.isfile("./chromedriver"):
+    #chromedriver should be in the current directory
+      chromedriver = "./chromedriver"
+    else:
+      print (d_()+x_("chromedriver")+lr_("was not found in the current folder."))
+      sys.stdout.flush()
+      sys.exit(exitCode)
   os.environ["webdriver.chrome.driver"] = chromedriver
   chrome_options = Options()
   #We store the browsing session in ChromeFolder so we can manually delete it if necessary
   chrome_options.add_argument("--user-data-dir=ChromeFolder")
   browser = webdriver.Chrome(chromedriver,chrome_options=chrome_options)
+  #Need to delete all the cookes for this session or else we will have the previous size in cart
   browser.delete_all_cookies()
   browser.get(baseADCUrl)
   results=browser.execute_script(script)
@@ -828,24 +749,33 @@ def harvestTokensManually():
     </html>"""
   with open("harvest.php","w") as htmlFile:
     htmlFile.write(htmlSource)
-  if "nt" in  os.name:
+  chromedriver=None
+  if "nt" in os.name:
   #Es ventanas?
-    chromedriver = "C:\Windows\chromedriver.exe"
+    if os.path.isfile("chromedriver.exe"):
+      chromedriver = "chromedriver.exe"
+    elif os.path.isfile("C:\Windows\chromedriver.exe"):
+      chromedriver = "C:\Windows\chromedriver.exe"
+    else:
+      print (d_()+x_("Chromedriver.exe")+lr_("was not found in the current folder nor in C:\Windows"))
+      sys.stdout.flush()
+      sys.exit(exitCode)
   else:
   #Es manzanas?
-    chromedriver = "./chromedriver"
+    if os.path.isfile("./chromedriver"):
+      chromedriver = "./chromedriver"
+    else:
+      print (d_()+x_("chromedriver")+lr_("was not found in the current folder."))
+      sys.stdout.flush()
+      sys.exit(exitCode)
   os.environ["webdriver.chrome.driver"] = chromedriver
   chrome_options = Options()
-  windowSize=[
-    #browser
-    "640,640",
-  ]
+  windowSize=["640,640",]
   #Custom window size.
   chrome_options.add_argument("window-size="+windowSize[0])
-  #We store the browsing session in ChromeTokenHarvestFolder so we can manually delete it if necessary
+  #We store the browsing session in ChromeTokenHarvestFolder so we can build a browsing history and hope for easier captchas
   chrome_options.add_argument("--user-data-dir=ChromeTokenHarvestFolder")
   browser = webdriver.Chrome(chromedriver,chrome_options=chrome_options)
-  browser.delete_all_cookies()
   url="http://"+harvestDomain+":"+phpServerPort+"/harvest.php"
   while len(captchaTokens) < numberOfTokens:
     browser.get(url)
