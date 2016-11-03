@@ -45,6 +45,8 @@ cookies=config.get("cookie","cookie")
 sleeping=config.getint("sleeping","sleeping")
 #Are we debugging?
 debug=config.getboolean("debug","debug")
+#Require end-user to press enter before terminating Chrome's browser window during ATC
+pauseBeforeBrowserQuit=config.getboolean("debug","pauseBeforeBrowserQuit")
 
 #Set this for parameters checking
 hypedSkus=["AHypedSkuForAnAdidasShoe","AnotherHypedSkuForAnAdidasShoe"]
@@ -53,7 +55,7 @@ hypedSkus=["AHypedSkuForAnAdidasShoe","AnotherHypedSkuForAnAdidasShoe"]
 exitCode = 1
 
 #Lets try to keep a revision tracking via commit number.
-revision="c.66"
+revision="c.68"
 
 #We will use os to acquire details of the operating system so we can determine if we are on Windows or not.
 import os
@@ -559,6 +561,39 @@ def processAddToCart(productInfo):
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
+def getChromeDriver(chromeFolderLocation=None):
+  chromedriver=None
+  if "nt" in os.name:
+  #Es ventanas?
+    if os.path.isfile("chromedriver.exe"):
+    #Lets check to see if chromedriver.exe is in the current directory
+      chromedriver = "chromedriver.exe"
+    elif os.path.isfile("C:\Windows\chromedriver.exe"):
+    #Lets check to see if chromedriver.exe is in C:\Windows
+      chromedriver = "C:\Windows\chromedriver.exe"
+    else:
+    #Lets see if the end-user will read this and fix their own problem before tweeting
+      print (d_()+x_("Chromedriver.exe")+lr_("was not found in the current folder nor in C:\Windows"))
+      sys.stdout.flush()
+      sys.exit(exitCode)
+  else:
+  #Es manzanas?
+    if os.path.isfile("./chromedriver"):
+    #chromedriver should be in the current directory
+      chromedriver = "./chromedriver"
+    else:
+      print (d_()+x_("chromedriver")+lr_("was not found in the current folder."))
+      sys.stdout.flush()
+      sys.exit(exitCode)
+  os.environ["webdriver.chrome.driver"] = chromedriver
+  chrome_options = Options()
+  #We store the browsing session in ChromeFolder so we can manually delete it if necessary
+  if chromeFolderLocation is not None:
+    chrome_options.add_argument("--user-data-dir="+chromeFolderLocation)
+
+  driver = webdriver.Chrome(chromedriver,chrome_options=chrome_options)
+  return driver
+
 def addToCartChromeAJAX(pid,captchaToken):
   if marketLocale == "PT":
     baseADCUrl="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+"MLT"+"-Site/"+market
@@ -604,50 +639,29 @@ def addToCartChromeAJAX(pid,captchaToken):
     print(d_()+z_("Debug")+o_(json.dumps(data,indent=2)))
     print(d_()+z_("Debug")+o_(atcURL))
     print(d_()+z_("Debug")+o_(script))
-  chromedriver=None
-  if "nt" in os.name:
-  #Es ventanas?
-    if os.path.isfile("chromedriver.exe"):
-    #Lets check to see if chromedriver.exe is in the current directory
-      chromedriver = "chromedriver.exe"
-    elif os.path.isfile("C:\Windows\chromedriver.exe"):
-    #Lets check to see if chromedriver.exe is in C:\Windows
-      chromedriver = "C:\Windows\chromedriver.exe"
-    else:
-    #Lets see if the end-user will read this and fix their own problem before tweeting
-      print (d_()+x_("Chromedriver.exe")+lr_("was not found in the current folder nor in C:\Windows"))
-      sys.stdout.flush()
-      sys.exit(exitCode)
-  else:
-  #Es manzanas?
-    if os.path.isfile("./chromedriver"):
-    #chromedriver should be in the current directory
-      chromedriver = "./chromedriver"
-    else:
-      print (d_()+x_("chromedriver")+lr_("was not found in the current folder."))
-      sys.stdout.flush()
-      sys.exit(exitCode)
-  os.environ["webdriver.chrome.driver"] = chromedriver
-  chrome_options = Options()
-  #We store the browsing session in ChromeFolder so we can manually delete it if necessary
-  chrome_options.add_argument("--user-data-dir=ChromeFolder")
-  browser = webdriver.Chrome(chromedriver,chrome_options=chrome_options)
-  #Need to delete all the cookes for this session or else we will have the previous size in cart
+  browser=getChromeDriver(chromeFolderLocation="ChromeFolder")
   browser.delete_all_cookies()
   browser.get(baseADCUrl)
   results=browser.execute_script(script)
   time.sleep(sleeping)
   browser.get(baseADCUrl+"/Cart-ProductCount")
+  html_source = browser.page_source
   productCount=browser.find_element_by_tag_name('body').text
   productCount=productCount.replace('"',"")
   productCount=productCount.strip()
   if debug:
     print(d_()+z_("Debug")+o_("Product Count"+" : "+productCount))
+    print(d_()+z_("Debug")+o_("\n"+html_source))
   if (len(productCount) == 1) and (int(productCount) > 0):
     results=browser.execute_script("window.location='"+cartURL+"'")
     temp=input("Press Enter to Close the Browser & Continue")
   else:
     print (d_()+x_("Product Count")+lr_(productCount))
+
+  #Maybe the Product Count source has changed and we are unable to parse correctly.
+  if pauseBeforeBrowserQuit:
+    temp=input("Press Enter to Close the Browser & Continue")
+
   #Need to delete all the cookes for this session or else we will have the previous size in cart
   browser.delete_all_cookies()
   browser.quit()
@@ -752,33 +766,7 @@ def harvestTokensManually():
     </html>"""
   with open("harvest.php","w") as htmlFile:
     htmlFile.write(htmlSource)
-  chromedriver=None
-  if "nt" in os.name:
-  #Es ventanas?
-    if os.path.isfile("chromedriver.exe"):
-      chromedriver = "chromedriver.exe"
-    elif os.path.isfile("C:\Windows\chromedriver.exe"):
-      chromedriver = "C:\Windows\chromedriver.exe"
-    else:
-      print (d_()+x_("Chromedriver.exe")+lr_("was not found in the current folder nor in C:\Windows"))
-      sys.stdout.flush()
-      sys.exit(exitCode)
-  else:
-  #Es manzanas?
-    if os.path.isfile("./chromedriver"):
-      chromedriver = "./chromedriver"
-    else:
-      print (d_()+x_("chromedriver")+lr_("was not found in the current folder."))
-      sys.stdout.flush()
-      sys.exit(exitCode)
-  os.environ["webdriver.chrome.driver"] = chromedriver
-  chrome_options = Options()
-  windowSize=["640,640",]
-  #Custom window size.
-  chrome_options.add_argument("window-size="+windowSize[0])
-  #We store the browsing session in ChromeTokenHarvestFolder so we can build a browsing history and hope for easier captchas
-  chrome_options.add_argument("--user-data-dir=ChromeTokenHarvestFolder")
-  browser = webdriver.Chrome(chromedriver,chrome_options=chrome_options)
+  browser=getChromeDriver(chromeFolderLocation="ChromeTokenHarvestFolder")
   url="http://"+harvestDomain+":"+phpServerPort+"/harvest.php"
   while len(captchaTokens) < numberOfTokens:
     browser.get(url)
