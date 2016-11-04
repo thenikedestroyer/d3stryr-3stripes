@@ -1,5 +1,7 @@
 # README for config.md
 
+##Section [debug]
+
 ##Section [user]
 
 ##Section [harvest]
@@ -14,8 +16,8 @@
 
 ##Section [cookie]
 
+##Section [script]
+
 ##Section [market]
 
 ##Section [marketDomain]
-
-##Section [debug]
