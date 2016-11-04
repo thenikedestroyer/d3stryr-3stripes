@@ -142,12 +142,18 @@ Make sure you have activated the virtual environment:
 ```
 source bin/activate
 ```
+Windows:
+```
+Scripts\activate
+```
 
 Then you are ready to run:
 
 ```
 ./d3stryr-3stripes.py
 ```
+(Use backslash '\' for Windows)
+
 ## Program Flow
 *  The script will look up the either the Variant endpoint for inventory or the Client endpoint for inventory (or it may do both - with Client stock being used for the remainder of the run).
 *  The script will cycle through your size list and check to see if inventory value is greater than 0.
