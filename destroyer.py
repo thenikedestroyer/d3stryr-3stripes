@@ -48,6 +48,9 @@ debug=config.getboolean("debug","debug")
 #Require end-user to press enter before terminating Chrome's browser window during ATC
 pauseBeforeBrowserQuit=config.getboolean("debug","pauseBeforeBrowserQuit")
 
+#Just incase we nee to run an external script.
+scriptURL=config.get("script","scriptURL")
+
 #Set this for parameters checking
 hypedSkus=["AHypedSkuForAnAdidasShoe","AnotherHypedSkuForAnAdidasShoe"]
 
@@ -55,7 +58,7 @@ hypedSkus=["AHypedSkuForAnAdidasShoe","AnotherHypedSkuForAnAdidasShoe"]
 exitCode = 1
 
 #Lets try to keep a revision tracking via commit number.
-revision="c.68"
+revision="c+72"
 
 #We will use os to acquire details of the operating system so we can determine if we are on Windows or not.
 import os
@@ -159,10 +162,10 @@ def printRunParameters():
   print(d_()+s_("Tokens to Harvest")+lb_(numberOfTokens))
   print(d_()+s_("Harvest Domain")+lb_(harvestDomain))
   print(d_()+s_("Harvest Port")+lb_(phpServerPort))
-  if debug:
-    print(d_()+z_("Sleeping")+o_(sleeping))
-    print(d_()+z_("Debug")+o_(debug))
-  return
+  print(d_()+s_("Sleeping")+lb_(sleeping))
+  print(d_()+s_("Debug")+lb_(debug))
+  print(d_()+s_("External Script URL")+lb_(scriptURL))
+  print(d_()+s_("Pause Between ATC")+lb_(pauseBeforeBrowserQuit))
 
 #Import sys so we can exit the script when its likely to fail
 import sys
@@ -253,7 +256,7 @@ import requests
 
 requests.packages.urllib3.disable_warnings()
 
-def getACaptchaToken():
+def getACaptchaTokenFrom2Captcha():
   session=requests.Session()
   session.verify=False
   session.cookies.clear()
@@ -552,7 +555,7 @@ def processAddToCart(productInfo):
           print (d_()+s_("Number of Tokens Left")+lb_(len(captchaTokensReversed)))
         else:
           #No manual tokens to pop - so lets use 2captcha
-          captchaToken=getACaptchaToken()
+          captchaToken=getACaptchaTokenFrom2Captcha()
       addToCartChromeAJAX(pid,captchaToken)
     except:
       print (d_()+x_("Add-To-Cart")+lr_(mySize+" : "+"Not Found"))
@@ -633,16 +636,26 @@ def addToCartChromeAJAX(pid,captchaToken):
       console.log(status);
       console.log(data);
     }
-  });
-  """
+  });"""
+  externalScript=None
+  if (len(scriptURL) > 0) and (".js" in scriptURL):
+    externalScript="""
+    $.ajax({
+      url: '"""+scriptURL+"""',
+      dataType: "script"
+    });"""
   if debug:
     print(d_()+z_("Debug")+o_(json.dumps(data,indent=2)))
-    print(d_()+z_("Debug")+o_(atcURL))
     print(d_()+z_("Debug")+o_(script))
+    print(d_()+z_("Debug")+o_(externalScript))
   browser=getChromeDriver(chromeFolderLocation="ChromeFolder")
   browser.delete_all_cookies()
   browser.get(baseADCUrl)
-  results=browser.execute_script(script)
+  if (len(scriptURL) > 0) and (".js" in scriptURL):
+    print (d_()+s_("External Script"))
+    browser.execute_script(externalScript)
+  print (d_()+s_("ATC Script"))
+  browser.execute_script(script)
   time.sleep(sleeping)
   browser.get(baseADCUrl+"/Cart-ProductCount")
   html_source = browser.page_source
