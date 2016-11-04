@@ -62,73 +62,7 @@ That is all that is needed to install.
 
 ## Configuring:
 
-The only file that needs to be modified is `config.cfg`
-```
-marketLocal = US
-```
-Defines the region you are carting. For example `US` (United States), `GB` (United Kingdom), `FR` (France), `CA` (Canada)
-
-```
-parametersLocale = US
-```
-Defines the region for the clientId and sitekey. Possible values: `US`, `EU`, or `AU`
-
-```
-masterPid = AQ7403
-```
-Defines the SKU for the item you wish to cart. The SKU must exist for the region marketLocale you chose.
-
-```
-proxy2Captcha = user:password@ip:port
-```
-or
-```
-proxy2Captcha = ip:port
-```
-or
-```
-proxy2Captcha = localhost
-```
-
-Required when processCaptcha is `True`. This defines the proxy 2Captcha will used to solve the captcha on. Yes, you need to provide them with a proxy that they can access. So you either need to provide user:password credentials OR whitelist their IP addresses.
-
-What do I do? Spin up my own VMs in the cloud and run squid3 to setup a temporary proxy with open access. Then tear down the VMs after the drop.
-
-```
-apikey2captcha = xXxXxXxXxXxXxXxXxXxXxXxXxXxXx
-```
-Required when processCaptcha is `True`. This is your 2Captcha API key. [Where to get one](https://2captcha.com/)
-
-```
-processCaptcha = False
-```
-Are we going to solve captcha for the product you are carting? Possible values: `True`, `False`
-
-```
-processCaptchaDuplicate = False
-```
-Do we need to supply a captcha duplicate field name for the product you are carting? Possible values: `True`, `False`
-You will likely set this to True for Yeezys. And False for everything else.
-
-```
-useClientInventory = True
-```
-Toggles the use of the client endpoint for inventory. Requires a valid clientId. Possible values: `True`, `False`
-
-```
-useVariantInventory = False
-```
-Toggles the use of the variant endpoint for inventory. Possible values: `True`, `False`
-
-```
-mySizes = 5.5, 8.5, 9, M, L
-```
-
-A list of sizes you wish to attempt to cart - in the order that they will be attempted. Seperate each value with a comma.
-
-That is it. That is all that needs to be adjusted when clientId and sitekey are working.
-
-If the clientId, sitekey, duplicate, or cookie needs to be adjusted - it will be done in `config.cfg`
+The only file that needs to be modified is `config.cfg`. Read [CONFIG.md](https://github.com/thenikedestroyer/d3stryr-3stripes/blob/master/CONFIG.md)
 
 ## Running
 If you are starting from a new terminal and the `d3stryr-3stripes-master` folder is in your home directory then navigate (change into) the `d3stryr-3stripes-master` folder:
@@ -139,6 +73,7 @@ cd d3stryr-3stripes-master
 
 Make sure you have activated the virtual environment:
 
+Mac/Linux:
 ```
 source bin/activate
 ```
@@ -149,10 +84,14 @@ Scripts\activate
 
 Then you are ready to run:
 
+Mac/Linux:
 ```
 ./d3stryr-3stripes.py
 ```
-(Use backslash '\' for Windows)
+Windows:
+```
+.\d3stryr-3stripes.py
+```
 
 ## Program Flow
 *  The script will look up the either the Variant endpoint for inventory or the Client endpoint for inventory (or it may do both - with Client stock being used for the remainder of the run).
@@ -166,9 +105,9 @@ Then you are ready to run:
 *  If nothing appears then quit the browser and move on to the next pair because any further refreshing will result in a soft-ban.
 
 ## To-Do List
-  * Comment parts of the code so that it can be used as a learning tool.
-  * Add in the abililty to manually solve captchas if desired.
-  * Adjust terminal coloring for Windows.
+  * ~~~Comment parts of the code so that it can be used as a learning tool.~~~
+  * ~~~Add in the abililty to manually solve captchas if desired.~~~
+  * ~~~Adjust terminal coloring for Windows.~~~
   * Interface w/ a MySQL DB for token harvesting locally.
 
 ## Not-Gonna-Do List
