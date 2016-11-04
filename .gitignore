@@ -15,3 +15,13 @@ Thumbs.db
 
 #d3stryr-3stripes configuration file
 config.cfg
+
+#Python Cache
+__pycache__
+
+#VirtualEnv files
+bin/
+Scripts/
+Lib/
+Include/
+tcl/
