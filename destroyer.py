@@ -379,7 +379,7 @@ def canonicalizeProductInfoClient(productJSON):
     data = productJSON["data"][0]
   except:
     print(d_()+x_("Parse Client JSON"))
-    return productInfo
+    raise
   try:
     productInfo["productName"]=data["name"]
   except:
