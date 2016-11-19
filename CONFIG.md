@@ -27,36 +27,36 @@
 `mySizes` = `#, #, #, #` - a comma deliminated size list to attempt to cart.
 
 ##Section [harvest]
-`manuallyHarvestTokens` - `True | False` - Do we want to manually harvest captcha tokens?
+`manuallyHarvestTokens` = `True | False` - Do we want to manually harvest captcha tokens?
 
-`numberOfTokens` - `#` - defines the number of captchas to correctly solve before ATC begins.
+`numberOfTokens` = `#` - defines the number of captchas to correctly solve before ATC begins.
 
-`harvestDomain` - `dev.adidas.xxx` - defines the domain we are spoofing to manually harvest captchas.
+`harvestDomain` = `dev.adidas.xxx` - defines the domain we are spoofing to manually harvest captchas.
 
-`phpServerPort` - `####` - defines the PHP server port.
+`phpServerPort` = `####` - defines the PHP server port.
 
 ##Section [sleeping]
-`sleeping` - `#` - defines the length of time the script will wait between certain time-sensitive events. 
+`sleeping` = `#` - defines the length of time the script will wait between certain time-sensitive events. 
 
 ##Section [clientId]
-`apiEnv` - `production | staging | development` - defines the API environment of the client inventory endpoint.
+`apiEnv` = `production | staging | development` - defines the API environment of the client inventory endpoint.
 
-`XX` - `xxxxxxxxx` - defines the client ID for locale XX.
+`XX` = `xxxxxxxxx` - defines the client ID for locale XX.
 
 ##Section [sitekey]
-`XX` - `xxxxxxxxx` - defines the captcha sitekey for locale XX.
+`XX` = `xxxxxxxxx` - defines the captcha sitekey for locale XX.
 
 ##Section [duplicate]
-`duplicate` - `xxxxx` - defines the duplicate captcha field name.
+`duplicate` = `xxxxx` - defines the duplicate captcha field name.
 
 ##Section [cookie]
-`cookie` - `cookiename=cookievalue;` - defines a cookie that will be set before each ATC.
+`cookie` = `cookiename=cookievalue;` - defines a cookie that will be set before each ATC.
 
 ##Section [script]
-`scriptURL` - `http://xxx.js` - defines a script URL we will inject before each ATC.
+`scriptURL` = `http://xxx.js` - defines a script URL we will inject before each ATC.
 
 ##Section [market]
-`XX` - `xxxxxxxxx` - defines the market code for locale XX.
+`XX` = `xxxxxxxxx` - defines the market code for locale XX.
 
 ##Section [marketDomain]
-`XX` - `adidas.xxx` - defines the domain for locale XX.
+`XX` = `adidas.xxx` - defines the domain for locale XX.
