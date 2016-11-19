@@ -38,6 +38,12 @@ marketDomain=config.get("marketDomain",marketLocale)
 apiEnv=config.get("clientId","apiEnv")
 clientId=config.get("clientId",parametersLocale)
 sitekey=config.get("sitekey",parametersLocale)
+"""
+#Do we poll the product page for the Google captcha sitekey?
+pollProductPageForSiteKey=config.getboolean("sitekey","pollProductPageForSiteKey")
+#Do we **ONLY** use the Google captcha sitekey from the product page?
+useOnlyProductPageSiteKey=config.getboolean("sitekey","useOnlyProductPageSiteKey")
+"""
 #Pull info necessary for a Yeezy drop
 duplicate=config.get("duplicate","duplicate")
 cookies=config.get("cookie","cookie")
@@ -52,13 +58,13 @@ pauseBeforeBrowserQuit=config.getboolean("debug","pauseBeforeBrowserQuit")
 scriptURL=config.get("script","scriptURL")
 
 #Set this for parameters checking
-hypedSkus=["AHypedSkuForAnAdidasShoe","AnotherHypedSkuForAnAdidasShoe"]
+hypedSkus=["BY9612","BY1605","BY9611"]
 
 #Code to indicate a shitty exit from the script
 exitCode = 1
 
 #Lets try to keep a revision tracking via commit number.
-revision="c+81"
+revision="c+85"
 
 #We will use os to acquire details of the operating system so we can determine if we are on Windows or not.
 import os
