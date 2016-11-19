@@ -13,6 +13,13 @@ Python 3 implementation of d3stryr-3stripes
    ```
    pip3 install virtualenv
    ```
+   
+   If you don't have pip3 already installed then install it with (assuming you have Python 3.5.x installed):
+   
+   ```
+   easy_install-3.5 pip
+   ```
+   
 
 2. chromedriver - [https://sites.google.com/a/chromium.org/chromedriver/](https://sites.google.com/a/chromium.org/chromedriver/)
 
