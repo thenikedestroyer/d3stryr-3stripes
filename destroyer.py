@@ -64,7 +64,7 @@ hypedSkus=["BY9612","BY1605","BY9611"]
 exitCode = 1
 
 #Lets try to keep a revision tracking via commit number.
-revision="c+85"
+revision="c+86"
 
 #We will use os to acquire details of the operating system so we can determine if we are on Windows or not.
 import os
@@ -268,6 +268,7 @@ def getACaptchaTokenFrom2Captcha():
   session.cookies.clear()
   pageurl="http://www."+marketDomain
   print (d_()+s_("pageurl")+lb_(pageurl))
+  print (d_()+s_("sitekey")+lb_(sitekey))
   while True:
     data={
      "key":apikey2captcha,
@@ -548,6 +549,7 @@ def processAddToCart(productInfo):
     try:
       mySizeATS=productInfo["productStock"][mySize]["ATS"]
       if mySizeATS == 0:
+        print (d_()+x_("Add-To-Cart")+lr_("Out of Stock :"+mySize))
         continue
       print (d_()+s_("Add-To-Cart")+mySize+" : "+str(mySizeATS))
       pid=productInfo["productStock"][mySize]["pid"]
@@ -563,6 +565,9 @@ def processAddToCart(productInfo):
           #No manual tokens to pop - so lets use 2captcha
           captchaToken=getACaptchaTokenFrom2Captcha()
       addToCartChromeAJAX(pid,captchaToken)
+    except KeyboardInterrupt:
+      print (d_()+x_("KeyboardInterrupt"))
+      sys.exit(1)
     except:
       print (d_()+x_("Add-To-Cart")+lr_(mySize+" : "+"Not Found"))
 
@@ -604,6 +609,7 @@ def getChromeDriver(chromeFolderLocation=None):
   return driver
 
 def addToCartChromeAJAX(pid,captchaToken):
+  cookieScript="";
   if marketLocale == "PT":
     baseADCUrl="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+"MLT"+"-Site/"+market
   else:
@@ -616,13 +622,13 @@ def addToCartChromeAJAX(pid,captchaToken):
     data["g-recaptcha-response"]=captchaToken
   #If we need captcha duplicate then add to our payload.
   if processCaptchaDuplicate:
-    #If cookies need to be set then add to our payload.
-    if "neverywhere" not in cookies:
-      headers["Cookie"]=cookies
     #Alter the atcURL for the captcha duplicate case
     atcURL=atcURL+"?clientId="+clientId
     #Add captcha duplicate  to our payload.
     data[duplicate]=captchaToken
+  #If cookies need to be set then add to our payload.
+  if "neverywhere" not in cookies:
+    cookieScript="""document.cookie='"""+cookies+"""domain=.adidas.com;path=/';"""
   data["masterPid"]=masterPid
   data["pid"]=pid
   data["Quantity"]="1"
@@ -651,12 +657,16 @@ def addToCartChromeAJAX(pid,captchaToken):
       dataType: "script"
     });"""
   if debug:
-    print(d_()+z_("Debug")+o_(json.dumps(data,indent=2)))
-    print(d_()+z_("Debug")+o_(script))
-    print(d_()+z_("Debug")+o_(externalScript))
+    print(d_()+z_("Debug:data")+o_(json.dumps(data,indent=2)))
+    print(d_()+z_("Debug:script")+o_(script))
+    print(d_()+z_("Debug:cookie")+o_(cookieScript))
+    print(d_()+z_("Debug:external")+o_(externalScript))
   browser=getChromeDriver(chromeFolderLocation="ChromeFolder")
   browser.delete_all_cookies()
   browser.get(baseADCUrl)
+  if (len(cookieScript) > 0) and ("neverywhere" not in cookies):
+    print (d_()+s_("Cookie Script"))
+    browser.execute_script(cookieScript)
   if (len(scriptURL) > 0) and (".js" in scriptURL):
     print (d_()+s_("External Script"))
     browser.execute_script(externalScript)
