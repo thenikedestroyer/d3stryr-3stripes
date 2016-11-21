@@ -64,7 +64,7 @@ hypedSkus=["BY9612","BY1605","BY9611"]
 exitCode = 1
 
 #Lets try to keep a revision tracking via commit number.
-revision="c+86"
+revision="c+89"
 
 #We will use os to acquire details of the operating system so we can determine if we are on Windows or not.
 import os
@@ -610,6 +610,7 @@ def getChromeDriver(chromeFolderLocation=None):
 
 def addToCartChromeAJAX(pid,captchaToken):
   cookieScript="";
+  cookieScriptDomainAware="";
   if marketLocale == "PT":
     baseADCUrl="http://www."+marketDomain+"/on/demandware.store/Sites-adidas-"+"MLT"+"-Site/"+market
   else:
@@ -629,6 +630,7 @@ def addToCartChromeAJAX(pid,captchaToken):
   #If cookies need to be set then add to our payload.
   if "neverywhere" not in cookies:
     cookieScript="""document.cookie='"""+cookies+"""domain=.adidas.com;path=/';"""
+    cookieScriptDomainAware="""document.cookie='"""+cookies+"""domain=."""+marketDomain+""";path=/';"""
   data["masterPid"]=masterPid
   data["pid"]=pid
   data["Quantity"]="1"
@@ -660,6 +662,7 @@ def addToCartChromeAJAX(pid,captchaToken):
     print(d_()+z_("Debug:data")+o_(json.dumps(data,indent=2)))
     print(d_()+z_("Debug:script")+o_(script))
     print(d_()+z_("Debug:cookie")+o_(cookieScript))
+    print(d_()+z_("Debug:cookie")+o_(cookieScriptDomainAware))
     print(d_()+z_("Debug:external")+o_(externalScript))
   browser=getChromeDriver(chromeFolderLocation="ChromeFolder")
   browser.delete_all_cookies()
@@ -667,6 +670,7 @@ def addToCartChromeAJAX(pid,captchaToken):
   if (len(cookieScript) > 0) and ("neverywhere" not in cookies):
     print (d_()+s_("Cookie Script"))
     browser.execute_script(cookieScript)
+    browser.execute_script(cookieScriptDomainAware)
   if (len(scriptURL) > 0) and (".js" in scriptURL):
     print (d_()+s_("External Script"))
     browser.execute_script(externalScript)
