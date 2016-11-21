@@ -13,6 +13,10 @@ Thumbs.db
 # Compiled Python files
 *.pyc
 
+# ChromeDriver binary
+chromedriver
+chromedriver.exe
+
 #d3stryr-3stripes configuration file
 config.cfg
 
