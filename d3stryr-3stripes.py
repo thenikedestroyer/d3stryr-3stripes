@@ -26,3 +26,4 @@ if __name__ == "__main__":
     processAddToCart(productInfo)
   else:
     print (d_()+x_("Variant Count")+lr_("0"))
+print("done")
