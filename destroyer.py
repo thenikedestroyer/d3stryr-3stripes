@@ -419,10 +419,10 @@ def getACaptchaTokenFrom2Captcha():
             if JSON['status'] == 1:
                 TOKEN = JSON['request']
                 proceed = True
-                print (d_()+s_('Token ID')+lb_(TOKEN))
+                print (d_() + s_('Token ID') + lb_(TOKEN))
             else:
-                print (d_()+x_('Response')+y_(response.text))
-                print (d_()+x_('Sleeping')+y_(str(sleeping)+' seconds'))
+                print (d_() + x_('Response') + y_(response.text))
+                print (d_() + x_('Sleeping') + y_(str(sleeping) + ' seconds'))
                 time.sleep(sleeping)
         data = {
             'key': apikey2captcha,
@@ -456,7 +456,7 @@ def getClientResponse():
     if parametersLocale == 'US':
         clientStockURL = 'http://' + apiEnv
         + '-us-adidasgroup.demandware.net/s/adidas-'
-        + marketLocale+'/dw/shop/v15_6/products/(' + skus + ')?client_id='
+        + marketLocale + '/dw/shop/v15_6/products/(' + skus + ')?client_id='
         + clientId + '&expand=availability,variations,prices'
     else:
         clientStockURL = 'http://' + apiEnv
@@ -483,7 +483,7 @@ def getVariantResponse():
     if market == 'PT':
         variantStockURL = 'http://www.' + marketDomain
         + '/on/demandware.store/Sites-adidas-' + marketLocale
-        + '-Site/'+'MLT'+'/Product-GetVariants?pid=' + masterPid
+        + '-Site/' + 'MLT' + '/Product-GetVariants?pid=' + masterPid
     else:
         variantStockURL = 'http://www.' + marketDomain
         + '/on/demandware.store/Sites-adidas-' + marketLocale + '-Site/'
@@ -540,7 +540,7 @@ def canonicalizeProductInfoClient(productJSON):
     # Build a dictionary to convert adidas _XXX sizing to canonical sizing.
     adidasSize2Size = {}
     for variant in data['variation_attributes'][0]['values']:
-        adidasSize2Size[masterPid+'_'+variant['value']] = variant['name']
+        adidasSize2Size[masterPid + '_' + variant['value']] = variant['name']
 
     # We could avoid:
     # if data['id'] != masterPid:
@@ -614,7 +614,7 @@ def getProductInfo():
     # If we reached this point then useClientInventory didn't successfully
     # return. So lets proceed with useVariantInventory.
     try:
-        print(d_()+s_('Variant Endpoint'))
+        print(d_() + s_('Variant Endpoint'))
         response = getVariantResponse()
         productJSON = json.loads(response.text)
         productInfoVariant = canonicalizeProductInfoVariant(productJSON)
@@ -659,11 +659,11 @@ def getProductInfo():
 
 def printProductInfo(productInfo):
     print(d_() + s_('Product Name') + lb_(productInfo['productName']))
-    print(d_() + s_('Product Color')+lb_(productInfo['productColor']))
-    print(d_() + s_('Price')+lb_(productInfo['productPrice']))
-    print(d_() + s_('Orderable')+lb_(productInfo['productOrderable']))
-    print(d_() + s_('ATS')+lb_(str(productInfo['productATS']).rjust(6,' ')))
-    print(d_() + s_('Stock Level')+lb_(str(productInfo['productStockLevel']).rjust(6,' ')))
+    print(d_() + s_('Product Color') + lb_(productInfo['productColor']))
+    print(d_() + s_('Price') + lb_(productInfo['productPrice']))
+    print(d_() + s_('Orderable') + lb_(productInfo['productOrderable']))
+    print(d_() + s_('ATS') + lb_(str(productInfo['productATS']).rjust(6,' ')))
+    print(d_() + s_('Stock Level') + lb_(str(productInfo['productStockLevel']).rjust(6,' ')))
     print(d_() + s_('Size Inventory'))
     for size in sorted(productInfo['productStock']):
         print(d_() + s_(size.ljust(5, ' ') + ' / ' +
@@ -704,7 +704,8 @@ def processAddToCart(productInfo):
             print (d_() + x_('KeyboardInterrupt'))
             sys.exit(1)
         except:
-            print (d_()+x_('Add-To-Cart')+lr_(mySize+' : '+'Not Found'))
+            print (d_() + x_('Add-To-Cart')
+                   + lr_(mySize + ' : ' + 'Not Found'))
 
 
 def getChromeDriver(chromeFolderLocation=None):
@@ -756,7 +757,7 @@ def addToCartChromeAJAX(pid, captchaToken):
         baseADCUrl = 'http://www.' + marketDomain
         + '/on/demandware.store/Sites-adidas-' + marketLocale + '-Site/'
         + market
-    atcURL = baseADCUrl+'/Cart-MiniAddProduct'
+    atcURL = baseADCUrl + '/Cart-MiniAddProduct'
     cartURL = baseADCUrl.replace('http://', 'https://') + '/Cart-Show'
     data = {}
 
@@ -814,7 +815,7 @@ def addToCartChromeAJAX(pid, captchaToken):
     browser.delete_all_cookies()
     browser.get(baseADCUrl)
     if (len(cookieScript) > 0) and ('neverywhere' not in cookies):
-        print (d_()+s_('Cookie Script'))
+        print (d_() + s_('Cookie Script'))
         browser.execute_script(cookieScript)
         browser.execute_script(cookieScriptDomainAware)
     if (len(scriptURL) > 0) and ('.js' in scriptURL):
@@ -829,19 +830,19 @@ def addToCartChromeAJAX(pid, captchaToken):
     productCount = productCount.replace('"', '')
     productCount = productCount.strip()
     if debug:
-        print(d_() + z_('Debug') + o_('Product Count'+' : ' + productCount))
+        print(d_() + z_('Debug') + o_('Product Count' + ' : ' + productCount))
         print(d_() + z_('Debug') + o_('\n' + html_source))
     if (len(productCount) == 1) and (int(productCount) > 0):
         results = browser.execute_script('window.location="{0}"'.format(
             cartURL))
         temp = input('Press Enter to Close the Browser & Continue')
     else:
-        print (d_() + x_("Product Count") + lr_(productCount))
+        print (d_() + x_('Product Count') + lr_(productCount))
 
     # Maybe the Product Count source has changed and we are unable
     # to parse correctly.
     if pauseBeforeBrowserQuit:
-        temp = input("Press Enter to Close the Browser & Continue")
+        temp = input('Press Enter to Close the Browser & Continue')
 
     # Need to delete all the cookes for this session or else we will have the
     # previous size in cart
@@ -859,15 +860,15 @@ def activateCaptcha(driver):
     try:
         CheckBox = WebDriverWait(driver, sleeping).until(
             expected_conditions.presence_of_element_located(
-                (By.ID, "recaptcha-anchor")))
+                (By.ID, 'recaptcha-anchor')))
     except:
         try:
             CheckBox = WebDriverWait(driver, sleeping).until(
                 expected_conditions.presence_of_element_located(
-                    (By.ID, "recaptcha-anchor")))
+                    (By.ID, 'recaptcha-anchor')))
         except:
-            print (d_() + x_("Activate Captcha")
-                   + lr_("Failed to find checkbox"))
+            print (d_() + x_('Activate Captcha')
+                   + lr_('Failed to find checkbox'))
     CheckBox.click()
 
 
@@ -882,12 +883,13 @@ def checkSolution(driver, mainWindow):
             iframe = driver.find_element_by_css_selector(
                 'iframe[src*="api2/anchor"]')
         except:
-            print (d_()+x_("Check Solution") + lr_("Failed to find checkbox"))
+            print (d_() + x_('Check Solution')
+                   + lr_('Failed to find checkbox'))
             return
         driver.switch_to_frame(iframe)
         try:
             temp = driver.find_element_by_xpath('//span[@aria-checked="true"]')
-            print (d_() + s_("Check Solution") + lb_("Solved"))
+            print (d_() + s_('Check Solution') + lb_('Solved'))
             solved = True
         except:
             solved = False
@@ -903,22 +905,22 @@ def getToken(driver, mainWindow):
     driver.switch_to.window(mainWindow)
     try:
         Submit = WebDriverWait(driver, sleeping).until(
-            expected_conditions.presence_of_element_located((By.ID, "submit")))
+            expected_conditions.presence_of_element_located((By.ID, 'submit')))
         Submit.click()
         time.sleep(1)
     except:
-        print (d_() + x_("Captcha Submit") + lr_("Failed to click submit"))
+        print (d_() + x_('Captcha Submit') + lr_('Failed to click submit'))
 
     tokenElement = driver.find_element_by_css_selector('p#token')
-    token = tokenElement.get_attribute("value")
+    token = tokenElement.get_attribute('value')
     if token is not None:
-        print (d_() + s_("Get Token") + lb_(token))
+        print (d_() + s_('Get Token') + lb_(token))
     return token
 
 
 def harvestTokensManually():
-    print (d_() + s_("Manual Token Harvest")
-           + lb_("Number of tokens harvested: " + str(len(captchaTokens))))
+    print (d_() + s_('Manual Token Harvest')
+           + lb_('Number of tokens harvested: ' + str(len(captchaTokens))))
 
     # We will create the harvest.php on the fly based on locale and sitekey
     # values in config.cfg
@@ -967,20 +969,20 @@ def harvestTokensManually():
          <?php endif; ?>
          </body>
         </html>"""
-    with open("harvest.php", "w") as htmlFile:
+    with open('harvest.php', 'w') as htmlFile:
         htmlFile.write(htmlSource)
-    browser = getChromeDriver(chromeFolderLocation="ChromeTokenHarvestFolder")
-    url = "http://"+harvestDomain+":"+phpServerPort+"/harvest.php"
+    browser = getChromeDriver(chromeFolderLocation='ChromeTokenHarvestFolder')
+    url = 'http://' + harvestDomain + ':' + phpServerPort + '/harvest.php'
     while len(captchaTokens) < numberOfTokens:
         browser.get(url)
         mainWindow = browser.current_window_handle
         try:
             activateCaptcha(driver=browser)
         except:
-            print (d_() + x_("Page Load Failed")
-                   + lr_("Did you launch the PHP server?"))
-            print (d_()+x_("Page Load Failed")
-                   + lr_("Falling back to 2captcha"))
+            print (d_() + x_('Page Load Failed')
+                   + lr_('Did you launch the PHP server?'))
+            print (d_() + x_('Page Load Failed')
+                   + lr_('Falling back to 2captcha'))
             browser.quit()
             return
         solved = checkSolution(driver=browser, mainWindow=mainWindow)
@@ -989,12 +991,12 @@ def harvestTokensManually():
             if len(captchaTokens) == 0:
                 startTime = time.time()
             captchaTokens.append(token)
-            print (d_() + s_("Token Added"))
-            print (d_() + s_("Manual Token Harvest")
-                   + lb_("Number of tokens harvested: "
+            print (d_() + s_('Token Added'))
+            print (d_() + s_('Manual Token Harvest')
+                   + lb_('Number of tokens harvested: '
                          + str(len(captchaTokens))))
         currentTime = time.time()
         elapsedTime = currentTime - startTime
-        print (d_() + s_("Total Time Elapsed") + lb_(str(round(elapsedTime, 2))
-                                                     + " seconds"))
+        print (d_() + s_('Total Time Elapsed') + lb_(str(round(elapsedTime, 2))
+                                                     + ' seconds'))
     browser.quit()
