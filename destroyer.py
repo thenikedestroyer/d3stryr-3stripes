@@ -14,8 +14,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
-from .utils import *
-from .settings import hypedSkus, exitCode
+from utils import *
+from settings import hypedSkus, exitCode
 
 
 # Disable urllib3 warnings
@@ -27,7 +27,7 @@ configFilePath = 'config.cfg'
 config.read(configFilePath)
 
 # Get the size array
-mySizes = [s.strip() for size in config.get('user', 'mySizes').split(',')]
+mySizes = [size.strip() for size in config.get('user', 'mySizes').split(',')]
 
 # Pull user info for locale
 marketLocale = config.get('user', 'marketLocale')
@@ -351,13 +351,16 @@ def getVariantResponse():
     # Not sure why I even bother making a case for Portugal if dude on twitter
     # keeps telling it doesnt work. Da fuq is MLT?
     if market == 'PT':
-        variantStockURL = 'http://www.' + marketDomain
-        + '/on/demandware.store/Sites-adidas-' + marketLocale
-        + '-Site/' + 'MLT' + '/Product-GetVariants?pid=' + masterPid
+        variantStockURL = (
+            'http://www.{0}/on/demandware.store/Sites-adidas-'
+            '{1}-Site/MLT/Product-GetVariants?pid={2}'
+        ).format(marketDomain, marketLocale, masterPid,)
     else:
-        variantStockURL = 'http://www.' + marketDomain
-        + '/on/demandware.store/Sites-adidas-' + marketLocale + '-Site/'
-        + market + '/Product-GetVariants?pid=' + masterPid
+        variantStockURL = (
+            'http://www.{0}/on/demandware.store/Sites-adidas-'
+            '{1}-Site/{2}/Product-GetVariants?pid={3}'
+        ).format(marketDomain, marketLocale, market, masterPid,)
+
     if debug:
         print(d_() + z_('Debug') + o_(variantStockURL))
     response = session.get(url=variantStockURL, headers=headers)
@@ -621,12 +624,14 @@ def addToCartChromeAJAX(pid, captchaToken):
     cookieScript = ''
     cookieScriptDomainAware = ''
     if marketLocale == 'PT':
-        baseADCUrl = 'http://www.' + marketDomain
-        + '/on/demandware.store/Sites-adidas-' + 'MLT' + '-Site/' + market
+        baseADCUrl = (
+            'http://www.{0}/on/demandware.store/Sites-adidas-MLT-Site/{1}'
+        ).format(marketDomain, market)
     else:
-        baseADCUrl = 'http://www.' + marketDomain
-        + '/on/demandware.store/Sites-adidas-' + marketLocale + '-Site/'
-        + market
+        baseADCUrl = (
+            'http://www.{0}/on/demandware.store/Sites-adidas-{1}-Site/{2}'
+        ).format(marketDomain, marketLocale, market)
+
     atcURL = baseADCUrl + '/Cart-MiniAddProduct'
     cartURL = baseADCUrl.replace('http://', 'https://') + '/Cart-Show'
     data = {}

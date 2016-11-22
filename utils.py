@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-from .settings import revision
+from settings import revision
 
 
 class Color:
@@ -45,7 +45,7 @@ def d_(destroyer_id=None):
 
     timestamp = datetime.now()
     return 'Destroyer # {0:>4} {1:%I:%M:%S.%f}'.format(
-        destroyerId,
+        destroyer_id,
         datetime.now(),
     )[:-3]  # Cut the last 3 digits off milliseconds
 
