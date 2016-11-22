@@ -14,6 +14,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
+from .utils import *
+from .settings import hypedSkus, exitCode
+
 
 # Disable urllib3 warnings
 requests.packages.urllib3.disable_warnings()
@@ -87,139 +90,6 @@ pauseBeforeBrowserQuit = config.getboolean('debug', 'pauseBeforeBrowserQuit')
 
 # Just incase we nee to run an external script.
 scriptURL = config.get('script', 'scriptURL')
-
-# Set this for parameters checking
-hypedSkus = ['BY9612', 'BY1605', 'BY9611']
-
-# Code to indicate a shitty exit from the script
-exitCode = 1
-
-# Lets try to keep a revision tracking via commit number.
-revision = 'c+89'
-
-if 'nt' in os.name:
-    # We remove ANSI coloring for Windows
-    class color:
-        reset = ''
-        bold = ''
-        disable = ''
-        underline = ''
-        reverse = ''
-        strikethrough = ''
-        invisible = ''
-        black = ''
-        red = ''
-        green = ''
-        orange = ''
-        blue = ''
-        purple = ''
-        cyan = ''
-        lightgrey = ''
-        darkgrey = ''
-        lightred = ''
-        lightgreen = ''
-        yellow = ''
-        lightblue = ''
-        pink = ''
-        lightcyan = ''
-else:
-    # We use ANSI coloring for OSX/Linux
-    class color:
-        reset = '\033[0m'
-        bold = '\033[01m'
-        disable = '\033[02m'
-        underline = '\033[04m'
-        reverse = '\033[07m'
-        strikethrough = '\033[09m'
-        invisible = '\033[08m'
-        black = '\033[30m'
-        red = '\033[31m'
-        green = '\033[32m'
-        orange = '\033[33m'
-        blue = '\033[34m'
-        purple = '\033[35m'
-        cyan = '\033[36m'
-        lightgrey = '\033[37m'
-        darkgrey = '\033[90m'
-        lightred = '\033[91m'
-        lightgreen = '\033[92m'
-        yellow = '\033[93m'
-        lightblue = '\033[94m'
-        pink = '\033[95m'
-        lightcyan = '\033[96m'
-
-
-def d_(destroyer_id=None):
-    """
-    In a threaded setup you can identify a printed line by its threadId
-    I just call it destroyerId
-    """
-    if destroyer_id is None:
-        destroyer_id = revision
-
-    timestamp = datetime.now()
-    return 'Destroyer # {0:>4} {1:%I:%M:%S.%f}'.format(
-        destroyerId,
-        datetime.now(),
-    )[:-3]  # Cut the last 3 digits off milliseconds
-
-
-def s_(input_string):
-    return '{0} [{1:^21}]{2} '.format(
-        color.lightgrey,
-        input_string,
-        color.reset,
-    )
-
-
-def x_(input_string):
-    """
-    Color for exceptions
-    """
-    return '{0} [{1:^21}]{2} '.format(
-        color.lightred,
-        input_string,
-        color.reset,
-    )
-
-
-def z_(input_string):
-    """
-    Color for debugging
-    """
-    return '{0} [{1:^21}]{2} '.format(
-        color.orange,
-        input_string,
-        color.reset,
-    )
-
-
-def lb_(input_string):
-    """
-    Colorize text with lightblue
-    """
-    return color.lightblue + str(input_string) + color.reset
-
-
-def lr_(input_string):
-    """
-    Colorize text with lightred
-    """
-    return color.lightred + str(input_string) + color.reset
-
-
-def y_(input_string):
-    """
-    Colorize text with yellow
-    """
-    return color.yellow + str(input_string) + color.reset
-
-
-def o_(input_string):
-    """
-    Colorize text with orange
-    """
-    return color.orange + str(input_string) + color.reset
 
 
 def printRunParameters():
@@ -702,7 +572,7 @@ def processAddToCart(productInfo):
             addToCartChromeAJAX(pid, captchaToken)
         except KeyboardInterrupt:
             print (d_() + x_('KeyboardInterrupt'))
-            sys.exit(1)
+            sys.exit(exitCode)
         except:
             print (d_() + x_('Add-To-Cart')
                    + lr_(mySize + ' : ' + 'Not Found'))
