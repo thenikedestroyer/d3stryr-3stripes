@@ -13,12 +13,15 @@ Thumbs.db
 # Compiled Python files
 *.pyc
 
-# ChromeDriver binary
+# ChromeDriver binary and
 chromedriver
 chromedriver.exe
+ChromeFolder/
+ChromeTokenHarvestFolder/
 
-#d3stryr-3stripes configuration file
+#d3stryr-3stripes files
 config.cfg
+harvest.php
 
 #Python Cache
 __pycache__
