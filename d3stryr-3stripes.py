@@ -3,16 +3,11 @@
 # Import from site-packages
 import json
 
-# Imports from utils.py
-from utils import d_, x_, lr_
-
 # Imports from destroyer.py
-from destroyer import printRunParameters
-from destroyer import checkParameters
-from destroyer import getProductInfo
-from destroyer import printProductInfo
-from destroyer import processAddToCart
-
+from destroyer import (checkParameters, getProductInfo, printProductInfo,
+                       printRunParameters, processAddToCart)
+# Imports from utils.py
+from utils import d_, lr_, x_
 
 if __name__ == '__main__':
     # Print the run parameters

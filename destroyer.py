@@ -1,22 +1,20 @@
 import configparser
-from datetime import datetime
+import json
 import os
 import sys
 import time
+from datetime import datetime
 from random import randint
 
-import json
 import requests
-
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.wait import WebDriverWait
 
+from settings import exitCode, hypedSkus
 from utils import *
-from settings import hypedSkus, exitCode
-
 
 # Disable urllib3 warnings
 requests.packages.urllib3.disable_warnings()
@@ -223,7 +221,7 @@ def agent():
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36',
     ]
     # In this usage we acquire a random index of the browser array.
-    string = browsers[randint(0, len(browsers)-1)]
+    string = browsers[randint(0, len(browsers) - 1)]
     return string
 
 
@@ -426,7 +424,8 @@ def canonicalizeProductInfoClient(productJSON):
         if data['id'] != masterPid:
             try:
                 productInfo['productStock'][adidasSize2Size[data['id']]] = {}
-                productInfo['productStock'][adidasSize2Size[data['id']]]['ATS'] = int(data['inventory']['ats'])
+                productInfo['productStock'][adidasSize2Size[data['id']]][
+                    'ATS'] = int(data['inventory']['ats'])
                 productInfo['productStock'][adidasSize2Size[data['id']]]['pid'] = data['id']
             except:
                 print(d_(), x_('Client Inventory'))
@@ -446,7 +445,8 @@ def canonicalizeProductInfoVariant(productJSON):
     productInfo['productColor'] = '/'
     productInfo['productOrderable'] = '/'
     try:
-        productInfo['productPrice'] = productJSON['variations']['variants'][0]['pricing']['standard']
+        productInfo['productPrice'] = productJSON[
+            'variations']['variants'][0]['pricing']['standard']
     except:
         productInfo['productPrice'] = 0
     try:
@@ -518,7 +518,8 @@ def getProductInfo():
             stringLiteralSize = str(literalSize).replace('.0', '')
             productInfoFallback['productStock'][stringLiteralSize] = {}
             productInfoFallback['productStock'][stringLiteralSize]['ATS'] = 1
-            productInfoFallback['productStock'][stringLiteralSize]['pid'] = '{0}_{1}'.format(masterPid, variant)
+            productInfoFallback['productStock'][stringLiteralSize][
+                'pid'] = '{0}_{1}'.format(masterPid, variant)
             literalSize = literalSize + .5
     else:
         literalSize = 4.5
@@ -526,7 +527,8 @@ def getProductInfo():
             stringLiteralSize = str(literalSize).replace('.0', '')
             productInfoFallback['productStock'][stringLiteralSize] = {}
             productInfoFallback['productStock'][stringLiteralSize]['ATS'] = 1
-            productInfoFallback['productStock'][stringLiteralSize]['pid'] = '{0}_{1}'.format(masterPid, variant)
+            productInfoFallback['productStock'][stringLiteralSize][
+                'pid'] = '{0}_{1}'.format(masterPid, variant)
             literalSize = literalSize + .5
     return productInfoFallback
 
@@ -651,7 +653,8 @@ def addToCartChromeAJAX(pid, captchaToken):
     # If cookies need to be set then add to our payload.
     if 'neverywhere' not in cookies:
         cookieScript = 'document.cookie="{0}domain=.adidas.com;path=/";'.format(cookies)
-        cookieScriptDomainAware = 'document.cookie="{0}domain=.{1};path=/";'.format(cookies, marketDomain)
+        cookieScriptDomainAware = 'document.cookie="{0}domain=.{1};path=/";'.format(
+            cookies, marketDomain)
 
     data['masterPid'] = masterPid
     data['pid'] = pid
@@ -678,7 +681,7 @@ def addToCartChromeAJAX(pid, captchaToken):
     if (len(scriptURL) > 0) and ('.js' in scriptURL):
         externalScript = """
             $.ajax({
-              url: '"""+scriptURL+"""',
+              url: '""" + scriptURL + """',
               dataType: "script"
             });"""
     if debug:
@@ -801,7 +804,7 @@ def harvestTokensManually():
     # values in config.cfg
     htmlSource = """
         <?php
-         $siteKey = '"""+sitekey+"""';
+         $siteKey = '""" + sitekey + """';
          $lang = 'en';
         ?>
          <?php if (isset($_POST['g-recaptcha-response'])): ?>
