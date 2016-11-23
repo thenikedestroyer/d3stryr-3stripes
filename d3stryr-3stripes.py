@@ -13,7 +13,8 @@ from destroyer import getProductInfo
 from destroyer import printProductInfo
 from destroyer import processAddToCart
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     # Print the run parameters
     printRunParameters()
 
@@ -27,10 +28,10 @@ if __name__ == "__main__":
     printProductInfo(productInfo)
 
     # If product count is not zero process add to cart
-    if productInfo["productCount"] > 0:
+    if productInfo['productCount'] > 0:
         processAddToCart(productInfo)
-    elif productInfo["productCount"] == -1:
-        print (d_() + x_("Variant Count") + lr_("-1"))
+    elif productInfo['productCount'] == -1:
+        print (d_(), x_('Variant Count'), lr_('-1'))
         processAddToCart(productInfo)
     else:
-        print (d_() + x_("Variant Count") + lr_("0"))
+        print (d_(), x_('Variant Count'), lr_('0'))

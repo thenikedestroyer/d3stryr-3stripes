@@ -50,61 +50,71 @@ def d_(destroyer_id=None):
     )[:-3]  # Cut the last 3 digits off milliseconds
 
 
-def s_(input_string):
-    return '{0} [{1:^21}]{2} '.format(
+def s_(*args):
+    """
+    Color for general values
+    """
+    input_string = ' '.join(map(str, args))
+    return '{0}[{1:^21}]{2}'.format(
         Color.lightgrey,
         input_string,
         Color.reset,
     )
 
 
-def x_(input_string):
+def x_(*args):
     """
     Color for exceptions
     """
-    return '{0} [{1:^21}]{2} '.format(
+    input_string = ' '.join(map(str, args))
+    return '{0}[{1:^21}]{2}'.format(
         Color.lightred,
         input_string,
         Color.reset,
     )
 
 
-def z_(input_string):
+def z_(*args):
     """
     Color for debugging
     """
-    return '{0} [{1:^21}]{2} '.format(
+    input_string = ' '.join(map(str, args))
+    return '{0}[{1:^21}]{2}'.format(
         Color.orange,
         input_string,
         Color.reset,
     )
 
 
-def lb_(input_string):
+def lb_(*args):
     """
     Colorize text with lightblue
     """
+    input_string = ' '.join(map(str, args))
     return Color.lightblue + str(input_string) + Color.reset
 
 
-def lr_(input_string):
+def lr_(*args):
     """
     Colorize text with lightred
     """
+    input_string = ' '.join(map(str, args))
     return Color.lightred + str(input_string) + Color.reset
 
 
-def y_(input_string):
+def y_(*args):
     """
     Colorize text with yellow
     """
+    input_string = ' '.join(map(str, args))
     return Color.yellow + str(input_string) + Color.reset
 
 
-def o_(input_string):
+def o_(*args):
     """
     Colorize text with orange
     """
+    input_string = ' '.join(map(str, args))
     return Color.orange + str(input_string) + Color.reset
 
 __all__ = ['d_', 's_', 'x_', 'z_', 'lb_', 'lr_', 'y_', 'o_']

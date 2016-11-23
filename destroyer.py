@@ -93,101 +93,100 @@ scriptURL = config.get('script', 'scriptURL')
 
 
 def printRunParameters():
-    print(d_() + s_('Market Locale') + lb_(marketLocale))
-    print(d_() + s_('Parameters Locale') + lb_(parametersLocale))
-    print(d_() + s_('Market') + lb_(market))
-    print(d_() + s_('Market Domain') + lb_(marketDomain))
-    print(d_() + s_('API Environment') + lb_(apiEnv))
-    print(d_() + s_('Market Client ID') + lb_(clientId))
-    print(d_() + s_('Market Site Key') + lb_(sitekey))
-    print(d_() + s_('Captcha Duplicate') + lb_(duplicate))
-    print(d_() + s_('Cookie') + lb_(cookies))
-    print(d_() + s_('Process Captcha') + lb_(processCaptcha))
-    print(d_() + s_('Use Duplicate') + lb_(processCaptchaDuplicate))
-    print(d_() + s_('Product ID') + lb_(masterPid))
-    print(d_() + s_('Desired Size') + lb_(mySizes))
-    print(d_() + s_('Manual Token Harvest') + lb_(manuallyHarvestTokens))
-    print(d_() + s_('Tokens to Harvest') + lb_(numberOfTokens))
-    print(d_() + s_('Harvest Domain') + lb_(harvestDomain))
-    print(d_() + s_('Harvest Port') + lb_(phpServerPort))
-    print(d_() + s_('Sleeping') + lb_(sleeping))
-    print(d_() + s_('Debug') + lb_(debug))
-    print(d_() + s_('External Script URL') + lb_(scriptURL))
-    print(d_() + s_('Pause Between ATC') + lb_(pauseBeforeBrowserQuit))
+    print(d_(), s_('Market Locale'), lb_(marketLocale))
+    print(d_(), s_('Parameters Locale'), lb_(parametersLocale))
+    print(d_(), s_('Market'), lb_(market))
+    print(d_(), s_('Market Domain'), lb_(marketDomain))
+    print(d_(), s_('API Environment'), lb_(apiEnv))
+    print(d_(), s_('Market Client ID'), lb_(clientId))
+    print(d_(), s_('Market Site Key'), lb_(sitekey))
+    print(d_(), s_('Captcha Duplicate'), lb_(duplicate))
+    print(d_(), s_('Cookie'), lb_(cookies))
+    print(d_(), s_('Process Captcha'), lb_(processCaptcha))
+    print(d_(), s_('Use Duplicate'), lb_(processCaptchaDuplicate))
+    print(d_(), s_('Product ID'), lb_(masterPid))
+    print(d_(), s_('Desired Size'), lb_(mySizes))
+    print(d_(), s_('Manual Token Harvest'), lb_(manuallyHarvestTokens))
+    print(d_(), s_('Tokens to Harvest'), lb_(numberOfTokens))
+    print(d_(), s_('Harvest Domain'), lb_(harvestDomain))
+    print(d_(), s_('Harvest Port'), lb_(phpServerPort))
+    print(d_(), s_('Sleeping'), lb_(sleeping))
+    print(d_(), s_('Debug'), lb_(debug))
+    print(d_(), s_('External Script URL'), lb_(scriptURL))
+    print(d_(), s_('Pause Between ATC'), lb_(pauseBeforeBrowserQuit))
 
 
 def checkParameters():
     nah = False
     if (marketLocale == 'US') and (parametersLocale != 'US'):
-        print(d_()
-              + z_('config.cfg')
-              + lr_('Invalid marketLocale and parametersLocale combination.'))
+        print(d_(), z_('config.cfg'),
+              lr_('Invalid marketLocale and parametersLocale combination.'))
         nah = True
 
     if (useClientInventory) and (useVariantInventory):
-        print(d_() + z_('config.cfg')
-              + lr_('You should not set both inventory methods to True.'))
+        print(d_(), z_('config.cfg'),
+              lr_('You should not set both inventory methods to True.'))
 
     if (not manuallyHarvestTokens):
         # User is not token harvesting
         if (processCaptcha):
             if (apikey2captcha == 'xXx'):
-                print(d_() + z_('config.cfg')
-                      + lr_('You need a valid apikey2captcha if you \
-                            want to use 2captcha service! Visit 2captcha.com'))
+                print(d_(), z_('config.cfg'),
+                      lr_('You need a valid apikey2captcha if you '
+                          'want to use 2captcha service! Visit 2captcha.com'))
                 nah = True
             if (proxy2Captcha == 'localhost'):
-                print(d_() + z_('config.cfg')
-                      + lr_('Unless you are testing - you should consider \
-                            providing an IP whitelisted proxy for 2captcha to \
-                            use.'))
+                print(d_(), z_('config.cfg'),
+                      lr_('Unless you are testing - you should consider '
+                          'providing an IP whitelisted proxy for 2captcha '
+                          'to use.'))
     else:
         # User is token harvesting
         if (not processCaptcha):
             # This should have been automatically set in the printRunParameters
             # but lets check.
-            print(d_() + z_('config.cfg')
-                  + lr_('You want to manually harvest tokens but you have \
-                        not set processCaptcha to True. Much reading you have \
-                        done.'))
+            print(d_(), z_('config.cfg'),
+                  lr_('You want to manually harvest tokens but you have '
+                      'not set processCaptcha to True. '
+                      'Much reading you have done.'))
             nah = True
         if (numberOfTokens < 1):
-            print(d_() + z_('config.cfg')
-                  + lr_('Your config.cfg makes no fucking sense. Why is \
-                        numberOfTokens set to zero? And why are you \
-                        requesting to harvest tokens?'))
+            print(d_(), z_('config.cfg'),
+                  lr_('Your config.cfg makes no fucking sense. Why is '
+                      'numberOfTokens set to zero?'
+                      'And why are you requesting to harvest tokens?'))
             nah = True
         if (numberOfTokens > 5):
-            print(d_() + z_('config.cfg')
-                  + lr_('You requested to harvest a large number of tokens. \
-                        You wont be able to ATC until after you harvest all \
-                        of the tokens. And tokens have a lifespan of ~ \
-                        120 seconds.'))
+            print(d_(), z_('config.cfg'), '',
+                  lr_('You requested to harvest a large number of tokens. '
+                      'You wont be able to ATC until after you harvest all '
+                      'of the tokens. And tokens have a lifespan of ~ '
+                      '120 seconds.'))
         try:
             temp = int(phpServerPort)
         except:
-            print(d_() + z_('config.cfg')
-                  + lr_('You have supplied an invalid phpServerPort value. \
-                        Only numeric values accepted.'))
+            print(d_(), z_('config.cfg'),
+                  lr_('You have supplied an invalid phpServerPort value. '
+                      'Only numeric values accepted.'))
             nah = True
 
     if (sleeping < 3):
-        print(d_() + z_('config.cfg')
-              + lr_('Your sleeping value is less than 3 seconds. It might \
-                    not offer enough time between events.'))
+        print(d_(), z_('config.cfg'),
+              lr_('Your sleeping value is less than 3 seconds.'
+                  'It might not offer enough time between events.'))
     if (masterPid in str(hypedSkus)):
         if (not processCaptchaDuplicate):
-            print(d_() + z_('config.cfg')
-                  + lr_('This item is likely to make use of a captcha \
-                        duplicate.'))
+            print(d_(), z_('config.cfg'),
+                  lr_('This item is likely to make use of a'
+                      'captcha duplicate.'))
         if ('neverywhere' in cookies):
-            print(d_() + z_('config.cfg')
-                  + lr_('This item is likely to make use of a cookie.'))
+            print(d_(), z_('config.cfg'),
+                  lr_('This item is likely to make use of a cookie.'))
     if (not debug):
-        print(d_() + z_('config.cfg')
-              + lr_('debug is turned off. If you run into any issues dont \
-                    bother tweeting them to me. Because I will ask you why \
-                    debug is turned off.'))
+        print(d_(), z_('config.cfg'),
+              lr_('debug is turned off. If you run into any issues dont '
+                  'bother tweeting them to me. Because I will ask you why '
+                  'debug is turned off.'))
 
     if nah:
         # Flush stdout
@@ -233,8 +232,8 @@ def getACaptchaTokenFrom2Captcha():
     session.verify = False
     session.cookies.clear()
     pageurl = 'http://www.%s' % marketDomain
-    print (d_() + s_('pageurl') + lb_(pageurl))
-    print (d_() + s_('sitekey') + lb_(sitekey))
+    print (d_(), s_('pageurl'), lb_(pageurl))
+    print (d_(), s_('sitekey'), lb_(sitekey))
     while True:
         data = {
             'key': apikey2captcha,
@@ -245,9 +244,9 @@ def getACaptchaTokenFrom2Captcha():
         JSON = json.loads(response.text)
         if JSON['status'] == 1:
             balance = JSON['request']
-            print (d_() + s_('Balance') + lb_('$' + str(balance)))
+            print (d_(), s_('Balance'), lb_('${0}'.format(balance)))
         else:
-            print (d_() + x_('Balance'))
+            print (d_(), x_('Balance'))
         CAPTCHAID = None
         proceed = False
         while not proceed:
@@ -266,13 +265,13 @@ def getACaptchaTokenFrom2Captcha():
             if JSON['status'] == 1:
                 CAPTCHAID = JSON['request']
                 proceed = True
-                print (d_() + s_('Captcha ID') + lb_(CAPTCHAID))
+                print (d_(), s_('Captcha ID'), lb_(CAPTCHAID))
             else:
-                print (d_() + x_('Response') + y_(response.text))
-                print (d_() + x_('Sleeping') + y_(str(sleeping) + ' seconds'))
+                print (d_(), x_('Response'), y_(response.text))
+                print (d_(), x_('Sleeping'), y_(str(sleeping), 'seconds'))
                 time.sleep(sleeping)
-        print (d_() + s_('Waiting') + str(sleeping)
-               + ' seconds before polling for Captcha response')
+        print (d_(), s_('Waiting'),
+               '%d seconds before polling for Captcha response' % sleeping)
         time.sleep(sleeping)
         TOKEN = None
         proceed = False
@@ -289,10 +288,10 @@ def getACaptchaTokenFrom2Captcha():
             if JSON['status'] == 1:
                 TOKEN = JSON['request']
                 proceed = True
-                print (d_() + s_('Token ID') + lb_(TOKEN))
+                print (d_(), s_('Token ID'), lb_(TOKEN))
             else:
-                print (d_() + x_('Response') + y_(response.text))
-                print (d_() + x_('Sleeping') + y_(str(sleeping) + ' seconds'))
+                print (d_(), x_('Response'), y_(response.text))
+                print (d_(), x_('Sleeping'), y_(str(sleeping), 'seconds'))
                 time.sleep(sleeping)
         data = {
             'key': apikey2captcha,
@@ -303,9 +302,9 @@ def getACaptchaTokenFrom2Captcha():
         JSON = json.loads(response.text)
         if JSON['status'] == 1:
             balance = JSON['request']
-            print (d_() + s_('Balance') + lb_('$' + str(balance)))
+            print (d_(), s_('Balance'), lb_('${0}'.format(balance)))
         else:
-            print (d_() + x_('Balance'))
+            print (d_(), x_('Balance'))
         if TOKEN is not None:
             return TOKEN
 
@@ -317,9 +316,9 @@ def getClientResponse():
     session = requests.Session()
     session.verify = False
     session.cookies.clear()
-    skus = masterPid + ','
-    for x in range(510, 820, 10):
-        skus = skus + masterPid + '_' + str(x) + ','
+    skus = ','.join(
+        ['{sku}_{size_id}'.format(sku=masterPid, size_id=x)
+         for x in range(510, 820, 10)])
 
     # Other countries will use US format like MX.
     # They can just request US value for parametersLocale in config.cfg
@@ -336,7 +335,7 @@ def getClientResponse():
             '?client_id={3}&expand=availability,variations,prices'
         ).format(apiEnv, marketLocale, skus, clientId,)
     if debug:
-        print(d_() + z_('Debug') + o_(clientStockURL))
+        print(d_(), z_('Debug'), o_(clientStockURL))
 
     response = session.get(url=clientStockURL, headers=headers)
     return response
@@ -364,7 +363,7 @@ def getVariantResponse():
         ).format(marketDomain, marketLocale, market, masterPid,)
 
     if debug:
-        print(d_() + z_('Debug') + o_(variantStockURL))
+        print(d_(), z_('Debug'), o_(variantStockURL))
     response = session.get(url=variantStockURL, headers=headers)
     return response
 
@@ -379,7 +378,7 @@ def canonicalizeProductInfoClient(productJSON):
     try:
         data = productJSON['data'][0]
     except:
-        print(d_() + x_('Parse Client JSON'))
+        print(d_(), x_('Parse Client JSON'))
         raise
     try:
         productInfo['productName'] = data['name']
@@ -415,7 +414,7 @@ def canonicalizeProductInfoClient(productJSON):
     # Build a dictionary to convert adidas _XXX sizing to canonical sizing.
     adidasSize2Size = {}
     for variant in data['variation_attributes'][0]['values']:
-        adidasSize2Size[masterPid + '_' + variant['value']] = variant['name']
+        adidasSize2Size['{0}_{1}'.format(masterPid, variant['value'])] = variant['name']
 
     # We could avoid:
     # if data['id'] != masterPid:
@@ -430,10 +429,10 @@ def canonicalizeProductInfoClient(productJSON):
                 productInfo['productStock'][adidasSize2Size[data['id']]]['ATS'] = int(data['inventory']['ats'])
                 productInfo['productStock'][adidasSize2Size[data['id']]]['pid'] = data['id']
             except:
-                print(d_() + x_('Client Inventory'))
+                print(d_(), x_('Client Inventory'))
 
     if debug:
-        print(d_() + z_('Debug') + o_(json.dumps(productInfo, indent=2)))
+        print(d_(), z_('Debug'), o_(json.dumps(productInfo, indent=2)))
     return productInfo
 
 
@@ -464,41 +463,41 @@ def canonicalizeProductInfoVariant(productJSON):
             productInfo['productStock'][variant['attributes']['size']]['ATS'] = int(variant['ATS'])
             productInfo['productStock'][variant['attributes']['size']]['pid'] = variant['id']
     except:
-        print(d_() + x_('Variant Inventory'))
+        print(d_(), x_('Variant Inventory'))
 
     productInfo['productStockLevel'] = productInfo['productATS']
 
     if debug:
-        print(d_() + z_('Debug') + o_(json.dumps(productInfo, indent=2)))
+        print(d_(), z_('Debug'), o_(json.dumps(productInfo, indent=2)))
     return productInfo
 
 
 def getProductInfo():
     if useClientInventory:
         try:
-            print(d_() + s_('Client Endpoint'))
+            print(d_(), s_('Client Endpoint'))
             response = getClientResponse()
             productJSON = json.loads(response.text)
             productInfoClient = canonicalizeProductInfoClient(productJSON)
             return productInfoClient
         except:
-            print(d_() + x_('Client Endpoint'))
+            print(d_(), x_('Client Endpoint'))
             if debug:
-                print(d_() + z_('Debug') + o_('Client Endpoint Response -'
-                                              + response.text))
+                print(d_(), z_('Debug'),
+                      o_('Client Endpoint Response -', response.text))
     # If we reached this point then useClientInventory didn't successfully
     # return. So lets proceed with useVariantInventory.
     try:
-        print(d_() + s_('Variant Endpoint'))
+        print(d_(), s_('Variant Endpoint'))
         response = getVariantResponse()
         productJSON = json.loads(response.text)
         productInfoVariant = canonicalizeProductInfoVariant(productJSON)
         return productInfoVariant
     except:
-        print(d_() + x_('Variant Endpoint'))
+        print(d_(), x_('Variant Endpoint'))
         if debug:
-            print(d_() + z_('Debug') + o_('Variant Endpoint Response -'
-                                          + response.text))
+            print(d_(), z_('Debug'),
+                  o_('Variant Endpoint Response -', response.text))
     # If we reached this point then useVariantInventory did not successfully
     # return. So lets produce at minimum size inventory.
     # We will refer to this as Fallback for productInfo (when both client and
@@ -519,7 +518,7 @@ def getProductInfo():
             stringLiteralSize = str(literalSize).replace('.0', '')
             productInfoFallback['productStock'][stringLiteralSize] = {}
             productInfoFallback['productStock'][stringLiteralSize]['ATS'] = 1
-            productInfoFallback['productStock'][stringLiteralSize]['pid'] = masterPid + '_' + str(variant)
+            productInfoFallback['productStock'][stringLiteralSize]['pid'] = '{0}_{1}'.format(masterPid, variant)
             literalSize = literalSize + .5
     else:
         literalSize = 4.5
@@ -527,23 +526,23 @@ def getProductInfo():
             stringLiteralSize = str(literalSize).replace('.0', '')
             productInfoFallback['productStock'][stringLiteralSize] = {}
             productInfoFallback['productStock'][stringLiteralSize]['ATS'] = 1
-            productInfoFallback['productStock'][stringLiteralSize]['pid'] = masterPid + '_' + str(variant)
+            productInfoFallback['productStock'][stringLiteralSize]['pid'] = '{0}_{1}'.format(masterPid, variant)
             literalSize = literalSize + .5
     return productInfoFallback
 
 
 def printProductInfo(productInfo):
-    print(d_() + s_('Product Name') + lb_(productInfo['productName']))
-    print(d_() + s_('Product Color') + lb_(productInfo['productColor']))
-    print(d_() + s_('Price') + lb_(productInfo['productPrice']))
-    print(d_() + s_('Orderable') + lb_(productInfo['productOrderable']))
-    print(d_() + s_('ATS') + lb_(str(productInfo['productATS']).rjust(6, ' ')))
-    print(d_() + s_('Stock Level') +
+    print(d_(), s_('Product Name'), lb_(productInfo['productName']))
+    print(d_(), s_('Product Color'), lb_(productInfo['productColor']))
+    print(d_(), s_('Price'), lb_(productInfo['productPrice']))
+    print(d_(), s_('Orderable'), lb_(productInfo['productOrderable']))
+    print(d_(), s_('ATS'), lb_(str(productInfo['productATS']).rjust(6, ' ')))
+    print(d_(), s_('Stock Level'),
           lb_(str(productInfo['productStockLevel']).rjust(6, ' ')))
-    print(d_() + s_('Size Inventory'))
+    print(d_(), s_('Size Inventory'))
     for size in sorted(productInfo['productStock']):
-        print(d_() + s_(size.ljust(5, ' ') + ' / ' +
-                        productInfo['productStock'][size]['pid']) +
+        print(d_(), s_(size.ljust(5, ' '), '/',
+                       productInfo['productStock'][size]['pid']),
               lb_(str(productInfo['productStock'][size]['ATS']).rjust(6, ' ')))
     return
 
@@ -558,9 +557,9 @@ def processAddToCart(productInfo):
         try:
             mySizeATS = productInfo['productStock'][mySize]['ATS']
             if mySizeATS == 0:
-                print (d_() + x_('Add-To-Cart') + lr_('Out of Stock :' + mySize))
+                print (d_(), x_('Add-To-Cart'), lr_('Out of Stock:', mySize))
                 continue
-            print (d_() + s_('Add-To-Cart') + mySize + ' : ' + str(mySizeATS))
+            print (d_(), s_('Add-To-Cart'), mySize, ':', str(mySizeATS))
             pid = productInfo['productStock'][mySize]['pid']
 
             # Check if we need to process captcha
@@ -570,18 +569,17 @@ def processAddToCart(productInfo):
                 if len(captchaTokensReversed) > 0:
                     # Use a manual token
                     captchaToken = captchaTokensReversed.pop()
-                    print (d_() + s_('Number of Tokens Left')
-                           + lb_(len(captchaTokensReversed)))
+                    print (d_(), s_('Number of Tokens Left'),
+                           lb_(len(captchaTokensReversed)))
                 else:
                     # No manual tokens to pop - so lets use 2captcha
                     captchaToken = getACaptchaTokenFrom2Captcha()
             addToCartChromeAJAX(pid, captchaToken)
         except KeyboardInterrupt:
-            print (d_() + x_('KeyboardInterrupt'))
+            print (d_(), x_('KeyboardInterrupt'))
             sys.exit(exitCode)
         except:
-            print (d_() + x_('Add-To-Cart')
-                   + lr_(mySize + ' : ' + 'Not Found'))
+            print (d_(), x_('Add-To-Cart'), lr_(mySize, ' : ', 'Not Found'))
 
 
 def getChromeDriver(chromeFolderLocation=None):
@@ -597,8 +595,8 @@ def getChromeDriver(chromeFolderLocation=None):
         else:
             # Lets see if the end-user will read this and fix their own
             # problem before tweeting
-            print (d_() + x_('Chromedriver.exe')
-                   + lr_('was not found in the current folder or C:\Windows'))
+            print (d_(), x_('Chromedriver.exe'),
+                   lr_('was not found in the current folder or C:\Windows'))
             sys.stdout.flush()
             sys.exit(exitCode)
     else:
@@ -607,8 +605,8 @@ def getChromeDriver(chromeFolderLocation=None):
             # Chromedriver should be in the current directory
             chromedriver = './chromedriver'
         else:
-            print (d_() + x_('chromedriver')
-                   + lr_('was not found in the current folder.'))
+            print (d_(), x_('chromedriver'),
+                   lr_('was not found in the current folder.'))
             sys.stdout.flush()
             sys.exit(exitCode)
     os.environ['webdriver.chrome.driver'] = chromedriver
@@ -684,22 +682,22 @@ def addToCartChromeAJAX(pid, captchaToken):
               dataType: "script"
             });"""
     if debug:
-        print(d_() + z_('Debug:data') + o_(json.dumps(data, indent=2)))
-        print(d_() + z_('Debug:script') + o_(script))
-        print(d_() + z_('Debug:cookie') + o_(cookieScript))
-        print(d_() + z_('Debug:cookie') + o_(cookieScriptDomainAware))
-        print(d_() + z_('Debug:external') + o_(externalScript))
+        print(d_(), z_('Debug:data'), o_(json.dumps(data, indent=2)))
+        print(d_(), z_('Debug:script'), o_(script))
+        print(d_(), z_('Debug:cookie'), o_(cookieScript))
+        print(d_(), z_('Debug:cookie'), o_(cookieScriptDomainAware))
+        print(d_(), z_('Debug:external'), o_(externalScript))
     browser = getChromeDriver(chromeFolderLocation='ChromeFolder')
     browser.delete_all_cookies()
     browser.get(baseADCUrl)
     if (len(cookieScript) > 0) and ('neverywhere' not in cookies):
-        print (d_() + s_('Cookie Script'))
+        print (d_(), s_('Cookie Script'))
         browser.execute_script(cookieScript)
         browser.execute_script(cookieScriptDomainAware)
     if (len(scriptURL) > 0) and ('.js' in scriptURL):
-        print (d_() + s_('External Script'))
+        print (d_(), s_('External Script'))
         browser.execute_script(externalScript)
-    print (d_() + s_('ATC Script'))
+    print (d_(), s_('ATC Script'))
     browser.execute_script(script)
     time.sleep(sleeping)
     browser.get(baseADCUrl + '/Cart-ProductCount')
@@ -708,14 +706,14 @@ def addToCartChromeAJAX(pid, captchaToken):
     productCount = productCount.replace('"', '')
     productCount = productCount.strip()
     if debug:
-        print(d_() + z_('Debug') + o_('Product Count' + ' : ' + productCount))
-        print(d_() + z_('Debug') + o_('\n' + html_source))
+        print(d_(), z_('Debug'), o_('Product Count: %d' % productCount))
+        print(d_(), z_('Debug'), o_('\n{0}'.format(html_source)))
     if (len(productCount) == 1) and (int(productCount) > 0):
         results = browser.execute_script('window.location="{0}"'.format(
             cartURL))
         temp = input('Press Enter to Close the Browser & Continue')
     else:
-        print (d_() + x_('Product Count') + lr_(productCount))
+        print (d_(), x_('Product Count'), lr_(productCount))
 
     # Maybe the Product Count source has changed and we are unable
     # to parse correctly.
@@ -745,8 +743,8 @@ def activateCaptcha(driver):
                 expected_conditions.presence_of_element_located(
                     (By.ID, 'recaptcha-anchor')))
         except:
-            print (d_() + x_('Activate Captcha')
-                   + lr_('Failed to find checkbox'))
+            print (d_(), x_('Activate Captcha'),
+                   lr_('Failed to find checkbox'))
     CheckBox.click()
 
 
@@ -761,13 +759,12 @@ def checkSolution(driver, mainWindow):
             iframe = driver.find_element_by_css_selector(
                 'iframe[src*="api2/anchor"]')
         except:
-            print (d_() + x_('Check Solution')
-                   + lr_('Failed to find checkbox'))
+            print (d_(), x_('Check Solution'), lr_('Failed to find checkbox'))
             return
         driver.switch_to_frame(iframe)
         try:
             temp = driver.find_element_by_xpath('//span[@aria-checked="true"]')
-            print (d_() + s_('Check Solution') + lb_('Solved'))
+            print (d_(), s_('Check Solution'), lb_('Solved'))
             solved = True
         except:
             solved = False
@@ -787,18 +784,18 @@ def getToken(driver, mainWindow):
         Submit.click()
         time.sleep(1)
     except:
-        print (d_() + x_('Captcha Submit') + lr_('Failed to click submit'))
+        print (d_(), x_('Captcha Submit'), lr_('Failed to click submit'))
 
     tokenElement = driver.find_element_by_css_selector('p#token')
     token = tokenElement.get_attribute('value')
     if token is not None:
-        print (d_() + s_('Get Token') + lb_(token))
+        print (d_(), s_('Get Token'), lb_(token))
     return token
 
 
 def harvestTokensManually():
-    print (d_() + s_('Manual Token Harvest')
-           + lb_('Number of tokens harvested: ' + str(len(captchaTokens))))
+    print (d_(), s_('Manual Token Harvest'),
+           lb_('Number of tokens harvested: %d' % len(captchaTokens)))
 
     # We will create the harvest.php on the fly based on locale and sitekey
     # values in config.cfg
@@ -857,10 +854,10 @@ def harvestTokensManually():
         try:
             activateCaptcha(driver=browser)
         except:
-            print (d_() + x_('Page Load Failed')
-                   + lr_('Did you launch the PHP server?'))
-            print (d_() + x_('Page Load Failed')
-                   + lr_('Falling back to 2captcha'))
+            print (d_(), x_('Page Load Failed'),
+                   lr_('Did you launch the PHP server?'))
+            print (d_(), x_('Page Load Failed'),
+                   lr_('Falling back to 2captcha'))
             browser.quit()
             return
         solved = checkSolution(driver=browser, mainWindow=mainWindow)
@@ -869,12 +866,11 @@ def harvestTokensManually():
             if len(captchaTokens) == 0:
                 startTime = time.time()
             captchaTokens.append(token)
-            print (d_() + s_('Token Added'))
-            print (d_() + s_('Manual Token Harvest')
-                   + lb_('Number of tokens harvested: '
-                         + str(len(captchaTokens))))
+            print (d_(), s_('Token Added'))
+            print (d_(), s_('Manual Token Harvest'),
+                   lb_('Number of tokens harvested: %d' % len(captchaTokens)))
         currentTime = time.time()
         elapsedTime = currentTime - startTime
-        print (d_() + s_('Total Time Elapsed') + lb_(str(round(elapsedTime, 2))
-                                                     + ' seconds'))
+        print (d_(), s_('Total Time Elapsed'),
+               lb_(str(round(elapsedTime, 2)), 'seconds'))
     browser.quit()
