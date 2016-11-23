@@ -324,15 +324,17 @@ def getClientResponse():
     # Other countries will use US format like MX.
     # They can just request US value for parametersLocale in config.cfg
     if parametersLocale == 'US':
-        clientStockURL = 'http://' + apiEnv
-        + '-us-adidasgroup.demandware.net/s/adidas-'
-        + marketLocale + '/dw/shop/v15_6/products/(' + skus + ')?client_id='
-        + clientId + '&expand=availability,variations,prices'
+        clientStockURL = (
+            'http://{0}-us-adidasgroup.demandware.net/s/adidas-{1}'
+            '/dw/shop/v15_6/products/({2})'
+            '?client_id={3}&expand=availability,variations,prices'
+        ).format(apiEnv, marketLocale, skus, clientId,)
     else:
-        clientStockURL = 'http://' + apiEnv
-        + '-store-adidasgroup.demandware.net/s/adidas-'
-        + marketLocale + '/dw/shop/v15_6/products/(' + skus + ')?client_id='
-        + clientId + '&expand=availability,variations,prices'
+        clientStockURL = (
+            'http://{0}-store-adidasgroup.demandware.net/s/adidas-{1}'
+            '/dw/shop/v15_6/products/({2})'
+            '?client_id={3}&expand=availability,variations,prices'
+        ).format(apiEnv, marketLocale, skus, clientId,)
     if debug:
         print(d_() + z_('Debug') + o_(clientStockURL))
 
@@ -535,8 +537,9 @@ def printProductInfo(productInfo):
     print(d_() + s_('Product Color') + lb_(productInfo['productColor']))
     print(d_() + s_('Price') + lb_(productInfo['productPrice']))
     print(d_() + s_('Orderable') + lb_(productInfo['productOrderable']))
-    print(d_() + s_('ATS') + lb_(str(productInfo['productATS']).rjust(6,' ')))
-    print(d_() + s_('Stock Level') + lb_(str(productInfo['productStockLevel']).rjust(6,' ')))
+    print(d_() + s_('ATS') + lb_(str(productInfo['productATS']).rjust(6, ' ')))
+    print(d_() + s_('Stock Level') +
+          lb_(str(productInfo['productStockLevel']).rjust(6, ' ')))
     print(d_() + s_('Size Inventory'))
     for size in sorted(productInfo['productStock']):
         print(d_() + s_(size.ljust(5, ' ') + ' / ' +
