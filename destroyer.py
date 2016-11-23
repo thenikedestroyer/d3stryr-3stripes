@@ -89,7 +89,6 @@ pauseBeforeBrowserQuit = config.getboolean('debug', 'pauseBeforeBrowserQuit')
 # Just incase we nee to run an external script.
 scriptURL = config.get('script', 'scriptURL')
 
-
 def printRunParameters():
     print(d_(), s_('Market Locale'), lb_(marketLocale))
     print(d_(), s_('Parameters Locale'), lb_(parametersLocale))
