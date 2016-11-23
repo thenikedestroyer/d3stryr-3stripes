@@ -64,7 +64,7 @@ hypedSkus=["BY9612","BY1605","BY9611"]
 exitCode = 1
 
 #Lets try to keep a revision tracking via commit number.
-revision="c+89"
+revision="c+94"
 
 #We will use os to acquire details of the operating system so we can determine if we are on Windows or not.
 import os
