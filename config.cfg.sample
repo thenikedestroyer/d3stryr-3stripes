@@ -1,3 +1,7 @@
+# Modify this file and save it as config.cfg
+# To understand what each parameter does - please see:
+# https://github.com/thenikedestroyer/d3stryr-3stripes/blob/master/CONFIG.md
+
 [debug]
 debug = True
 pauseBeforeBrowserQuit = False
@@ -5,7 +9,7 @@ pauseBeforeBrowserQuit = False
 [user]
 marketLocale = US
 parametersLocale = US
-masterPid = BB1967
+masterPid = BY9612
 #masterPids = BY9612, BY1605, BY9611
 proxy2Captcha = localhost
 apikey2captcha = xXx
@@ -16,38 +20,31 @@ useVariantInventory = False
 mySizes = 5, 6, 7, 7.5, 8, 9, 9.5, 10, 10.5, 11, 11.5, 12, 12.5, 13, 14, 42 2/3
 
 [harvest]
-#To manually harvest captcha tokens - set to True
 manuallyHarvestTokens = True
-#Specify the number of tokens to manually harvest before starting ATC
 numberOfTokens = 1
-#Spoofed domain for local captcha hosting
 harvestDomain = dev.adidas.com
-#Port the PHP server is running on
 phpServerPort = 8000
 
 [sleeping]
 sleeping = 3
 
 [clientId]
-US = bb1e6193-3c86-481e-a440-0d818af5f3c8
-CA = ReplaceWithAValidClientId
-EU = 2904a24b-e4b4-4ef7-89a4-2ebd2d175dde
+US = 7796dee0b-5a1a-4c3c-afb7-c089cf6d3f12
+CA = 5e396c6-5589-425b-be03-774c21a74702
+EU = a0342e58-a7a3-47c3-8cff-9bf71fb7e13c
 AU = 2aa11a70-01dd-49c4-8288-3729c86ebc93
-AUPrevious = 75e396c6-5589-425b-be03-774c21a74702
 apiEnv = production
 
 [sitekey]
-US = 6Le4AQgUAAAAAABhHEq7RWQNJwGR_M-6Jni9tgtA
-CA = 6LdNnykTAAAAAMeh4_jgbXqo7pgFZCeCByiivMFw
-EU = 6LeOnCkTAAAAAK72JqRneJQ2V7GvQvvgzsVr-6kR
+US = 6LdU8QoUAAAAAFOJA5oVXG0akxBChazsO6dIbfh1
+CA = 6LdV8QoUAAAAAObSuJeOkFq9UfE-4U53NCN-Oibw
+EU = 6LdT8QoUAAAAAJE49A5rdgqYznMQOHlcSaoreKs8
 AU = 6Ld77woUAAAAANIDnwigL8v1C55WeyoNqNAxYuL8
-AUPrevious = 6LfmqykTAAAAAPkpAt5TNBSeZl81VlbRl7pZpM9m
 #pollProductPageForSiteKey = False
 #useOnlyProductPageSiteKey = False
 
 [duplicate]
-duplicate = WdHMR0cnJ
-duplicatePrevious = x-PrdRt
+duplicate = x-PrdRt
 
 [cookie]
 cookie = neverywhere=neverytime;
