@@ -1,25 +1,25 @@
 # d3stryr-3stripes
 Python 3 implementation of d3stryr-3stripes
 
-# Questions/Problems/Lurking: [http://bit.ly/d3stripesQA](http://bit.ly/d3stripesQA) 
+# Questions/Problems/Lurking: [http://bit.ly/d3stripesQA](http://bit.ly/d3stripesQA)
 
 ## Requirements:
 1. Python 3.5.2 - [https://www.python.org/downloads/](https://www.python.org/downloads/)
-   
+
    Required modules: selenium, requests, virtualenv (optional - but is used in the instructions)
-   
+
    If you don't have virtualenv and want to be able to follow the directions completely then install it with:
-   
+
    ```
    pip3 install virtualenv
    ```
-   
+
    If you don't have pip3 already installed then install it with (assuming you have Python 3.5.x installed):
-   
+
    ```
    easy_install-3.5 pip
    ```
-   
+
 
 2. chromedriver - [https://sites.google.com/a/chromium.org/chromedriver/](https://sites.google.com/a/chromium.org/chromedriver/)
 
@@ -33,8 +33,8 @@ Python 3 implementation of d3stryr-3stripes
 ## Installing:
 
 1. Either use git to clone this repository or click on "Download Zip"
-2. Navigate to the `d3stryr-3stripes` or `d3stryr-3stripes-master` depending on what you did in step 1. 
-   
+2. Navigate to the `d3stryr-3stripes` or `d3stryr-3stripes-master` depending on what you did in step 1.
+
    I will assume that if you are using `git clone` then you already know how to navigate to the appropriate folder. For everyone else, unzip `d3stryr-3stripes-master.zip`.  Then move the folder into your home directory. Then open up a terminal window and type the following to navigate to the `d3stryr-3stripes-master` folder:
    ```
    cd d3stryr-3stripes-master
@@ -45,11 +45,11 @@ Python 3 implementation of d3stryr-3stripes
    ```
    virtualenv -p python3 --no-site-packages .
    ```
-   
+
    Dont forget the period at the end!
 
 4. Activate the virtual environment (needs to be done for once for an active session in your terminal):
-   
+
    Mac/Linux:
    ```
    source bin/activate
@@ -58,18 +58,19 @@ Python 3 implementation of d3stryr-3stripes
    ```
    Scripts\activate
    ```
-   
+
 5. Install the requirements (needs to be done once per install):
 
    ```
    pip3 install -r requirements.txt
    ```
-   
+
 That is all that is needed to install.
 
 ## Configuring:
 
-The only file that needs to be modified is `config.cfg`. Read [CONFIG.md](https://github.com/thenikedestroyer/d3stryr-3stripes/blob/master/CONFIG.md)
+The only file that needs to be modified is `config.cfg.sample`.
+Rename it to `config.cfg` and read [CONFIG.md](https://github.com/thenikedestroyer/d3stryr-3stripes/blob/master/CONFIG.md)
 
 ## Running
 If you are starting from a new terminal and the `d3stryr-3stripes-master` folder is in your home directory then navigate (change into) the `d3stryr-3stripes-master` folder:
@@ -122,13 +123,13 @@ Windows:
 
 ## Common Problems
   * If the command `pip3 install virtualenv` does not work then you will need to install pip3. More than likely the command will be:
-    
+
     ```
     easy_install pip3
     ```
-    
-    or 
-    
+
+    or
+
     ```
     easy_install pip
     ```
