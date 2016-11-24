@@ -116,6 +116,7 @@ Windows:
   * ~~~Comment parts of the code so that it can be used as a learning tool.~~~
   * ~~~Add in the abililty to manually solve captchas if desired.~~~
   * ~~~Adjust terminal coloring for Windows.~~~
+  * ~~~Link injection method~~~
   * Interface w/ a MySQL DB for token harvesting locally.
 
 ## Not-Gonna-Do List
