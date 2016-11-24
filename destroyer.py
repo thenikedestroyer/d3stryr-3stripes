@@ -258,7 +258,14 @@ def getACaptchaTokenFrom2Captcha():
             }
             response = session.post(
                 url='http://2captcha.com/in.php', data=data)
-            JSON = json.loads(response.text)
+            try:
+              JSON = json.loads(response.text)
+            except:
+                print (d_(), x_('Response'), y_(response.text))
+                print (d_(), x_('Sleeping'), y_(str(sleeping), 'seconds'))
+                time.sleep(sleeping)
+                continue
+
             if JSON['status'] == 1:
                 CAPTCHAID = JSON['request']
                 proceed = True
@@ -708,7 +715,7 @@ def addToCartChromeAJAX(pid, captchaToken):
     productCount = productCount.replace('"', '')
     productCount = productCount.strip()
     if debug:
-        print(d_(), z_('Debug'), o_('Product Count: %d' % productCount))
+        print(d_(), z_('Debug'), o_('Product Count: %s' % productCount))
         print(d_(), z_('Debug'), o_('\n{0}'.format(html_source)))
     if (len(productCount) == 1) and (int(productCount) > 0):
         results = browser.execute_script('window.location="{0}"'.format(
