@@ -2,22 +2,27 @@
 # To understand what each parameter does - please see:
 # https://github.com/thenikedestroyer/d3stryr-3stripes/blob/master/CONFIG.md
 
-[debug]
-debug = True
-pauseBeforeBrowserQuit = False
+[cart]
+masterPid = S81910
+#masterPids = BY9612, BY1605, BY9611
+mySizes = 9, 10, 11, 7, 42 2/3
 
-[user]
+[locale]
 marketLocale = US
 parametersLocale = US
-masterPid = BY9612
-#masterPids = BY9612, BY1605, BY9611
+
+[captcha]
 proxy2Captcha = localhost
 apikey2captcha = xXx
 processCaptcha = True
-processCaptchaDuplicate = True
+processCaptchaDuplicate = False
+
+[inventory]
 useClientInventory = True
 useVariantInventory = False
-mySizes = 5, 6, 7, 7.5, 8, 9, 9.5, 10, 10.5, 11, 11.5, 12, 12.5, 13, 14, 42 2/3
+
+[atc]
+useInjectionMethod = True
 
 [harvest]
 manuallyHarvestTokens = True
@@ -25,18 +30,17 @@ numberOfTokens = 1
 harvestDomain = dev.adidas.com
 phpServerPort = 8000
 
-[sleeping]
-sleeping = 3
-
 [clientId]
-US = 7796dee0b-5a1a-4c3c-afb7-c089cf6d3f12
+#US = 7796dee0b-5a1a-4c3c-afb7-c089cf6d3f12
+US = bb1e6193-3c86-481e-a440-0d818af5f3c8
 CA = 5e396c6-5589-425b-be03-774c21a74702
 EU = a0342e58-a7a3-47c3-8cff-9bf71fb7e13c
 AU = 2aa11a70-01dd-49c4-8288-3729c86ebc93
 apiEnv = production
 
 [sitekey]
-US = 6LdU8QoUAAAAAFOJA5oVXG0akxBChazsO6dIbfh1
+#US = 6LdU8QoUAAAAAFOJA5oVXG0akxBChazsO6dIbfh1
+US = 6Le4AQgUAAAAAABhHEq7RWQNJwGR_M-6Jni9tgtA
 CA = 6LdV8QoUAAAAAObSuJeOkFq9UfE-4U53NCN-Oibw
 EU = 6LdT8QoUAAAAAJE49A5rdgqYznMQOHlcSaoreKs8
 AU = 6Ld77woUAAAAANIDnwigL8v1C55WeyoNqNAxYuL8
@@ -161,3 +165,10 @@ US = adidas.com
 VE = latin-america.adidas.com
 VN = adidas.com.vn
 ZA = adidas.co.za
+
+[sleeping]
+sleeping = 3
+
+[debug]
+debug = True
+pauseBeforeBrowserQuit = False
