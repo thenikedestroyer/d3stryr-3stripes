@@ -25,7 +25,7 @@
 `useVariantInventory` = `True | False` - use inventory endpoint that requires only the product ID?
 
 ##Section [atc]
-`useInjectionMethod` = `True | False` - use link inject method for ATC?
+`useInjectionMethod` = `True | False` - use link injection method for ATC?
 
 ##Section [harvest]
 `manuallyHarvestTokens` = `True | False` - Do we want to manually harvest captcha tokens?
