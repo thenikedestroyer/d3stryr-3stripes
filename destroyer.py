@@ -24,15 +24,30 @@ config = configparser.ConfigParser()
 configFilePath = 'config.cfg'
 config.read(configFilePath)
 
+# Pull user info for masterPid
+masterPid = config.get('cart', 'masterPid')
+
 # Get the size array
-mySizes = [size.strip() for size in config.get('user', 'mySizes').split(',')]
+mySizes = [size.strip() for size in config.get('cart', 'mySizes').split(',')]
 
 # Pull user info for locale
-marketLocale = config.get('user', 'marketLocale')
-parametersLocale = config.get('user', 'parametersLocale')
+marketLocale = config.get('locale', 'marketLocale')
+parametersLocale = config.get('locale', 'parametersLocale')
 
-# Pull user info for masterPid
-masterPid = config.get('user', 'masterPid')
+# Pull 2captcha info
+proxy2Captcha = config.get('captcha', 'proxy2Captcha')
+apikey2captcha = config.get('captcha', 'apikey2captcha')
+
+# Pull run parameters for handing captchas
+processCaptcha = config.getboolean('captcha', 'processCaptcha')
+processCaptchaDuplicate = config.getboolean('captcha', 'processCaptchaDuplicate')
+
+# Pull run parameters for handing inventory endpoints
+useClientInventory = config.getboolean('inventory', 'useClientInventory')
+useVariantInventory = config.getboolean('inventory', 'useVariantInventory')
+
+# Pull atc parameters to determine if we use the injection method
+useInjectionMethod = config.getboolean('atc', 'useInjectionMethod')
 
 # Token Harvesting info
 manuallyHarvestTokens = config.getboolean('harvest', 'manuallyHarvestTokens')
@@ -41,22 +56,10 @@ harvestDomain = config.get('harvest', 'harvestDomain')
 phpServerPort = config.get('harvest', 'phpServerPort')
 captchaTokens = []
 
-# Pull 2captcha info
-proxy2Captcha = config.get('user', 'proxy2Captcha')
-apikey2captcha = config.get('user', 'apikey2captcha')
-
-# Pull run parameters for handing inventory endpoints
-useClientInventory = config.getboolean('user', 'useClientInventory')
-useVariantInventory = config.getboolean('user', 'useVariantInventory')
-
-# Pull run parameters for handing captchas
-processCaptcha = config.getboolean('user', 'processCaptcha')
-
 # Because end-users refuse to read and understand the config.cfg file lets go
 # ahead and set processCaptcha to True if harvest is turned on.
 if manuallyHarvestTokens:
     processCaptcha = True
-processCaptchaDuplicate = config.getboolean('user', 'processCaptchaDuplicate')
 
 # Pull info based on marketLocale
 market = config.get('market', marketLocale)
@@ -76,6 +79,9 @@ sitekey = config.get('sitekey', parametersLocale)
 duplicate = config.get('duplicate', 'duplicate')
 cookies = config.get('cookie', 'cookie')
 
+# Just incase we nee to run an external script.
+scriptURL = config.get('script', 'scriptURL')
+
 # Pull the amount of time to sleep in seconds when needed
 sleeping = config.getint('sleeping', 'sleeping')
 
@@ -85,9 +91,6 @@ debug = config.getboolean('debug', 'debug')
 # Require end-user to press enter before terminating Chrome's browser window
 # during ATC
 pauseBeforeBrowserQuit = config.getboolean('debug', 'pauseBeforeBrowserQuit')
-
-# Just incase we nee to run an external script.
-scriptURL = config.get('script', 'scriptURL')
 
 def printRunParameters():
     print(d_(), s_('Market Locale'), lb_(marketLocale))
@@ -111,6 +114,7 @@ def printRunParameters():
     print(d_(), s_('Debug'), lb_(debug))
     print(d_(), s_('External Script URL'), lb_(scriptURL))
     print(d_(), s_('Pause Between ATC'), lb_(pauseBeforeBrowserQuit))
+    print(d_(), s_('Use Link Injection'), lb_(useInjectionMethod))
 
 
 def checkParameters():
@@ -238,7 +242,16 @@ def getACaptchaTokenFrom2Captcha():
             'json': 1,
         }
         response = session.get(url='http://2captcha.com/res.php', params=data)
-        JSON = json.loads(response.text)
+        try:
+          JSON = json.loads(response.text)
+        except:
+          print (d_(), x_('Response'), y_(response.text))
+          if "ERROR_WRONG_USER_KEY" in response.text:
+            sys.exit(1)
+          print (d_(), x_('Sleeping'), y_(str(sleeping), 'seconds'))
+          time.sleep(sleeping)
+          continue
+
         if JSON['status'] == 1:
             balance = JSON['request']
             print (d_(), s_('Balance'), lb_('${0}'.format(balance)))
@@ -590,7 +603,7 @@ def processAddToCart(productInfo):
             print (d_(), x_('Add-To-Cart'), lr_(mySize, ' : ', 'Not Found'))
 
 
-def getChromeDriver(chromeFolderLocation=None):
+def getChromeDriver(chromeFolderLocation=None,windowSize=None):
     chromedriver = None
     if 'nt' in os.name:
         # Es ventanas?
@@ -624,6 +637,9 @@ def getChromeDriver(chromeFolderLocation=None):
     # delete it if necessary
     if chromeFolderLocation is not None:
         chrome_options.add_argument('--user-data-dir=' + chromeFolderLocation)
+
+    if windowSize is not None:
+      chrome_options.add_argument("window-size="+windowSize[0])
 
     driver = webdriver.Chrome(chromedriver, chrome_options=chrome_options)
     return driver
@@ -667,6 +683,7 @@ def addToCartChromeAJAX(pid, captchaToken):
     data['Quantity'] = '1'
     data['request'] = 'ajax'
     data['responseformat'] = 'json'
+    data['sessionSelectedStoreID'] = 'null'
     script = """
       $.ajax({
         url: '""" + atcURL + """',
@@ -683,6 +700,16 @@ def addToCartChromeAJAX(pid, captchaToken):
         }
       });"""
 
+    if useInjectionMethod:
+      injectionURL = baseADCUrl + '/Cart-MiniAddProduct' + '?pid='+pid+'&masterPid='+masterPid+'&ajax=true'
+      if processCaptcha:
+        injectionURL = injectionURL + '&g-recaptcha-response=' + captchaToken
+      script = """
+        var url='"""+injectionURL+"""';
+        document.getElementById(document.querySelector("[id^='dwfrm_cart']").id).action = url;
+        document.getElementById(document.querySelector("[id^='dwfrm_cart']").id).submit();
+      """
+
     externalScript = None
     if (len(scriptURL) > 0) and ('.js' in scriptURL):
         externalScript = """
@@ -698,7 +725,10 @@ def addToCartChromeAJAX(pid, captchaToken):
         print(d_(), z_('Debug:external'), o_(externalScript))
     browser = getChromeDriver(chromeFolderLocation='ChromeFolder')
     browser.delete_all_cookies()
-    browser.get(baseADCUrl)
+    if useInjectionMethod:
+      browser.get(cartURL)
+    else:
+      browser.get(baseADCUrl)
     if (len(cookieScript) > 0) and ('neverywhere' not in cookies):
         print (d_(), s_('Cookie Script'))
         browser.execute_script(cookieScript)
@@ -708,7 +738,7 @@ def addToCartChromeAJAX(pid, captchaToken):
         browser.execute_script(externalScript)
     print (d_(), s_('ATC Script'))
     browser.execute_script(script)
-    time.sleep(sleeping)
+   #time.sleep(sleeping)
     browser.get(baseADCUrl + '/Cart-ProductCount')
     html_source = browser.page_source
     productCount = browser.find_element_by_tag_name('body').text
@@ -855,7 +885,8 @@ def harvestTokensManually():
         </html>"""
     with open('harvest.php', 'w') as htmlFile:
         htmlFile.write(htmlSource)
-    browser = getChromeDriver(chromeFolderLocation='ChromeTokenHarvestFolder')
+    windowSize=["640,640"]
+    browser = getChromeDriver(chromeFolderLocation='ChromeTokenHarvestFolder',windowSize=windowSize)
     url = 'http://' + harvestDomain + ':' + phpServerPort + '/harvest.php'
     while len(captchaTokens) < numberOfTokens:
         browser.get(url)
