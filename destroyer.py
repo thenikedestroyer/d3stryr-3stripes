@@ -92,6 +92,7 @@ debug = config.getboolean('debug', 'debug')
 # during ATC
 pauseBeforeBrowserQuit = config.getboolean('debug', 'pauseBeforeBrowserQuit')
 
+
 def printRunParameters():
     print(d_(), s_('Market Locale'), lb_(marketLocale))
     print(d_(), s_('Parameters Locale'), lb_(parametersLocale))
@@ -243,14 +244,14 @@ def getACaptchaTokenFrom2Captcha():
         }
         response = session.get(url='http://2captcha.com/res.php', params=data)
         try:
-          JSON = json.loads(response.text)
+            JSON = json.loads(response.text)
         except:
-          print (d_(), x_('Response'), y_(response.text))
-          if "ERROR_WRONG_USER_KEY" in response.text:
-            sys.exit(1)
-          print (d_(), x_('Sleeping'), y_(str(sleeping), 'seconds'))
-          time.sleep(sleeping)
-          continue
+            print (d_(), x_('Response'), y_(response.text))
+            if "ERROR_WRONG_USER_KEY" in response.text:
+                sys.exit(1)
+            print (d_(), x_('Sleeping'), y_(str(sleeping), 'seconds'))
+            time.sleep(sleeping)
+            continue
 
         if JSON['status'] == 1:
             balance = JSON['request']
@@ -272,7 +273,7 @@ def getACaptchaTokenFrom2Captcha():
             response = session.post(
                 url='http://2captcha.com/in.php', data=data)
             try:
-              JSON = json.loads(response.text)
+                JSON = json.loads(response.text)
             except:
                 print (d_(), x_('Response'), y_(response.text))
                 print (d_(), x_('Sleeping'), y_(str(sleeping), 'seconds'))
@@ -603,7 +604,7 @@ def processAddToCart(productInfo):
             print (d_(), x_('Add-To-Cart'), lr_(mySize, ' : ', 'Not Found'))
 
 
-def getChromeDriver(chromeFolderLocation=None,windowSize=None):
+def getChromeDriver(chromeFolderLocation=None, windowSize=None):
     chromedriver = None
     if 'nt' in os.name:
         # Es ventanas?
@@ -639,7 +640,7 @@ def getChromeDriver(chromeFolderLocation=None,windowSize=None):
         chrome_options.add_argument('--user-data-dir=' + chromeFolderLocation)
 
     if windowSize is not None:
-      chrome_options.add_argument("window-size="+windowSize[0])
+        chrome_options.add_argument("window-size=" + windowSize[0])
 
     driver = webdriver.Chrome(chromedriver, chrome_options=chrome_options)
     return driver
@@ -701,11 +702,12 @@ def addToCartChromeAJAX(pid, captchaToken):
       });"""
 
     if useInjectionMethod:
-      injectionURL = baseADCUrl + '/Cart-MiniAddProduct' + '?pid='+pid+'&masterPid='+masterPid+'&ajax=true'
-      if processCaptcha:
-        injectionURL = injectionURL + '&g-recaptcha-response=' + captchaToken
-      script = """
-        var url='"""+injectionURL+"""';
+        injectionURL = baseADCUrl + '/Cart-MiniAddProduct' + \
+            '?pid=' + pid + '&masterPid=' + masterPid + '&ajax=true'
+        if processCaptcha:
+            injectionURL = injectionURL + '&g-recaptcha-response=' + captchaToken
+        script = """
+        var url='""" + injectionURL + """';
         document.getElementById(document.querySelector("[id^='dwfrm_cart']").id).action = url;
         document.getElementById(document.querySelector("[id^='dwfrm_cart']").id).submit();
       """
@@ -726,9 +728,9 @@ def addToCartChromeAJAX(pid, captchaToken):
     browser = getChromeDriver(chromeFolderLocation='ChromeFolder')
     browser.delete_all_cookies()
     if useInjectionMethod:
-      browser.get(cartURL)
+        browser.get(cartURL)
     else:
-      browser.get(baseADCUrl)
+        browser.get(baseADCUrl)
     if (len(cookieScript) > 0) and ('neverywhere' not in cookies):
         print (d_(), s_('Cookie Script'))
         browser.execute_script(cookieScript)
@@ -738,7 +740,7 @@ def addToCartChromeAJAX(pid, captchaToken):
         browser.execute_script(externalScript)
     print (d_(), s_('ATC Script'))
     browser.execute_script(script)
-   #time.sleep(sleeping)
+   # time.sleep(sleeping)
     browser.get(baseADCUrl + '/Cart-ProductCount')
     html_source = browser.page_source
     productCount = browser.find_element_by_tag_name('body').text
@@ -885,8 +887,9 @@ def harvestTokensManually():
         </html>"""
     with open('harvest.php', 'w') as htmlFile:
         htmlFile.write(htmlSource)
-    windowSize=["640,640"]
-    browser = getChromeDriver(chromeFolderLocation='ChromeTokenHarvestFolder',windowSize=windowSize)
+    windowSize = ["640,640"]
+    browser = getChromeDriver(
+        chromeFolderLocation='ChromeTokenHarvestFolder', windowSize=windowSize)
     url = 'http://' + harvestDomain + ':' + phpServerPort + '/harvest.php'
     while len(captchaTokens) < numberOfTokens:
         browser.get(url)
