@@ -1,8 +1,6 @@
 import os
 from datetime import datetime
 
-from settings import revision
-
 
 class Color:
     reset = '\033[0m'
@@ -40,6 +38,7 @@ def d_(destroyer_id=None):
     In a threaded setup you can identify a printed line by its threadId
     I just call it destroyerId
     """
+    from settings import revision  # Avoid circular imports
     if destroyer_id is None:
         destroyer_id = revision
 
