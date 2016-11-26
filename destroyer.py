@@ -1,9 +1,9 @@
 import json
 import os
+import random
 import sys
 import time
 from datetime import datetime
-from random import randint
 
 import requests
 from selenium import webdriver
@@ -45,9 +45,7 @@ def agent():
         'Mozilla/5.0 (Linux; U; Android 2.2; en-us; SCH-I800 Build/FROYO) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1',
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36',
     ]
-    # In this usage we acquire a random index of the browser array.
-    string = browsers[randint(0, len(browsers) - 1)]
-    return string
+    return random.choice(browsers)
 
 
 def getACaptchaTokenFrom2Captcha():
