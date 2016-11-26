@@ -740,7 +740,7 @@ def addToCartChromeAJAX(pid, captchaToken):
         browser.execute_script(externalScript)
     print (d_(), s_('ATC Script'))
     browser.execute_script(script)
-   # time.sleep(sleeping)
+    # time.sleep(sleeping)
     browser.get(baseADCUrl + '/Cart-ProductCount')
     html_source = browser.page_source
     productCount = browser.find_element_by_tag_name('body').text
