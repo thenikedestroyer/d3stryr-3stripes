@@ -34,8 +34,6 @@
 
 `harvestDomain` = `dev.adidas.xxx` - defines the domain we are spoofing to manually harvest captchas.
 
-`phpServerPort` = `####` - defines the PHP server port.
-
 ##Section [clientId]
 `apiEnv` = `production | staging | development` - defines the API environment of the client inventory endpoint.
 
@@ -60,10 +58,9 @@
 `XX` = `adidas.xxx` - defines the domain for locale XX.
 
 ##Section [sleeping]
-`sleeping` = `#` - defines the length of time the script will wait between certain time-sensitive events. 
+`sleeping` = `#` - defines the length of time the script will wait between certain time-sensitive events.
 
 ##Section [debug]
-`debug` = `True | False` - controls output verbosity. 
+`debug` = `True | False` - controls output verbosity.
 
-`pauseBeforeBrowserQuit` = `True | False` - controls manual interaction before brower quits (before proceeding to the next size). 
-
+`pauseBeforeBrowserQuit` = `True | False` - controls manual interaction before brower quits (before proceeding to the next size).
