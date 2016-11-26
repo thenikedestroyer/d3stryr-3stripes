@@ -1,0 +1,33 @@
+<html>
+  <head>
+    {% if token %}
+      <title>adidas Official Website | adidas</title>
+    {% else %}
+      <title>d3stryr 3stripes Manual Token Harvesting | adidas</title>
+    {% endif %}
+    <style type="text/css">
+      body {
+        margin: 1em 5em 0 5em;
+        font-family: sans-serif;
+      }
+      fieldset {
+        display: inline;
+        padding: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    {% if token %}
+      <p id="token" value="{{ token }}" style="padding: 3px; word-break: break-all; word-wrap: break-word;">{{ token }}</p>
+    {% else %}
+      <p>Token Harvesting</p>
+      <form action="." method="post">
+        <fieldset>
+          <div class="g-recaptcha" data-sitekey="{{ sitekey }}"></div>
+          <script type="text/javascript" src="https://www.google.com/recaptcha/api.js"></script>
+          <p><input type="submit" value="Submit" id="submit"/></p>
+        </fieldset>
+      </form>
+    {% endif %}
+  </body>
+</html>

@@ -3,6 +3,7 @@ import os
 import random
 import sys
 import time
+import _thread
 from datetime import datetime
 
 import requests
@@ -12,7 +13,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
-from settings import exitCode, hypedSkus, user_config
+from harvester import harvest_server
+from settings import exit_code, hypedSkus, captcha_tokens, user_config
 from utils import *
 
 # Disable urllib3 warnings
@@ -67,7 +69,7 @@ def getACaptchaTokenFrom2Captcha():
         except:
             print (d_(), x_('Response'), y_(response.text))
             if "ERROR_WRONG_USER_KEY" in response.text:
-                sys.exit(1)
+                sys.exit(exit_code)
             print (d_(), x_('Sleeping'), y_(user_config.sleeping, 'seconds'))
             time.sleep(user_config.sleeping)
             continue
@@ -387,9 +389,9 @@ def printProductInfo(productInfo):
 def processAddToCart(productInfo):
     captchaTokensReversed = []
     if user_config.manuallyHarvestTokens:
-        harvestTokensManually()
-        for index in range(0, len(captchaTokens)):
-            captchaTokensReversed.append(captchaTokens.pop())
+        harvest_tokens_manually()
+        for index in range(0, len(captcha_tokens)):
+            captchaTokensReversed.append(captcha_tokens.pop())
     for mySize in user_config.mySizes:
         try:
             mySizeATS = productInfo['productStock'][mySize]['ATS']
@@ -414,7 +416,7 @@ def processAddToCart(productInfo):
             addToCartChromeAJAX(pid, captchaToken)
         except KeyboardInterrupt:
             print (d_(), x_('KeyboardInterrupt'))
-            sys.exit(exitCode)
+            sys.exit(exit_code)
         except:
             print (d_(), x_('Add-To-Cart'), lr_(mySize, ' : ', 'Not Found'))
 
@@ -435,7 +437,7 @@ def getChromeDriver(chromeFolderLocation=None, windowSize=None):
             print (d_(), x_('Chromedriver.exe'),
                    lr_('was not found in the current folder or C:\Windows'))
             sys.stdout.flush()
-            sys.exit(exitCode)
+            sys.exit(exit_code)
     else:
         # Es manzanas?
         if os.path.isfile('./chromedriver'):
@@ -445,7 +447,7 @@ def getChromeDriver(chromeFolderLocation=None, windowSize=None):
             print (d_(), x_('chromedriver'),
                    lr_('was not found in the current folder.'))
             sys.stdout.flush()
-            sys.exit(exitCode)
+            sys.exit(exit_code)
     os.environ['webdriver.chrome.driver'] = chromedriver
     chrome_options = Options()
 
@@ -649,86 +651,37 @@ def getToken(driver, mainWindow):
     return token
 
 
-def harvestTokensManually():
-    print (d_(), s_('Manual Token Harvest'),
-           lb_('Number of tokens harvested: %d' % len(captchaTokens)))
+def harvest_tokens_manually():
+    """
+    Harvest tokens manually
+    """
+    print (d_(), s_('Manual Token Harvest'), lb_('Number of tokens harvested: %d' % len(captcha_tokens)))
 
-    # We will create the harvest.php on the fly based on locale and sitekey
-    # values in config.cfg
-    htmlSource = """
-        <?php
-         $siteKey = '""" + user_config.sitekey + """';
-         $lang = 'en';
-        ?>
-         <?php if (isset($_POST['g-recaptcha-response'])): ?>
-        <html>
-         <head>
-           <title>adidas Official Website | adidas</title>
-         </head>
-         <body>
-         <?php $token=$_POST['g-recaptcha-response']; ?>
-             <p id="token" value="<?php echo $token; ?>"
-               style="padding: 3px; word-break: break-all;
-                 word-wrap: break-word;"><?php echo $token; ?></p>
-         <?php else: ?>
-        <html>
-         <head>
-           <title>d3stryr 3stripes Manual Token Harvesting | adidas</title>
-                <style type="text/css">
-                    body {
-                        margin: 1em 5em 0 5em;
-                        font-family: sans-serif;
-                    }
-                    fieldset {
-                        display: inline;
-                        padding: 1em;
-                    }
-                </style>
-         </head>
-         <body>
-            <p>Token Harvesting</p>
-            <form action="/harvest.php" method="post">
-                <fieldset>
-                    <div class="g-recaptcha"
-                      data-sitekey="<?php echo $siteKey; ?>"></div>
-                    <script type="text/javascript"
-                      src="https://www.google.com/recaptcha/api.js">
-                    </script>
-                    <p><input type="submit" value="Submit" id="submit"/></p>
-                </fieldset>
-            </form>
-         <?php endif; ?>
-         </body>
-        </html>"""
-    with open('harvest.php', 'w') as htmlFile:
-        htmlFile.write(htmlSource)
-    windowSize = ["640,640"]
-    browser = getChromeDriver(
-        chromeFolderLocation='ChromeTokenHarvestFolder', windowSize=windowSize)
-    url = 'http://' + user_config.harvestDomain + ':' + user_config.phpServerPort + '/harvest.php'
-    while len(captchaTokens) < user_config.numberOfTokens:
+    # Run the harvest server
+    # XXX: This threading module is deprecated
+    _thread.start_new_thread(harvest_server.run,())
+
+    window_size = ["640,640"]
+    browser = getChromeDriver(chromeFolderLocation='ChromeTokenHarvestFolder', windowSize=window_size)
+    url = 'http://{0}:{1}{2}'.format(user_config.harvestDomain, 5000, '')  # Flask runs on port 5000 by default.
+    while len(captcha_tokens) < user_config.numberOfTokens:
         browser.get(url)
-        mainWindow = browser.current_window_handle
+        main_window = browser.current_window_handle
         try:
             activateCaptcha(driver=browser)
         except:
-            print (d_(), x_('Page Load Failed'),
-                   lr_('Did you launch the PHP server?'))
-            print (d_(), x_('Page Load Failed'),
-                   lr_('Falling back to 2captcha'))
+            print (d_(), x_('Page Load Failed'), lr_('Falling back to 2captcha'))
             browser.quit()
             return
-        solved = checkSolution(driver=browser, mainWindow=mainWindow)
-        token = getToken(driver=browser, mainWindow=mainWindow)
+        solved = checkSolution(driver=browser, mainWindow=main_window)
+        token = getToken(driver=browser, mainWindow=main_window)
         if token is not None:
-            if len(captchaTokens) == 0:
+            if len(captcha_tokens) == 0:
                 startTime = time.time()
-            captchaTokens.append(token)
+            captcha_tokens.append(token)
             print (d_(), s_('Token Added'))
-            print (d_(), s_('Manual Token Harvest'),
-                   lb_('Number of tokens harvested: %d' % len(captchaTokens)))
-        currentTime = time.time()
-        elapsedTime = currentTime - startTime
-        print (d_(), s_('Total Time Elapsed'),
-               lb_(str(round(elapsedTime, 2)), 'seconds'))
+            print (d_(), s_('Manual Token Harvest'), lb_('Number of tokens harvested: %d' % len(captcha_tokens)))
+        current_time = time.time()
+        elapsed_time = current_time - start_time
+        print (d_(), s_('Total Time Elapsed'), lb_(round(elapsed_time, 2), 'seconds'))
     browser.quit()

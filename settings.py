@@ -9,10 +9,10 @@ revision = 'c+117'
 hypedSkus = ['BY9612', 'BY1605', 'BY9611']
 
 # Code to indicate a shitty exit from the script.
-exitCode = 1
+exit_code = 1
 
 # Store manually harvested captcha tokens here.
-captchaTokens = []
+captcha_tokens = []
 
 # Parse configuration file
 c = configparser.ConfigParser()
@@ -56,7 +56,6 @@ class Config:
     manuallyHarvestTokens = c.getboolean('harvest', 'manuallyHarvestTokens')
     numberOfTokens = c.getint('harvest', 'numberOfTokens')
     harvestDomain = c.get('harvest', 'harvestDomain')
-    phpServerPort = c.get('harvest', 'phpServerPort')
 
     # Pull info necessary for a Yeezy drop
     duplicateField = c.get('duplicate', 'duplicate')
@@ -100,7 +99,6 @@ class Config:
         print(d_(), s_('Manual Token Harvest'), lb_(self.manuallyHarvestTokens))
         print(d_(), s_('Tokens to Harvest'), lb_(self.numberOfTokens))
         print(d_(), s_('Harvest Domain'), lb_(self.harvestDomain))
-        print(d_(), s_('Harvest Port'), lb_(self.phpServerPort))
         print(d_(), s_('Sleeping'), lb_(self.sleeping))
         print(d_(), s_('Debug'), lb_(self.debug))
         print(d_(), s_('External Script URL'), lb_(self.scriptURL))
@@ -151,12 +149,6 @@ class Config:
                           'You wont be able to ATC until after you harvest all '
                           'of the tokens. And tokens have a lifespan of ~ '
                           '120 seconds.'))
-            try:
-                int(self.phpServerPort)
-            except:
-                print(d_(), z_('config.cfg'),
-                      lr_('You have supplied an invalid phpServerPort value. Only numeric values accepted.'))
-                nah = True
 
         if self.sleeping < 3:
             print(d_(), z_('config.cfg'),
