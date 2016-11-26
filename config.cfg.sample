@@ -28,7 +28,6 @@ useInjectionMethod = True
 manuallyHarvestTokens = True
 numberOfTokens = 1
 harvestDomain = dev.adidas.com
-phpServerPort = 8000
 
 [clientId]
 #US = 7796dee0b-5a1a-4c3c-afb7-c089cf6d3f12
