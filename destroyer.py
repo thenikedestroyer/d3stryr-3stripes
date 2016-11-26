@@ -677,7 +677,7 @@ def harvest_tokens_manually():
         token = getToken(driver=browser, mainWindow=main_window)
         if token is not None:
             if len(captcha_tokens) == 0:
-                startTime = time.time()
+                start_time = time.time()
             captcha_tokens.append(token)
             print (d_(), s_('Token Added'))
             print (d_(), s_('Manual Token Harvest'), lb_('Number of tokens harvested: %d' % len(captcha_tokens)))

@@ -4,7 +4,7 @@ import json
 import sys
 from destroyer import getProductInfo, printProductInfo, processAddToCart
 from utils import d_, lr_, x_
-from settings import user_config, exitCode
+from settings import user_config, exit_code
 
 if __name__ == '__main__':
     # Print the run parameters
@@ -13,7 +13,7 @@ if __name__ == '__main__':
     # Check for dumb asses
     if not user_config.validate_config():
         sys.stdout.flush()
-        sys.exit(exitCode)
+        sys.exit(exit_code)
 
     # Get product info
     productInfo = getProductInfo()
