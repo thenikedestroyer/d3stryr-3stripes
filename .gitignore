@@ -21,7 +21,6 @@ ChromeTokenHarvestFolder/
 
 # d3stryr-3stripes files
 config.cfg
-harvest.php
 
 # Python Cache
 __pycache__
