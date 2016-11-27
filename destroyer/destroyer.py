@@ -4,7 +4,7 @@ import json
 import sys
 
 from cart import process_add_to_cart
-from product import getProductInfo, printProductInfo
+from product import get_product_info, print_product_info
 from settings import exit_code, user_config
 from utils import d_, lr_, x_
 
@@ -18,16 +18,16 @@ if __name__ == '__main__':
         sys.exit(exit_code)
 
     # Get product info
-    productInfo = getProductInfo()
+    product_info = get_product_info()
 
     # Print product info
-    printProductInfo(productInfo)
+    print_product_info(product_info)
 
     # If product count is not zero process add to cart
-    if productInfo['productCount'] > 0:
-        process_add_to_cart(productInfo)
-    elif productInfo['productCount'] == -1:
+    if product_info['productCount'] > 0:
+        process_add_to_cart(product_info)
+    elif product_info['productCount'] == -1:
         print (d_(), x_('Variant Count'), lr_('-1'))
-        process_add_to_cart(productInfo)
+        process_add_to_cart(product_info)
     else:
         print (d_(), x_('Variant Count'), lr_('0'))

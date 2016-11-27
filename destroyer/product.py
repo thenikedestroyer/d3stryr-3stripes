@@ -1,4 +1,5 @@
 import json
+from decimal import Decimal
 
 from settings import hyped_skus, user_config
 from utils import *
@@ -109,68 +110,65 @@ def canonicalize_product_info_variant(product_json):
     return product_info
 
 
-def getProductInfo():
+def get_product_info():
+    """
+    Get Product info from inventory data.
+    """
     if user_config.useClientInventory:
         try:
             print(d_(), s_('Client Endpoint'))
             response = inventory.get_client_response()
             product_json = response.json()
-            productInfoClient = canonicalize_product_info_client(product_json)
-            return productInfoClient
+            product_info_client = canonicalize_product_info_client(product_json)
+            return product_info_client
         except:
             print(d_(), x_('Client Endpoint'))
             if user_config.debug:
-                print(d_(), z_('Debug'),
-                      o_('Client Endpoint Response -', response.text))
-    # If we reached this point then useClientInventory didn't successfully
-    # return. So lets proceed with useVariantInventory.
+                print(d_(), z_('Debug'), o_('Client Endpoint Response -', response.text))
+
+    # If we reached this point then useClientInventory didn't successfully return.
+    # So lets proceed with useVariantInventory.
     try:
         print(d_(), s_('Variant Endpoint'))
         response = inventory.get_variant_response()
         product_json = response.json()
-        productInfoVariant = canonicalize_product_info_variant(product_json)
-        return productInfoVariant
+        product_info_variant = canonicalize_product_info_variant(product_json)
+        return product_info_variant
     except:
         print(d_(), x_('Variant Endpoint'))
         if user_config.debug:
-            print(d_(), z_('Debug'),
-                  o_('Variant Endpoint Response -', response.text))
-    # If we reached this point then useVariantInventory did not successfully
-    # return. So lets produce at minimum size inventory.
-    # We will refer to this as Fallback for productInfo (when both client and
-    # variant produces no inventory result).
-    productInfoFallback = {}
-    productInfoFallback['productStock'] = {}
-    productInfoFallback['productName'] = '/'
-    productInfoFallback['productColor'] = '/'
-    productInfoFallback['productOrderable'] = '/'
-    productInfoFallback['productPrice'] = 0
-    productInfoFallback['productCount'] = -1
-    productInfoFallback['productATS'] = -1
-    productInfoFallback['productStockLevel'] = -1
+            print(d_(), z_('Debug'), o_('Variant Endpoint Response -', response.text))
+
+    # If we reached this point then useVariantInventory did not successfully return.
+    # So lets produce at minimum size inventory.
+    # We will refer to this as Fallback for productInfo (when both client and variant produces no inventory result).
+    product_info_fallback = {
+        'productStock': {},
+        'productName': '/',
+        'productColor': '/',
+        'productOrderable': '/',
+        'productPrice': 0,
+        'productCount': -1,
+        'productATS': -1,
+        'productStockLevel': -1,
+    }
+
     # US vs EU sizing seems to be off by 0.5 size
-    if user_config.parametersLocale == 'US':
-        literalSize = 4.5
-        for variant in range(540, 750, 10):
-            stringLiteralSize = str(literalSize).replace('.0', '')
-            productInfoFallback['productStock'][stringLiteralSize] = {}
-            productInfoFallback['productStock'][stringLiteralSize]['ATS'] = 1
-            productInfoFallback['productStock'][stringLiteralSize][
-                'pid'] = '{0}_{1}'.format(user_config.masterPid, variant)
-            literalSize = literalSize + .5
-    else:
-        literalSize = 4.5
-        for variant in range(550, 750, 10):
-            stringLiteralSize = str(literalSize).replace('.0', '')
-            productInfoFallback['productStock'][stringLiteralSize] = {}
-            productInfoFallback['productStock'][stringLiteralSize]['ATS'] = 1
-            productInfoFallback['productStock'][stringLiteralSize][
-                'pid'] = '{0}_{1}'.format(user_config.masterPid, variant)
-            literalSize = literalSize + .5
-    return productInfoFallback
+    start_range = 540 if user_config.parametersLocale == 'US' else 550
+    literal_size = Decimal('4.5')
+    for variant in range(start_range, 750, 10):
+        size_string = str(literal_size).replace('.0', '')
+        product_info_fallback['productStock'][size_string] = {}
+        product_info_fallback['productStock'][size_string]['ATS'] = 1
+        product_info_fallback['productStock'][size_string]['pid'] = '{0}_{1}'.format(user_config.masterPid, variant)
+        literal_size += Decimal('0.5')
+    return product_info_fallback
 
 
-def printProductInfo(productInfo):
+def print_product_info(productInfo):
+    """
+    Print product info.
+    """
     print(d_(), s_('Product Name'), lb_(productInfo['productName']))
     print(d_(), s_('Product Color'), lb_(productInfo['productColor']))
     print(d_(), s_('Price'), lb_(productInfo['productPrice']))
