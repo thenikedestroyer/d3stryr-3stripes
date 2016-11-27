@@ -92,11 +92,11 @@ Then you are ready to run:
 
 Mac/Linux:
 ```
-./destroyer/d3stryr-3stripes.py
+./destroyer/destroyer.py
 ```
 Windows:
 ```
-.\destroyer\d3stryr-3stripes.py
+.\destroyer\destroyer.py
 ```
 
 ## Program Flow
@@ -132,7 +132,7 @@ Windows:
     ```
     easy_install pip
     ```
-    If that doesnt work then Google "how to install pip3 python3" for your OS.
+    If that doesn't work then Google "how to install pip3 python3" for your OS.
   * If you get a browser window with "data;" as the URL then you will need to download the latest chromedriver version for your OS.  See the instructions at the top of this README.
 
 ## Common Curiosities
