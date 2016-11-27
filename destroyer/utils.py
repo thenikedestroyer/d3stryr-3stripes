@@ -122,13 +122,13 @@ def o_(*args):
 
 
 def get_chromedriver(chrome_folder_location=None, window_size=None):
-    from settings import exit_code  # Avoid circular imports
+    from settings import exit_code, PROJECT_ROOT_DIR  # Avoid circular imports
     chromedriver = None
     if 'nt' in os.name:
         # Es ventanas?
-        if os.path.isfile('../bin/chromedriver.exe'):
+        if os.path.isfile(os.path.join(PROJECT_ROOT_DIR, 'bin', 'chromedriver.exe')):
             # Lets check to see if chromedriver.exe is in the current directory
-            chromedriver = '../bin/chromedriver.exe'
+            chromedriver = os.path.join(PROJECT_ROOT_DIR, 'bin', 'chromedriver.exe')
         elif os.path.isfile('C:\Windows\chromedriver.exe'):
             # Lets check to see if chromedriver.exe is in C:\Windows
             chromedriver = 'C:\Windows\chromedriver.exe'
@@ -140,9 +140,9 @@ def get_chromedriver(chrome_folder_location=None, window_size=None):
             sys.exit(exit_code)
     else:
         # Es manzanas?
-        if os.path.isfile('../bin/chromedriver'):
+        if os.path.isfile(os.path.join(PROJECT_ROOT_DIR, 'bin', 'chromedriver')):
             # Chromedriver should be in the current directory
-            chromedriver = '../bin/chromedriver'
+            chromedriver = os.path.join(PROJECT_ROOT_DIR, 'bin', 'chromedriver')
         else:
             print (d_(), x_('chromedriver'), lr_('was not found in the current folder.'))
             sys.stdout.flush()

@@ -4,6 +4,8 @@ import time
 
 import requests
 
+from jinja2 import Environment, PackageLoader
+
 from autocaptcha import get_token_from_2captcha
 from harvester import harvest_tokens_manually
 from settings import captcha_tokens, exit_code, hypedSkus, user_config
@@ -12,6 +14,9 @@ import inventory
 
 # Disable urllib3 warnings
 requests.packages.urllib3.disable_warnings()
+
+# Define template environment for Jinja2 templates
+jinja_env = Environment(loader=PackageLoader('destroyer', 'templates'))
 
 
 def canonicalizeProductInfoClient(productJSON):
@@ -221,128 +226,110 @@ def processAddToCart(productInfo):
                 else:
                     # No manual tokens to pop - so lets use 2captcha
                     captchaToken = get_token_from_2captcha()
-            addToCartChromeAJAX(pid, captchaToken)
+            add_to_cart_chrome_ajax(pid, captchaToken)
         except KeyboardInterrupt:
             print (d_(), x_('KeyboardInterrupt'))
             sys.exit(exit_code)
         except:
+            raise
             print (d_(), x_('Add-To-Cart'), lr_(mySize, ' : ', 'Not Found'))
 
 
-def addToCartChromeAJAX(pid, captchaToken):
-    cookieScript = ''
-    cookieScriptDomainAware = ''
+def add_to_cart_chrome_ajax(pid, captcha_token):
+    cookie_script = ''
+    cookie_script_domain_aware = ''
     if user_config.marketLocale == 'PT':
-        baseADCUrl = (
+        base_atc_url = (
             'http://www.{0}/on/demandware.store/Sites-adidas-MLT-Site/{1}'
         ).format(user_config.marketDomain, user_config.market)
     else:
-        baseADCUrl = (
+        base_atc_url = (
             'http://www.{0}/on/demandware.store/Sites-adidas-{1}-Site/{2}'
         ).format(user_config.marketDomain, user_config.marketLocale, user_config.market)
 
-    atcURL = baseADCUrl + '/Cart-MiniAddProduct'
-    cartURL = baseADCUrl.replace('http://', 'https://') + '/Cart-Show'
-    data = {}
+    atc_url = '{0}/Cart-MiniAddProduct'.format(base_atc_url)
+    cart_url = base_atc_url.replace('http://', 'https://') + '/Cart-Show'
+    data = {
+        'masterPid': user_config.masterPid,
+        'pid': pid,
+        'Quantity': '1',
+        'request': 'ajax',
+        'responseformat': 'json',
+        'sessionSelectedStoreID': 'null',
+    }
 
     # If we are processing captcha then add to our payload.
     if user_config.processCaptcha:
-        data['g-recaptcha-response'] = captchaToken
+        data['g-recaptcha-response'] = captcha_token
 
     # If we need captcha duplicate then add to our payload.
     if user_config.processCaptchaDuplicate:
-        # Alter the atcURL for the captcha duplicate case
-        atcURL = atcURL + '?clientId=' + user_config.clientId
+        # Alter the ATC URL for the captcha duplicate case
+        atc_url = '{0}?clientId={1}'.format(atc_url, user_config.clientId)
         # Add captcha duplicate  to our payload.
-        data[user_config.duplicateField] = captchaToken
+        data[user_config.duplicateField] = captcha_token
 
     # If cookies need to be set then add to our payload.
     if 'neverywhere' not in user_config.cookies:
-        cookieScript = 'document.cookie="{0}domain=.adidas.com;path=/";'.format(user_config.cookies)
-        cookieScriptDomainAware = 'document.cookie="{0}domain=.{1};path=/";'.format(
+        cookie_script = 'document.cookie="{0}domain=.adidas.com;path=/";'.format(user_config.cookies)
+        cookie_script_domain_aware = 'document.cookie="{0}domain=.{1};path=/";'.format(
             user_config.cookies, user_config.marketDomain)
 
-    data['masterPid'] = user_config.masterPid
-    data['pid'] = pid
-    data['Quantity'] = '1'
-    data['request'] = 'ajax'
-    data['responseformat'] = 'json'
-    data['sessionSelectedStoreID'] = 'null'
-    script = """
-      $.ajax({
-        url: '""" + atcURL + """',
-        data: """ + json.dumps(data, indent=2) + """,
-        method: 'POST',
-        crossDomain: true,
-        contentType: 'application/x-www-form-urlencoded',
-        xhrFields: {
-            withCredentials: true
-        },
-        complete: function(data, status, xhr) {
-          console.log(status);
-          console.log(data);
-        }
-      });"""
+    # Render the ATC script
+    script = jinja_env.get_template('atc_script.js').render(atc_url=atc_url, data=json.dumps(data, indent=2))
 
     if user_config.useInjectionMethod:
-        injectionURL = baseADCUrl + '/Cart-MiniAddProduct' + \
-            '?pid=' + pid + '&masterPid=' + user_config.masterPid + '&ajax=true'
+        injection_url = '{0}/Cart-MiniAddProduct?pid={1}&masterPid={2}&ajax=true'.format(
+            base_atc_url, pid, user_config.masterPid)
         if user_config.processCaptcha:
-            injectionURL = injectionURL + '&g-recaptcha-response=' + captchaToken
-        script = """
-        var url='""" + injectionURL + """';
-        document.getElementById(document.querySelector("[id^='dwfrm_cart']").id).action = url;
-        document.getElementById(document.querySelector("[id^='dwfrm_cart']").id).submit();
-      """
+            injection_url += '&g-recaptcha-response={0}'.format(captcha_token)
 
-    externalScript = None
+        # Render the injection script
+        script = jinja_env.get_template('injection_script.js').render(injection_url=injection_url)
+
+    external_script = None
     if len(user_config.scriptURL) > 0 and '.js' in user_config.scriptURL:
-        externalScript = """
-            $.ajax({
-              url: '""" + user_config.scriptURL + """',
-              dataType: "script"
-            });"""
+        # Render the external script
+        external_script = jinja_env.get_template('external_script.js').render(script_url=user_config.scriptURL)
     if user_config.debug:
         print(d_(), z_('Debug:data'), o_(json.dumps(data, indent=2)))
         print(d_(), z_('Debug:script'), o_(script))
-        print(d_(), z_('Debug:cookie'), o_(cookieScript))
-        print(d_(), z_('Debug:cookie'), o_(cookieScriptDomainAware))
-        print(d_(), z_('Debug:external'), o_(externalScript))
+        print(d_(), z_('Debug:cookie'), o_(cookie_script))
+        print(d_(), z_('Debug:cookie'), o_(cookie_script_domain_aware))
+        print(d_(), z_('Debug:external'), o_(external_script))
     browser = get_chromedriver(chrome_folder_location='ChromeFolder')
     browser.delete_all_cookies()
     if user_config.useInjectionMethod:
-        browser.get(cartURL)
+        browser.get(cart_url)
     else:
-        browser.get(baseADCUrl)
-    if len(cookieScript) > 0 and 'neverywhere' not in user_config.cookies:
+        browser.get(base_atc_url)
+    if len(cookie_script) > 0 and 'neverywhere' not in user_config.cookies:
         print (d_(), s_('Cookie Script'))
-        browser.execute_script(cookieScript)
-        browser.execute_script(cookieScriptDomainAware)
+        browser.execute_script(cookie_script)
+        browser.execute_script(cookie_script_domain_aware)
     if len(user_config.scriptURL) > 0 and '.js' in user_config.scriptURL:
         print (d_(), s_('External Script'))
-        browser.execute_script(externalScript)
+        browser.execute_script(external_script)
     print (d_(), s_('ATC Script'))
     browser.execute_script(script)
     # time.sleep(user_config.sleeping)
-    browser.get(baseADCUrl + '/Cart-ProductCount')
+    browser.get(base_atc_url + '/Cart-ProductCount')
     html_source = browser.page_source
-    productCount = browser.find_element_by_tag_name('body').text
-    productCount = productCount.replace('"', '')
-    productCount = productCount.strip()
+    product_count = browser.find_element_by_tag_name('body').text.replace('"', '').strip()
+
     if user_config.debug:
-        print(d_(), z_('Debug'), o_('Product Count: %s' % productCount))
+        print(d_(), z_('Debug'), o_('Product Count: %s' % product_count))
         print(d_(), z_('Debug'), o_('\n{0}'.format(html_source)))
-    if (len(productCount) == 1) and (int(productCount) > 0):
-        results = browser.execute_script('window.location="{0}"'.format(
-            cartURL))
-        temp = input('Press Enter to Close the Browser & Continue')
+    if len(product_count) == 1 and int(product_count) > 0:
+        results = browser.execute_script('window.location="{0}"'.format(cart_url))
+        input('Press Enter to Close the Browser & Continue')
     else:
-        print (d_(), x_('Product Count'), lr_(productCount))
+        print (d_(), x_('Product Count'), lr_(product_count))
 
     # Maybe the Product Count source has changed and we are unable
     # to parse correctly.
     if user_config.pauseBeforeBrowserQuit:
-        temp = input('Press Enter to Close the Browser & Continue')
+        input('Press Enter to Close the Browser & Continue')
 
     # Need to delete all the cookes for this session or else we will have the
     # previous size in cart

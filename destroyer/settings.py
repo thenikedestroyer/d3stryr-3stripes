@@ -1,4 +1,5 @@
 import configparser
+import os
 
 from utils import d_, lb_, lr_, s_, z_
 
@@ -14,9 +15,12 @@ exit_code = 1
 # Store manually harvested captcha tokens here.
 captcha_tokens = []
 
+# Get the project directory to avoid using relative paths
+PROJECT_ROOT_DIR = os.path.dirname(os.path.abspath(os.path.join(__file__, os.pardir)))
+
 # Parse configuration file
 c = configparser.ConfigParser()
-configFilePath = '../config.cfg'
+configFilePath = os.path.join(PROJECT_ROOT_DIR, 'config.cfg')
 c.read(configFilePath)
 
 
