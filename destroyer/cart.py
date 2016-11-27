@@ -1,11 +1,11 @@
 import json
 
+from jinja2 import Environment, PackageLoader
+
 from autocaptcha import get_token_from_2captcha
 from harvester import harvest_tokens_manually
 from settings import user_config
 from utils import *
-
-from jinja2 import Environment, PackageLoader
 
 # Define template environment for Jinja2 templates
 jinja_env = Environment(loader=PackageLoader('cart', 'templates'))

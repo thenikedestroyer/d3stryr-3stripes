@@ -1,6 +1,7 @@
 import requests
+
 from settings import user_config
-from utils import d_, z_, o_, get_random_user_agent
+from utils import d_, get_random_user_agent, o_, z_
 
 # Disable urllib3 warnings
 requests.packages.urllib3.disable_warnings()

@@ -1,9 +1,9 @@
 import json
 from decimal import Decimal
 
+import inventory
 from settings import hyped_skus, user_config
 from utils import *
-import inventory
 
 
 def canonicalize_product_info_client(product_json):
