@@ -394,7 +394,7 @@ def processAddToCart(productInfo):
         for index in range(0, len(captcha_tokens)):
             captchaTokensReversed.append(captcha_tokens.pop())
     for mySize in user_config.mySizes:
-#       try:
+        try:
             mySizeATS = productInfo['productStock'][mySize]['ATS']
             if mySizeATS == 0:
                 print (d_(), x_('Add-To-Cart'), lr_('Out of Stock:', mySize))
@@ -415,11 +415,11 @@ def processAddToCart(productInfo):
                     # No manual tokens to pop - so lets use 2captcha
                     captchaToken = getACaptchaTokenFrom2Captcha()
             addToCartChromeAJAX(pid, captchaToken)
-#       except KeyboardInterrupt:
-#           print (d_(), x_('KeyboardInterrupt'))
-#           sys.exit(exit_code)
-#       except:
-#           print (d_(), x_('Add-To-Cart'), lr_(mySize, ' : ', 'Not Found'))
+        except KeyboardInterrupt:
+            print (d_(), x_('KeyboardInterrupt'))
+            sys.exit(exit_code)
+        except:
+            print (d_(), x_('Add-To-Cart'), lr_(mySize, ' : ', 'Not Found'))
 
 
 def getChromeDriver(chromeFolderLocation=None, windowSize=None):
