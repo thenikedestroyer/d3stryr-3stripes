@@ -3,11 +3,11 @@
 # https://github.com/thenikedestroyer/d3stryr-3stripes/blob/master/CONFIG.md
 
 [cart]
-masterPid = BY9612
+masterPid = S81910
 #masterPids = BA7325, BA7326
 #masterPids = BY9612, BY1605, BY9611
 mySizes = 9, 10, 11, 7, 42 2/3
-isYeezyProduct = True
+isYeezyProduct = False
 
 [locale]
 marketLocale = US
