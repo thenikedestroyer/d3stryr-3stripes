@@ -1,8 +1,9 @@
 import time
 
 import requests
-from settings import user_config, exit_code
-from utils import d_, s_, x_, y_, lb_
+
+from settings import exit_code, user_config
+from utils import d_, lb_, s_, x_, y_
 
 
 def get_token_from_2captcha():

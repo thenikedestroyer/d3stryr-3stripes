@@ -6,9 +6,8 @@ import requests
 
 from autocaptcha import get_token_from_2captcha
 from harvester import harvest_tokens_manually
-from settings import exit_code, hypedSkus, captcha_tokens, user_config
+from settings import captcha_tokens, exit_code, hypedSkus, user_config
 from utils import *
-
 
 # Disable urllib3 warnings
 requests.packages.urllib3.disable_warnings()

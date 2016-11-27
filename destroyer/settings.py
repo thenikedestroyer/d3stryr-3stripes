@@ -1,6 +1,6 @@
 import configparser
 
-from utils import d_, s_, z_, lb_, lr_
+from utils import d_, lb_, lr_, s_, z_
 
 # Lets try to keep a revision tracking via commit number.
 revision = 'c+119'

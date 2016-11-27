@@ -1,13 +1,13 @@
-import _thread
 import time
 
-from flask import Flask, request, render_template
+from flask import Flask, render_template, request
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
-from settings import user_config, captcha_tokens
-from utils import d_, s_, x_, lb_, lr_, get_chromedriver
+import _thread
+from settings import captcha_tokens, user_config
+from utils import d_, get_chromedriver, lb_, lr_, s_, x_
 
 harvest_server = Flask(__name__)
 

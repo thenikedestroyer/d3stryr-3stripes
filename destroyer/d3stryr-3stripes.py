@@ -2,9 +2,10 @@
 
 import json
 import sys
+
 from destroyer import getProductInfo, printProductInfo, processAddToCart
+from settings import exit_code, user_config
 from utils import d_, lr_, x_
-from settings import user_config, exit_code
 
 if __name__ == '__main__':
     # Print the run parameters
