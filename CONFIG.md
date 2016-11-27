@@ -42,7 +42,7 @@
 
 `XX` = `xxxxxxxxx` - defines the client ID for locale XX for a Yeezy product.
 
-##Section [sitekey_Yeez]
+##Section [sitekey_Yeezy]
 `XX` = `xxxxxxxxx` - defines the captcha sitekey for locale XX for a Yeezy product.
 
 ##Section [clientId]
