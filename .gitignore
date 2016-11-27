@@ -27,7 +27,6 @@ harvest.php
 __pycache__
 
 #VirtualEnv files
-bin/
 Scripts/
 Lib/
 Include/
