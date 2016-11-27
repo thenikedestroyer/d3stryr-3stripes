@@ -7,6 +7,9 @@ import inventory
 
 
 def canonicalize_product_info_client(product_json):
+    """
+    Creating a standard format of the data representation using a dictionary
+    """
     # Initialize a dictionary.
     product_info = {}
     product_info['productStock'] = {}
