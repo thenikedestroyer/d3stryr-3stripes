@@ -160,7 +160,7 @@ class Config:
         if self.masterPid in str(hypedSkus):
             if not self.processCaptchaDuplicate:
                 print(d_(), z_('config.cfg'), lr_('This item is likely to make use of a captcha duplicate.'))
-            if ('neverywhere' in self.cookies):
+            if 'neverywhere' in self.cookies:
                 print(d_(), z_('config.cfg'), lr_('This item is likely to make use of a cookie.'))
         if not self.debug:
             print(d_(), z_('config.cfg'),

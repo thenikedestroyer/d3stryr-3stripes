@@ -3,7 +3,8 @@
 import json
 import sys
 
-from destroyer import getProductInfo, printProductInfo, processAddToCart
+from cart import process_add_to_cart
+from destroyer import getProductInfo, printProductInfo
 from settings import exit_code, user_config
 from utils import d_, lr_, x_
 
@@ -24,9 +25,9 @@ if __name__ == '__main__':
 
     # If product count is not zero process add to cart
     if productInfo['productCount'] > 0:
-        processAddToCart(productInfo)
+        process_add_to_cart(productInfo)
     elif productInfo['productCount'] == -1:
         print (d_(), x_('Variant Count'), lr_('-1'))
-        processAddToCart(productInfo)
+        process_add_to_cart(productInfo)
     else:
         print (d_(), x_('Variant Count'), lr_('0'))
