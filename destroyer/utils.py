@@ -1,5 +1,7 @@
 import os
 from datetime import datetime
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 
 class Color:
@@ -116,4 +118,44 @@ def o_(*args):
     input_string = ' '.join(map(str, args))
     return Color.orange + str(input_string) + Color.reset
 
-__all__ = ['d_', 's_', 'x_', 'z_', 'lb_', 'lr_', 'y_', 'o_']
+
+def get_chromedriver(chrome_folder_location=None, window_size=None):
+    from settings import exit_code  # Avoid circular imports
+    chromedriver = None
+    if 'nt' in os.name:
+        # Es ventanas?
+        if os.path.isfile('../bin/chromedriver.exe'):
+            # Lets check to see if chromedriver.exe is in the current directory
+            chromedriver = '../bin/chromedriver.exe'
+        elif os.path.isfile('C:\Windows\chromedriver.exe'):
+            # Lets check to see if chromedriver.exe is in C:\Windows
+            chromedriver = 'C:\Windows\chromedriver.exe'
+        else:
+            # Lets see if the end-user will read this and fix their own
+            # problem before tweeting
+            print (d_(), x_('Chromedriver.exe'), lr_('was not found in the current folder or C:\Windows'))
+            sys.stdout.flush()
+            sys.exit(exit_code)
+    else:
+        # Es manzanas?
+        if os.path.isfile('../bin/chromedriver'):
+            # Chromedriver should be in the current directory
+            chromedriver = '../bin/chromedriver'
+        else:
+            print (d_(), x_('chromedriver'), lr_('was not found in the current folder.'))
+            sys.stdout.flush()
+            sys.exit(exit_code)
+    os.environ['webdriver.chrome.driver'] = chromedriver
+    chrome_options = Options()
+
+    # We store the browsing session in ChromeFolder so we can manually delete it if necessary
+    if chrome_folder_location is not None:
+        chrome_options.add_argument('--user-data-dir={0}'.format(chrome_folder_location))
+
+    if window_size is not None:
+        chrome_options.add_argument("window-size=" + window_size[0])
+
+    return webdriver.Chrome(chromedriver, chrome_options=chrome_options)
+
+
+__all__ = ['d_', 's_', 'x_', 'z_', 'lb_', 'lr_', 'y_', 'o_', 'get_chromedriver']

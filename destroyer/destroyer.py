@@ -3,22 +3,17 @@ import os
 import random
 import sys
 import time
-import _thread
 from datetime import datetime
 
 import requests
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.wait import WebDriverWait
 
-from harvester import harvest_server
+from harvester import harvest_tokens_manually
 from settings import exit_code, hypedSkus, captcha_tokens, user_config
 from utils import *
 
 # Disable urllib3 warnings
 requests.packages.urllib3.disable_warnings()
+
 
 def agent():
     """
@@ -387,11 +382,10 @@ def printProductInfo(productInfo):
 
 
 def processAddToCart(productInfo):
-    captchaTokensReversed = []
+    captcha_tokens_reversed = []
     if user_config.manuallyHarvestTokens:
         harvest_tokens_manually()
-        for index in range(0, len(captcha_tokens)):
-            captchaTokensReversed.append(captcha_tokens.pop())
+        captcha_tokens_reversed = list(reversed(captcha_tokens))
     for mySize in user_config.mySizes:
         try:
             mySizeATS = productInfo['productStock'][mySize]['ATS']
@@ -405,11 +399,11 @@ def processAddToCart(productInfo):
             captchaToken = ''
             if user_config.processCaptcha:
                 # See if we have any manual tokens available
-                if len(captchaTokensReversed) > 0:
+                if captcha_tokens_reversed:
                     # Use a manual token
-                    captchaToken = captchaTokensReversed.pop()
+                    captchaToken = captcha_tokens_reversed.pop()
                     print (d_(), s_('Number of Tokens Left'),
-                           lb_(len(captchaTokensReversed)))
+                           lb_(len(captcha_tokens_reversed)))
                 else:
                     # No manual tokens to pop - so lets use 2captcha
                     captchaToken = getACaptchaTokenFrom2Captcha()
@@ -419,48 +413,6 @@ def processAddToCart(productInfo):
             sys.exit(exit_code)
         except:
             print (d_(), x_('Add-To-Cart'), lr_(mySize, ' : ', 'Not Found'))
-
-
-def getChromeDriver(chromeFolderLocation=None, windowSize=None):
-    chromedriver = None
-    if 'nt' in os.name:
-        # Es ventanas?
-        if os.path.isfile('chromedriver.exe'):
-            # Lets check to see if chromedriver.exe is in the current directory
-            chromedriver = 'chromedriver.exe'
-        elif os.path.isfile('C:\Windows\chromedriver.exe'):
-            # Lets check to see if chromedriver.exe is in C:\Windows
-            chromedriver = 'C:\Windows\chromedriver.exe'
-        else:
-            # Lets see if the end-user will read this and fix their own
-            # problem before tweeting
-            print (d_(), x_('Chromedriver.exe'),
-                   lr_('was not found in the current folder or C:\Windows'))
-            sys.stdout.flush()
-            sys.exit(exit_code)
-    else:
-        # Es manzanas?
-        if os.path.isfile('./chromedriver'):
-            # Chromedriver should be in the current directory
-            chromedriver = './chromedriver'
-        else:
-            print (d_(), x_('chromedriver'),
-                   lr_('was not found in the current folder.'))
-            sys.stdout.flush()
-            sys.exit(exit_code)
-    os.environ['webdriver.chrome.driver'] = chromedriver
-    chrome_options = Options()
-
-    # We store the browsing session in ChromeFolder so we can manually
-    # delete it if necessary
-    if chromeFolderLocation is not None:
-        chrome_options.add_argument('--user-data-dir=' + chromeFolderLocation)
-
-    if windowSize is not None:
-        chrome_options.add_argument("window-size=" + windowSize[0])
-
-    driver = webdriver.Chrome(chromedriver, chrome_options=chrome_options)
-    return driver
 
 
 def addToCartChromeAJAX(pid, captchaToken):
@@ -542,7 +494,7 @@ def addToCartChromeAJAX(pid, captchaToken):
         print(d_(), z_('Debug:cookie'), o_(cookieScript))
         print(d_(), z_('Debug:cookie'), o_(cookieScriptDomainAware))
         print(d_(), z_('Debug:external'), o_(externalScript))
-    browser = getChromeDriver(chromeFolderLocation='ChromeFolder')
+    browser = get_chromedriver(chrome_folder_location='ChromeFolder')
     browser.delete_all_cookies()
     if user_config.useInjectionMethod:
         browser.get(cartURL)
@@ -583,105 +535,3 @@ def addToCartChromeAJAX(pid, captchaToken):
     browser.delete_all_cookies()
     browser.quit()
     return
-
-
-def activateCaptcha(driver):
-    """
-    Activate the catpcha widget
-    """
-    iframe = driver.find_element_by_css_selector('iframe[src*="api2/anchor"]')
-    driver.switch_to_frame(iframe)
-    try:
-        CheckBox = WebDriverWait(driver, user_config.sleeping).until(
-            expected_conditions.presence_of_element_located(
-                (By.ID, 'recaptcha-anchor')))
-    except:
-        try:
-            CheckBox = WebDriverWait(driver, user_config.sleeping).until(
-                expected_conditions.presence_of_element_located(
-                    (By.ID, 'recaptcha-anchor')))
-        except:
-            print (d_(), x_('Activate Captcha'),
-                   lr_('Failed to find checkbox'))
-    CheckBox.click()
-
-
-def checkSolution(driver, mainWindow):
-    """
-    Check to see if we solved the captcha
-    """
-    solved = False
-    while not solved:
-        driver.switch_to.window(mainWindow)
-        try:
-            iframe = driver.find_element_by_css_selector(
-                'iframe[src*="api2/anchor"]')
-        except:
-            print (d_(), x_('Check Solution'), lr_('Failed to find checkbox'))
-            return
-        driver.switch_to_frame(iframe)
-        try:
-            temp = driver.find_element_by_xpath('//span[@aria-checked="true"]')
-            print (d_(), s_('Check Solution'), lb_('Solved'))
-            solved = True
-        except:
-            solved = False
-        time.sleep(1)
-    return solved
-
-
-def getToken(driver, mainWindow):
-    """
-    We parse the token from the page
-    """
-    token = None
-    driver.switch_to.window(mainWindow)
-    try:
-        Submit = WebDriverWait(driver, user_config.sleeping).until(
-            expected_conditions.presence_of_element_located((By.ID, 'submit')))
-        Submit.click()
-        time.sleep(1)
-    except:
-        print (d_(), x_('Captcha Submit'), lr_('Failed to click submit'))
-
-    tokenElement = driver.find_element_by_css_selector('p#token')
-    token = tokenElement.get_attribute('value')
-    if token is not None:
-        print (d_(), s_('Get Token'), lb_(token))
-    return token
-
-
-def harvest_tokens_manually():
-    """
-    Harvest tokens manually
-    """
-    print (d_(), s_('Manual Token Harvest'), lb_('Number of tokens harvested: %d' % len(captcha_tokens)))
-
-    # Run the harvest server
-    # XXX: This threading module is deprecated
-    _thread.start_new_thread(harvest_server.run,())
-
-    window_size = ["640,640"]
-    browser = getChromeDriver(chromeFolderLocation='ChromeTokenHarvestFolder', windowSize=window_size)
-    url = 'http://{0}:{1}{2}'.format(user_config.harvestDomain, 5000, '')  # Flask runs on port 5000 by default.
-    while len(captcha_tokens) < user_config.numberOfTokens:
-        browser.get(url)
-        main_window = browser.current_window_handle
-        try:
-            activateCaptcha(driver=browser)
-        except:
-            print (d_(), x_('Page Load Failed'), lr_('Falling back to 2captcha'))
-            browser.quit()
-            return
-        solved = checkSolution(driver=browser, mainWindow=main_window)
-        token = getToken(driver=browser, mainWindow=main_window)
-        if token is not None:
-            if len(captcha_tokens) == 0:
-                start_time = time.time()
-            captcha_tokens.append(token)
-            print (d_(), s_('Token Added'))
-            print (d_(), s_('Manual Token Harvest'), lb_('Number of tokens harvested: %d' % len(captcha_tokens)))
-        current_time = time.time()
-        elapsed_time = current_time - start_time
-        print (d_(), s_('Total Time Elapsed'), lb_(round(elapsed_time, 2), 'seconds'))
-    browser.quit()

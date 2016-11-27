@@ -16,7 +16,7 @@ captcha_tokens = []
 
 # Parse configuration file
 c = configparser.ConfigParser()
-configFilePath = 'config.cfg'
+configFilePath = '../config.cfg'
 c.read(configFilePath)
 
 
