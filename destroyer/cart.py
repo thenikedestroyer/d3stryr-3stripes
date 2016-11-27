@@ -68,6 +68,9 @@ def add_to_cart_chrome_ajax(pid, captcha_token):
         'sessionSelectedStoreID': 'null',
     }
 
+    if user_config.useResponseFormatJSON:
+        data['responseformat'] = 'json'
+
     # If we are processing captcha then add to our payload.
     if user_config.processCaptcha:
         data['g-recaptcha-response'] = captcha_token
@@ -93,6 +96,10 @@ def add_to_cart_chrome_ajax(pid, captcha_token):
             base_atc_url, pid, user_config.masterPid)
         if user_config.processCaptcha:
             injection_url += '&g-recaptcha-response={0}'.format(captcha_token)
+            if user_config.processCaptchaDuplicate:
+                injectionURL += '&{0}={1}'.format(user_config.duplicateField, captcha_token)
+            if user_config.useResponseFormatJSON:
+                injectionURL += '&responseformat=json'
 
         # Render the injection script
         script = jinja_env.get_template('injection_script.js').render(injection_url=injection_url)
@@ -100,7 +107,8 @@ def add_to_cart_chrome_ajax(pid, captcha_token):
     external_script = None
     if len(user_config.scriptURL) > 0 and '.js' in user_config.scriptURL:
         # Render the external script
-        external_script = jinja_env.get_template('external_script.js').render(script_url=user_config.scriptURL)
+        script_url = user_config.scriptURL.replace('http', 'https')
+        external_script = jinja_env.get_template('external_script.js').render(script_url=script_url)
     if user_config.debug:
         print(d_(), z_('Debug:data'), o_(json.dumps(data, indent=2)))
         print(d_(), z_('Debug:script'), o_(script))

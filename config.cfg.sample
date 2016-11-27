@@ -4,8 +4,10 @@
 
 [cart]
 masterPid = S81910
+#masterPids = BA7325, BA7326
 #masterPids = BY9612, BY1605, BY9611
 mySizes = 9, 10, 11, 7, 42 2/3
+isYeezyProduct = False
 
 [locale]
 marketLocale = US
@@ -23,37 +25,49 @@ useVariantInventory = False
 
 [atc]
 useInjectionMethod = True
+useResponseFormatJSON = True
 
 [harvest]
 manuallyHarvestTokens = True
 numberOfTokens = 1
 harvestDomain = dev.adidas.com
 
-[clientId]
-#US = 7796dee0b-5a1a-4c3c-afb7-c089cf6d3f12
-US = bb1e6193-3c86-481e-a440-0d818af5f3c8
+[clientId_Yeezy]
+US = 7796dee0b-5a1a-4c3c-afb7-c089cf6d3f12
 CA = 5e396c6-5589-425b-be03-774c21a74702
 EU = a0342e58-a7a3-47c3-8cff-9bf71fb7e13c
 AU = 2aa11a70-01dd-49c4-8288-3729c86ebc93
 apiEnv = production
 
-[sitekey]
-#US = 6LdU8QoUAAAAAFOJA5oVXG0akxBChazsO6dIbfh1
-US = 6Le4AQgUAAAAAABhHEq7RWQNJwGR_M-6Jni9tgtA
+[sitekey_Yeezy]
+US = 6LdU8QoUAAAAAFOJA5oVXG0akxBChazsO6dIbfh1
 CA = 6LdV8QoUAAAAAObSuJeOkFq9UfE-4U53NCN-Oibw
 EU = 6LdT8QoUAAAAAJE49A5rdgqYznMQOHlcSaoreKs8
 AU = 6Ld77woUAAAAANIDnwigL8v1C55WeyoNqNAxYuL8
-#pollProductPageForSiteKey = False
-#useOnlyProductPageSiteKey = False
+
+[clientId]
+# Not sure if anyone knows a valid CA clientId for regular products
+US = bb1e6193-3c86-481e-a440-0d818af5f3c8
+CA = !!--Replace with a valid clientId--!!
+EU = 2904a24b-e4b4-4ef7-89a4-2ebd2d175dde
+AU = 75e396c6-5589-425b-be03-774c21a74702
+apiEnv = production
+
+[sitekey]
+# For CA I used the sitekey from the BAPE NMD drop
+US = 6Le4AQgUAAAAAABhHEq7RWQNJwGR_M-6Jni9tgtA
+CA = 6LcoigwUAAAAADOI3dJtwXIssQ-U5e0FfFoqdnVz
+EU = 6LeOnCkTAAAAAK72JqRneJQ2V7GvQvvgzsVr-6kR
+AU = 6LfmqykTAAAAAPkpAt5TNBSeZl81VlbRl7pZpM9m
 
 [duplicate]
 duplicate = x-PrdRt
 
 [cookie]
-cookie = neverywhere=neverytime;
+cookie = XGQPHM=true;
 
 [script]
-scriptURL = None
+scriptURL = http://www.adidas.com/us/nmd_assets/json/35198324896.js
 
 [market]
 AE = en_AE
@@ -171,3 +185,7 @@ sleeping = 3
 [debug]
 debug = True
 pauseBeforeBrowserQuit = False
+
+[development]
+pollProductPageForSiteKey = False
+useOnlyProductPageSiteKey = False

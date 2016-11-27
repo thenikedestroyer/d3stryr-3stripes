@@ -4,7 +4,7 @@ import os
 from utils import d_, lb_, lr_, s_, z_
 
 # Lets try to keep a revision tracking via commit number.
-revision = 'c+119'
+revision = 'c+137'
 
 # Set this for parameters checking.
 hyped_skus = ['BY9612', 'BY1605', 'BY9611']
@@ -25,8 +25,14 @@ c.read(configFilePath)
 
 
 class Config:
-    masterPid = c.get('cart', 'masterPid')  # Pull user info for masterPid
-    mySizes = [size.strip() for size in c.get('cart', 'mySizes').split(',')]  # Get the size array
+    # Pull user info for masterPid
+    masterPid = c.get('cart', 'masterPid')
+
+    # Get the size array
+    mySizes = [size.strip() for size in c.get('cart', 'mySizes').split(',')]
+
+    # Get product type
+    isYeezyProduct = c.getboolean('cart', 'isYeezyProduct')
 
     # Pull user info for locale
     marketLocale = c.get('locale', 'marketLocale')
@@ -37,9 +43,14 @@ class Config:
     marketDomain = c.get('marketDomain', marketLocale)
 
     # Pull info based on parametersLocale
-    apiEnv = c.get('clientId', 'apiEnv')
-    clientId = c.get('clientId', parametersLocale)
-    sitekey = c.get('sitekey', parametersLocale)
+    if isYeezyProduct:
+        apiEnv = c.get('clientId_Yeezy', 'apiEnv')
+        clientId = c.get('clientId_Yeezy', parametersLocale)
+        sitekey = c.get('sitekey_Yeezy', parametersLocale)
+    else:
+        apiEnv = c.get('clientId', 'apiEnv')
+        clientId = c.get('clientId', parametersLocale)
+        sitekey = c.get('sitekey', parametersLocale)
 
     # Pull 2captcha info
     proxy2Captcha = c.get('captcha', 'proxy2Captcha')
@@ -55,6 +66,9 @@ class Config:
 
     # Pull atc parameters to determine if we use the injection method
     useInjectionMethod = c.getboolean('atc', 'useInjectionMethod')
+
+    # Pull responseformat settings
+    useResponseFormatJSON = c.getboolean('atc', 'useResponseFormatJSON')
 
     # Token Harvesting info
     manuallyHarvestTokens = c.getboolean('harvest', 'manuallyHarvestTokens')
@@ -73,6 +87,10 @@ class Config:
 
     # Are we debugging?
     debug = c.getboolean('debug', 'debug')
+
+    # Under development
+    pollProductPageForSiteKey = c.getboolean('development', 'pollProductPageForSiteKey')
+    useOnlyProductPageSiteKey = c.getboolean('development', 'useOnlyProductPageSiteKey')
 
     # Require end-user to press enter before terminating Chrome's browser window during ATC
     pauseBeforeBrowserQuit = c.getboolean('debug', 'pauseBeforeBrowserQuit')
