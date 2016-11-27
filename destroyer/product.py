@@ -1,56 +1,49 @@
 import json
-import sys
-import time
 
-import requests
-
-from settings import captcha_tokens, exit_code, hyped_skus, user_config
+from settings import hyped_skus, user_config
 from utils import *
 import inventory
 
-# Disable urllib3 warnings
-requests.packages.urllib3.disable_warnings()
 
-
-def canonicalizeProductInfoClient(productJSON):
+def canonicalize_product_info_client(product_json):
     # Initialize a dictionary.
-    productInfo = {}
-    productInfo['productStock'] = {}
+    product_info = {}
+    product_info['productStock'] = {}
 
     # Because of how we order the skus in clientStockURL 0-index is
     # always masterPid info in the JSON response.
     try:
-        data = productJSON['data'][0]
+        data = product_json['data'][0]
     except:
         print(d_(), x_('Parse Client JSON'))
     try:
-        productInfo['productName'] = data['name']
+        product_info['productName'] = data['name']
     except:
-        productInfo['productName'] = '/'
+        product_info['productName'] = '/'
     try:
-        productInfo['productColor'] = data['c_defaultColor']
+        product_info['productColor'] = data['c_defaultColor']
     except:
-        productInfo['productColor'] = '/'
+        product_info['productColor'] = '/'
     try:
-        productInfo['productOrderable'] = data['inventory']['orderable']
+        product_info['productOrderable'] = data['inventory']['orderable']
     except:
-        productInfo['productOrderable'] = False
+        product_info['productOrderable'] = False
     try:
-        productInfo['productPrice'] = data['price']
+        product_info['productPrice'] = data['price']
     except:
-        productInfo['productPrice'] = 0
+        product_info['productPrice'] = 0
     try:
-        productInfo['productCount'] = productJSON['count'] - 1
+        product_info['productCount'] = product_json['count'] - 1
     except:
-        productInfo['productCount'] = 0
+        product_info['productCount'] = 0
     try:
-        productInfo['productATS'] = data['inventory']['ats']
+        product_info['productATS'] = data['inventory']['ats']
     except:
-        productInfo['productATS'] = 0
+        product_info['productATS'] = 0
     try:
-        productInfo['productStockLevel'] = data['inventory']['stock_level']
+        product_info['productStockLevel'] = data['inventory']['stock_level']
     except:
-        productInfo['productStockLevel'] = 0
+        product_info['productStockLevel'] = 0
 
     # Because data['c_sizeFTW'] and data['c_sizeSearchValue'] yield nonsense
     # for some EU locales:
@@ -62,59 +55,58 @@ def canonicalizeProductInfoClient(productJSON):
     # We could avoid:
     # if data['id'] != masterPid:
     # by using a for loop to iterate through:
-    # range(1,len(productJSON['data'])):
+    # range(1,len(product_json['data'])):
     # But I doubt there is a performance hit here. Because this is only done
     # once even if threading is introduce in the future.
-    for data in productJSON['data']:
+    for data in product_json['data']:
         if data['id'] != user_config.masterPid:
             try:
-                productInfo['productStock'][adidasSize2Size[data['id']]] = {}
-                productInfo['productStock'][adidasSize2Size[data['id']]][
-                    'ATS'] = int(data['inventory']['ats'])
-                productInfo['productStock'][adidasSize2Size[data['id']]]['pid'] = data['id']
+                product_info['productStock'][adidasSize2Size[data['id']]] = {}
+                product_info['productStock'][adidasSize2Size[data['id']]]['ATS'] = int(data['inventory']['ats'])
+                product_info['productStock'][adidasSize2Size[data['id']]]['pid'] = data['id']
             except:
                 print(d_(), x_('Client Inventory'))
 
     if user_config.debug:
-        print(d_(), z_('Debug'), o_(json.dumps(productInfo, indent=2)))
-    return productInfo
+        print(d_(), z_('Debug'), o_(json.dumps(product_info, indent=2)))
+    return product_info
 
 
-def canonicalizeProductInfoVariant(productJSON):
+def canonicalize_product_info_variant(product_json):
     """
     Creating a standard format of the data representation using a dictionary
     """
-    productInfo = {}
-    productInfo['productStock'] = {}
-    productInfo['productName'] = '/'
-    productInfo['productColor'] = '/'
-    productInfo['productOrderable'] = '/'
+    product_info = {}
+    product_info['productStock'] = {}
+    product_info['productName'] = '/'
+    product_info['productColor'] = '/'
+    product_info['productOrderable'] = '/'
     try:
-        productInfo['productPrice'] = productJSON[
+        product_info['productPrice'] = product_json[
             'variations']['variants'][0]['pricing']['standard']
     except:
-        productInfo['productPrice'] = 0
+        product_info['productPrice'] = 0
     try:
-        productInfo['productCount'] = len(productJSON['variations']['variants'])
+        product_info['productCount'] = len(product_json['variations']['variants'])
     except:
-        productInfo['productCount'] = 0
+        product_info['productCount'] = 0
 
-    productInfo['productATS'] = 0
+    product_info['productATS'] = 0
 
     try:
-        for variant in productJSON['variations']['variants']:
-            productInfo['productATS'] = productInfo['productATS'] + int(variant['ATS'])
-            productInfo['productStock'][variant['attributes']['size']] = {}
-            productInfo['productStock'][variant['attributes']['size']]['ATS'] = int(variant['ATS'])
-            productInfo['productStock'][variant['attributes']['size']]['pid'] = variant['id']
+        for variant in product_json['variations']['variants']:
+            product_info['productATS'] = product_info['productATS'] + int(variant['ATS'])
+            product_info['productStock'][variant['attributes']['size']] = {}
+            product_info['productStock'][variant['attributes']['size']]['ATS'] = int(variant['ATS'])
+            product_info['productStock'][variant['attributes']['size']]['pid'] = variant['id']
     except:
         print(d_(), x_('Variant Inventory'))
 
-    productInfo['productStockLevel'] = productInfo['productATS']
+    product_info['productStockLevel'] = product_info['productATS']
 
     if user_config.debug:
-        print(d_(), z_('Debug'), o_(json.dumps(productInfo, indent=2)))
-    return productInfo
+        print(d_(), z_('Debug'), o_(json.dumps(product_info, indent=2)))
+    return product_info
 
 
 def getProductInfo():
@@ -122,8 +114,8 @@ def getProductInfo():
         try:
             print(d_(), s_('Client Endpoint'))
             response = inventory.get_client_response()
-            productJSON = json.loads(response.text)
-            productInfoClient = canonicalizeProductInfoClient(productJSON)
+            product_json = response.json()
+            productInfoClient = canonicalize_product_info_client(product_json)
             return productInfoClient
         except:
             print(d_(), x_('Client Endpoint'))
@@ -135,8 +127,8 @@ def getProductInfo():
     try:
         print(d_(), s_('Variant Endpoint'))
         response = inventory.get_variant_response()
-        productJSON = json.loads(response.text)
-        productInfoVariant = canonicalizeProductInfoVariant(productJSON)
+        product_json = response.json()
+        productInfoVariant = canonicalize_product_info_variant(product_json)
         return productInfoVariant
     except:
         print(d_(), x_('Variant Endpoint'))
@@ -184,10 +176,9 @@ def printProductInfo(productInfo):
     print(d_(), s_('Price'), lb_(productInfo['productPrice']))
     print(d_(), s_('Orderable'), lb_(productInfo['productOrderable']))
     print(d_(), s_('ATS'), lb_(str(productInfo['productATS']).rjust(6, ' ')))
-    print(d_(), s_('Stock Level'),
-          lb_(str(productInfo['productStockLevel']).rjust(6, ' ')))
+    print(d_(), s_('Stock Level'), lb_(str(productInfo['productStockLevel']).rjust(6, ' ')))
     print(d_(), s_('Size Inventory'))
+
     for size in sorted(productInfo['productStock']):
-        print(d_(), s_(size.ljust(5, ' '), '/',
-                       productInfo['productStock'][size]['pid']),
+        print(d_(), s_(size.ljust(5, ' '), '/', productInfo['productStock'][size]['pid']),
               lb_(str(productInfo['productStock'][size]['ATS']).rjust(6, ' ')))

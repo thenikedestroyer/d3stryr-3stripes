@@ -8,7 +8,7 @@ from utils import *
 from jinja2 import Environment, PackageLoader
 
 # Define template environment for Jinja2 templates
-jinja_env = Environment(loader=PackageLoader('destroyer', 'templates'))
+jinja_env = Environment(loader=PackageLoader('cart', 'templates'))
 
 
 def process_add_to_cart(product_info):
