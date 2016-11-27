@@ -49,9 +49,9 @@ def canonicalize_product_info_client(product_json):
     # Because data['c_sizeFTW'] and data['c_sizeSearchValue'] yield nonsense
     # for some EU locales:
     # Build a dictionary to convert adidas _XXX sizing to canonical sizing.
-    adidasSize2Size = {}
+    adidas_size_map = {}
     for variant in data['variation_attributes'][0]['values']:
-        adidasSize2Size['{0}_{1}'.format(user_config.masterPid, variant['value'])] = variant['name']
+        adidas_size_map['{0}_{1}'.format(user_config.masterPid, variant['value'])] = variant['name']
 
     # We could avoid:
     # if data['id'] != masterPid:
@@ -62,9 +62,9 @@ def canonicalize_product_info_client(product_json):
     for data in product_json['data']:
         if data['id'] != user_config.masterPid:
             try:
-                product_info['productStock'][adidasSize2Size[data['id']]] = {}
-                product_info['productStock'][adidasSize2Size[data['id']]]['ATS'] = int(data['inventory']['ats'])
-                product_info['productStock'][adidasSize2Size[data['id']]]['pid'] = data['id']
+                product_info['productStock'][adidas_size_map[data['id']]] = {}
+                product_info['productStock'][adidas_size_map[data['id']]]['ATS'] = int(data['inventory']['ats'])
+                product_info['productStock'][adidas_size_map[data['id']]]['pid'] = data['id']
             except:
                 print(d_(), x_('Client Inventory'))
 
