@@ -4,7 +4,7 @@ import time
 
 import requests
 
-from settings import captcha_tokens, exit_code, hypedSkus, user_config
+from settings import captcha_tokens, exit_code, hyped_skus, user_config
 from utils import *
 import inventory
 

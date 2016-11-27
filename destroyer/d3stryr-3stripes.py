@@ -4,7 +4,7 @@ import json
 import sys
 
 from cart import process_add_to_cart
-from destroyer import getProductInfo, printProductInfo
+from product import getProductInfo, printProductInfo
 from settings import exit_code, user_config
 from utils import d_, lr_, x_
 

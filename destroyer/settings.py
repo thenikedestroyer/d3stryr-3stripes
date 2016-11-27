@@ -7,7 +7,7 @@ from utils import d_, lb_, lr_, s_, z_
 revision = 'c+119'
 
 # Set this for parameters checking.
-hypedSkus = ['BY9612', 'BY1605', 'BY9611']
+hyped_skus = ['BY9612', 'BY1605', 'BY9611']
 
 # Code to indicate a shitty exit from the script.
 exit_code = 1
@@ -157,7 +157,7 @@ class Config:
         if self.sleeping < 3:
             print(d_(), z_('config.cfg'),
                   lr_('Your sleeping value is less than 3 seconds. It might not offer enough time between events.'))
-        if self.masterPid in str(hypedSkus):
+        if self.masterPid in str(hyped_skus):
             if not self.processCaptchaDuplicate:
                 print(d_(), z_('config.cfg'), lr_('This item is likely to make use of a captcha duplicate.'))
             if 'neverywhere' in self.cookies:
