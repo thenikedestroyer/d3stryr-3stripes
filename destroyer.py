@@ -333,9 +333,10 @@ def getProductInfo():
         return productInfoVariant
     except:
         print(d_(), x_('Variant Endpoint'))
-        if user_config.debug:
-            print(d_(), z_('Debug'),
-                  o_('Variant Endpoint Response -', response.text))
+    #   if user_config.debug:
+    #       print(d_(), z_('Debug'),
+    #             o_('Variant Endpoint Response -', response.text))
+
     # If we reached this point then useVariantInventory did not successfully
     # return. So lets produce at minimum size inventory.
     # We will refer to this as Fallback for productInfo (when both client and
@@ -393,7 +394,7 @@ def processAddToCart(productInfo):
         for index in range(0, len(captcha_tokens)):
             captchaTokensReversed.append(captcha_tokens.pop())
     for mySize in user_config.mySizes:
-        try:
+#       try:
             mySizeATS = productInfo['productStock'][mySize]['ATS']
             if mySizeATS == 0:
                 print (d_(), x_('Add-To-Cart'), lr_('Out of Stock:', mySize))
@@ -414,11 +415,11 @@ def processAddToCart(productInfo):
                     # No manual tokens to pop - so lets use 2captcha
                     captchaToken = getACaptchaTokenFrom2Captcha()
             addToCartChromeAJAX(pid, captchaToken)
-        except KeyboardInterrupt:
-            print (d_(), x_('KeyboardInterrupt'))
-            sys.exit(exit_code)
-        except:
-            print (d_(), x_('Add-To-Cart'), lr_(mySize, ' : ', 'Not Found'))
+#       except KeyboardInterrupt:
+#           print (d_(), x_('KeyboardInterrupt'))
+#           sys.exit(exit_code)
+#       except:
+#           print (d_(), x_('Add-To-Cart'), lr_(mySize, ' : ', 'Not Found'))
 
 
 def getChromeDriver(chromeFolderLocation=None, windowSize=None):
@@ -500,8 +501,11 @@ def addToCartChromeAJAX(pid, captchaToken):
     data['pid'] = pid
     data['Quantity'] = '1'
     data['request'] = 'ajax'
-    data['responseformat'] = 'json'
     data['sessionSelectedStoreID'] = 'null'
+
+    if user_config.useResponseFormatJSON:
+      data['responseformat'] = 'json'
+
     script = """
       $.ajax({
         url: '""" + atcURL + """',
@@ -523,6 +527,11 @@ def addToCartChromeAJAX(pid, captchaToken):
             '?pid=' + pid + '&masterPid=' + user_config.masterPid + '&ajax=true'
         if user_config.processCaptcha:
             injectionURL = injectionURL + '&g-recaptcha-response=' + captchaToken
+            if user_config.processCaptchaDuplicate:
+                injectionURL = injectionURL + '&' + user_config.duplicateField + '=' + captchaToken
+            if user_config.useResponseFormatJSON:
+                injectionURL = injectionURL + '&responseformat=json'
+
         script = """
         var url='""" + injectionURL + """';
         document.getElementById(document.querySelector("[id^='dwfrm_cart']").id).action = url;
@@ -533,7 +542,7 @@ def addToCartChromeAJAX(pid, captchaToken):
     if len(user_config.scriptURL) > 0 and '.js' in user_config.scriptURL:
         externalScript = """
             $.ajax({
-              url: '""" + user_config.scriptURL + """',
+              url: '""" + user_config.scriptURL.replace("http","https") + """',
               dataType: "script"
             });"""
     if user_config.debug:
