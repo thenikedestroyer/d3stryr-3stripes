@@ -5,6 +5,8 @@
 
 `masterPid` = `XX####` - defines the product ID of the item you wish to ATC.
 
+`isYeezyProduct` = `True | False` - is the item defined by `masterPid` a Yeezy item?
+
 ##Section [locale]
 `marketLocale` = `XX` - defines the locale you wish to ATC in.
 
@@ -26,6 +28,7 @@
 
 ##Section [atc]
 `useInjectionMethod` = `True | False` - use link injection method for ATC?
+`useResponseFormatJSON` = `True | False` - set responseformat=JSON in certain endpoint requests?
 
 ##Section [harvest]
 `manuallyHarvestTokens` = `True | False` - Do we want to manually harvest captcha tokens?
@@ -34,13 +37,21 @@
 
 `harvestDomain` = `dev.adidas.xxx` - defines the domain we are spoofing to manually harvest captchas.
 
+##Section [clientId_Yeezy]
+`apiEnv` = `production | staging | development` - defines the API environment of the client inventory endpoint.
+
+`XX` = `xxxxxxxxx` - defines the client ID for locale XX for a Yeezy product.
+
+##Section [sitekey_Yeez]
+`XX` = `xxxxxxxxx` - defines the captcha sitekey for locale XX for a Yeezy product.
+
 ##Section [clientId]
 `apiEnv` = `production | staging | development` - defines the API environment of the client inventory endpoint.
 
-`XX` = `xxxxxxxxx` - defines the client ID for locale XX.
+`XX` = `xxxxxxxxx` - defines the client ID for locale XX for a non-Yeezy product.
 
 ##Section [sitekey]
-`XX` = `xxxxxxxxx` - defines the captcha sitekey for locale XX.
+`XX` = `xxxxxxxxx` - defines the captcha sitekey for locale XX for a non-Yeezy product.
 
 ##Section [duplicate]
 `duplicate` = `xxxxx` - defines the duplicate captcha field name.
