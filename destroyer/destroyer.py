@@ -8,67 +8,10 @@ from autocaptcha import get_token_from_2captcha
 from harvester import harvest_tokens_manually
 from settings import captcha_tokens, exit_code, hypedSkus, user_config
 from utils import *
+import inventory
 
 # Disable urllib3 warnings
 requests.packages.urllib3.disable_warnings()
-
-
-def getClientResponse():
-    headers = {
-        'User-Agent': get_random_user_agent(),
-    }
-    session = requests.Session()
-    session.verify = False
-    session.cookies.clear()
-    skus = ','.join(
-        ['{sku}_{size_id}'.format(sku=user_config.masterPid, size_id=x)
-         for x in range(510, 820, 10)])
-
-    # Other countries will use US format like MX.
-    # They can just request US value for parametersLocale in config.cfg
-    if user_config.parametersLocale == 'US':
-        clientStockURL = (
-            'http://{0}-us-adidasgroup.demandware.net/s/adidas-{1}'
-            '/dw/shop/v15_6/products/({2})'
-            '?client_id={3}&expand=availability,variations,prices'
-        ).format(user_config.apiEnv, user_config.marketLocale, skus, user_config.clientId,)
-    else:
-        clientStockURL = (
-            'http://{0}-store-adidasgroup.demandware.net/s/adidas-{1}'
-            '/dw/shop/v15_6/products/({2})'
-            '?client_id={3}&expand=availability,variations,prices'
-        ).format(user_config.apiEnv, user_config.marketLocale, skus, user_config.clientId,)
-    if user_config.debug:
-        print(d_(), z_('Debug'), o_(clientStockURL))
-
-    return session.get(url=clientStockURL, headers=headers)
-
-
-def getVariantResponse():
-    headers = {
-        'User-Agent': get_random_user_agent(),
-    }
-    session = requests.Session()
-    session.verify = False
-    session.cookies.clear()
-
-    # Not sure why I even bother making a case for Portugal if dude on twitter
-    # keeps telling it doesnt work. Da fuq is MLT?
-    if user_config.market == 'PT':
-        variantStockURL = (
-            'http://www.{0}/on/demandware.store/Sites-adidas-'
-            '{1}-Site/MLT/Product-GetVariants?pid={2}'
-        ).format(user_config.marketDomain, user_config.marketLocale, user_config.masterPid,)
-    else:
-        variantStockURL = (
-            'http://www.{0}/on/demandware.store/Sites-adidas-'
-            '{1}-Site/{2}/Product-GetVariants?pid={3}'
-        ).format(user_config.marketDomain, user_config.marketLocale, user_config.market, user_config.masterPid,)
-
-    if user_config.debug:
-        print(d_(), z_('Debug'), o_(variantStockURL))
-    response = session.get(url=variantStockURL, headers=headers)
-    return response
 
 
 def canonicalizeProductInfoClient(productJSON):
@@ -180,7 +123,7 @@ def getProductInfo():
     if user_config.useClientInventory:
         try:
             print(d_(), s_('Client Endpoint'))
-            response = getClientResponse()
+            response = inventory.get_client_response()
             productJSON = json.loads(response.text)
             productInfoClient = canonicalizeProductInfoClient(productJSON)
             return productInfoClient
@@ -193,7 +136,7 @@ def getProductInfo():
     # return. So lets proceed with useVariantInventory.
     try:
         print(d_(), s_('Variant Endpoint'))
-        response = getVariantResponse()
+        response = inventory.get_variant_response()
         productJSON = json.loads(response.text)
         productInfoVariant = canonicalizeProductInfoVariant(productJSON)
         return productInfoVariant
