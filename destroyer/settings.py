@@ -4,7 +4,7 @@ import os
 from utils import d_, lb_, lr_, s_, z_
 
 # Lets try to keep a revision tracking via commit number.
-revision = 'c+158'
+revision = 'c+165'
 
 # Set this for parameters checking.
 hyped_skus = ['BY9612', 'BY1605', 'BY9611']
