@@ -1,12 +1,13 @@
 import configparser
+import os
 
-from utils import d_, s_, z_, lb_, lr_
+from utils import d_, lb_, lr_, s_, z_
 
 # Lets try to keep a revision tracking via commit number.
-revision = 'c+137'
+revision = 'c+158'
 
 # Set this for parameters checking.
-hypedSkus = ['BY9612', 'BY1605', 'BY9611']
+hyped_skus = ['BY9612', 'BY1605', 'BY9611']
 
 # Code to indicate a shitty exit from the script.
 exit_code = 1
@@ -14,14 +15,17 @@ exit_code = 1
 # Store manually harvested captcha tokens here.
 captcha_tokens = []
 
+# Get the project directory to avoid using relative paths
+PROJECT_ROOT_DIR = os.path.dirname(os.path.abspath(os.path.join(__file__, os.pardir)))
+
 # Parse configuration file
 c = configparser.ConfigParser()
-configFilePath = 'config.cfg'
+configFilePath = os.path.join(PROJECT_ROOT_DIR, 'config.cfg')
 c.read(configFilePath)
 
 
 class Config:
-     # Pull user info for masterPid
+    # Pull user info for masterPid
     masterPid = c.get('cart', 'masterPid')
 
     # Get the size array
@@ -171,10 +175,10 @@ class Config:
         if self.sleeping < 3:
             print(d_(), z_('config.cfg'),
                   lr_('Your sleeping value is less than 3 seconds. It might not offer enough time between events.'))
-        if self.masterPid in str(hypedSkus):
+        if self.masterPid in str(hyped_skus):
             if not self.processCaptchaDuplicate:
                 print(d_(), z_('config.cfg'), lr_('This item is likely to make use of a captcha duplicate.'))
-            if ('neverywhere' in self.cookies):
+            if 'neverywhere' in self.cookies:
                 print(d_(), z_('config.cfg'), lr_('This item is likely to make use of a cookie.'))
         if not self.debug:
             print(d_(), z_('config.cfg'),

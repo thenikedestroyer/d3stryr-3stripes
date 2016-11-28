@@ -19,16 +19,11 @@ chromedriver.exe
 ChromeFolder/
 ChromeTokenHarvestFolder/
 
-#d3stryr-3stripes files
+# d3stryr-3stripes files
 config.cfg
-harvest.php
 
-#Python Cache
+# Python Cache
 __pycache__
 
-#VirtualEnv files
-bin/
-Scripts/
-Lib/
-Include/
-tcl/
+# VirtualEnv files
+env/
