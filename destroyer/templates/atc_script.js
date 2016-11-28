@@ -1,6 +1,6 @@
 $.ajax({
   url: '{{ atc_url }}',
-  data: '{{ data }}',
+  data: {{ data }},
   method: 'POST',
   crossDomain: true,
   contentType: 'application/x-www-form-urlencoded',
