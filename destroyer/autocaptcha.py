@@ -1,3 +1,4 @@
+import sys
 import time
 
 import requests
@@ -20,13 +21,14 @@ def get_token_from_2captcha():
             'json': 1,
         }
         response = session.get(url='http://2captcha.com/res.php', params=data)
+        if "ERROR_WRONG_USER_KEY" in response.text:
+            print (d_(), x_('Response'), y_(response.text))
+            sys.exit(exit_code)
+
         try:
             JSON = response.json()
         except:
             raise
-            print (d_(), x_('Response'), y_(response.text))
-            if "ERROR_WRONG_USER_KEY" in response.text:
-                sys.exit(exit_code)
             print (d_(), x_('Sleeping'), y_(user_config.sleeping, 'seconds'))
             time.sleep(user_config.sleeping)
             continue
