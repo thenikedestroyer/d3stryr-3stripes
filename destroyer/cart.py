@@ -4,7 +4,7 @@ from jinja2 import Environment, PackageLoader
 
 from autocaptcha import get_token_from_2captcha
 from harvester import harvest_tokens_manually
-from settings import user_config
+from settings import captcha_tokens, user_config
 from utils import *
 
 # Define template environment for Jinja2 templates
@@ -97,9 +97,9 @@ def add_to_cart_chrome_ajax(pid, captcha_token):
         if user_config.processCaptcha:
             injection_url += '&g-recaptcha-response={0}'.format(captcha_token)
             if user_config.processCaptchaDuplicate:
-                injectionURL += '&{0}={1}'.format(user_config.duplicateField, captcha_token)
+                injection_url += '&{0}={1}'.format(user_config.duplicateField, captcha_token)
             if user_config.useResponseFormatJSON:
-                injectionURL += '&responseformat=json'
+                injection_url += '&responseformat=json'
 
         # Render the injection script
         script = jinja_env.get_template('injection_script.js').render(injection_url=injection_url)
