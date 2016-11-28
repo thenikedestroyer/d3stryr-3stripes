@@ -60,6 +60,6 @@ def get_variant_response():
         ).format(user_config.marketDomain, user_config.marketLocale, user_config.market, user_config.masterPid,)
 
     if user_config.debug:
-        print(d_(), z_('Debug'), o_(variantStockURL))
+        print(d_(), z_('Debug'), o_(url))
 
     return session.get(url=url, headers=headers)
