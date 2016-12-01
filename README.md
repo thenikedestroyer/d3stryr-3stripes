@@ -115,6 +115,7 @@ Windows:
   * ~~~Add in the ability to manually solve captchas if desired.~~~
   * ~~~Adjust terminal coloring for Windows.~~~
   * ~~~Link injection method~~~
+  * Add a `setup.py` which installs all the necessary libraries
   * Interface w/ a MySQL DB for token harvesting locally.
 
 ## Not-Gonna-Do List
@@ -136,4 +137,4 @@ Windows:
   * If you get a browser window with "data;" as the URL then you will need to download the latest chromedriver version for your OS.  See the instructions at the top of this README.
 
 ## Common Curiosities
-  * Variant Inventory vs. Client Inventory - Client inventory provides the latest inventory for a given product (provided that the clientId is correct). The variant inventory does not reflect the latest inventory numbers - it has been observed to reflect the inventory on product release.  
+  * Variant Inventory vs. Client Inventory - Client inventory provides the latest inventory for a given product (provided that the clientId is correct). The variant inventory does not reflect the latest inventory numbers - it has been observed to reflect the inventory on product release.
