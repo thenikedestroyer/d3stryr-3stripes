@@ -131,9 +131,9 @@ def get_product_info():
 
     # If we reached this point then useClientInventory didn't successfully return.
     # So lets proceed with useVariantInventory.
+    print(d_(), s_('Variant Endpoint'))
+    response = inventory.get_variant_response()
     try:
-        print(d_(), s_('Variant Endpoint'))
-        response = inventory.get_variant_response()
         product_json = response.json()
         product_info_variant = canonicalize_product_info_variant(product_json)
         return product_info_variant
