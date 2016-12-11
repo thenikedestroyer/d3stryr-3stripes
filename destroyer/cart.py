@@ -1,4 +1,7 @@
 import json
+import os
+import sys
+import time
 
 from jinja2 import Environment, PackageLoader
 
@@ -78,7 +81,8 @@ def add_to_cart_chrome_ajax(pid, captcha_token):
     # If we need captcha duplicate then add to our payload.
     if user_config.processCaptchaDuplicate:
         # Alter the ATC URL for the captcha duplicate case
-        atc_url = '{0}?clientId={1}'.format(atc_url, user_config.clientId)
+        if user_config.isYeezyProduct:
+            atc_url = '{0}?clientId={1}'.format(atc_url, user_config.clientId)
         # Add captcha duplicate  to our payload.
         data[user_config.duplicateField] = captcha_token
 
@@ -92,17 +96,13 @@ def add_to_cart_chrome_ajax(pid, captcha_token):
     script = jinja_env.get_template('atc_script.js').render(atc_url=atc_url, data=json.dumps(data, indent=2))
 
     if user_config.useInjectionMethod:
-        injection_url = '{0}/Cart-MiniAddProduct?pid={1}&masterPid={2}&ajax=true'.format(
-            base_atc_url, pid, user_config.masterPid)
         if user_config.processCaptcha:
-            injection_url += '&g-recaptcha-response={0}'.format(captcha_token)
             if user_config.processCaptchaDuplicate:
-                injection_url += '&{0}={1}'.format(user_config.duplicateField, captcha_token)
-            if user_config.useResponseFormatJSON:
-                injection_url += '&responseformat=json'
-
-        # Render the injection script
-        script = jinja_env.get_template('injection_script.js').render(injection_url=injection_url)
+                script = jinja_env.get_template('injection_script_captchaDuplicate.js').render(atc_url=atc_url,master_pid=user_config.masterPid,pid=pid,captcha_token=captcha_token, captcha_duplicate=user_config.duplicateField)
+            else:
+                script = jinja_env.get_template('injection_script_captcha.js').render(atc_url=atc_url,master_pid=user_config.masterPid,pid=pid,captcha_token=captcha_token,)
+        else:
+            script = jinja_env.get_template('injection_script.js').render(atc_url=atc_url,master_pid=user_config.masterPid,pid=pid)
 
     external_script = None
     if len(user_config.scriptURL) > 0 and '.js' in user_config.scriptURL:
@@ -116,11 +116,18 @@ def add_to_cart_chrome_ajax(pid, captcha_token):
         print(d_(), z_('Debug:cookie'), o_(cookie_script_domain_aware))
         print(d_(), z_('Debug:external'), o_(external_script))
     browser = get_chromedriver(chrome_folder_location='ChromeFolder')
+    browser.set_page_load_timeout(30)
     browser.delete_all_cookies()
     if user_config.useInjectionMethod:
-        browser.get(cart_url)
+        if "http" in user_config.preloadURL:
+            browser.get(user_config.preloadURL)
+        else:
+            browser.get(base_atc_url)
     else:
-        browser.get(base_atc_url)
+        if "http" in user_config.preloadURL:
+            browser.get(user_config.preloadURL)
+        else:
+            browser.get(base_atc_url)
     if len(cookie_script) > 0 and 'neverywhere' not in user_config.cookies:
         print (d_(), s_('Cookie Script'))
         browser.execute_script(cookie_script)
@@ -130,7 +137,7 @@ def add_to_cart_chrome_ajax(pid, captcha_token):
         browser.execute_script(external_script)
     print (d_(), s_('ATC Script'))
     browser.execute_script(script)
-    # time.sleep(user_config.sleeping)
+   #time.sleep(user_config.sleeping*1.5)
     browser.get(base_atc_url + '/Cart-ProductCount')
     html_source = browser.page_source
     product_count = browser.find_element_by_tag_name('body').text.replace('"', '').strip()
@@ -139,6 +146,11 @@ def add_to_cart_chrome_ajax(pid, captcha_token):
         print(d_(), z_('Debug'), o_('Product Count: %s' % product_count))
         print(d_(), z_('Debug'), o_('\n{0}'.format(html_source)))
     if len(product_count) == 1 and int(product_count) > 0:
+        try:
+            os.system("say Hey Destroyer! Product Carted! Wake Your Ass Up! &")
+        except:
+          #Must be Windows
+          pass
         results = browser.execute_script('window.location="{0}"'.format(cart_url))
         input('Press Enter to Close the Browser & Continue')
     else:
