@@ -4,10 +4,10 @@ import os
 from utils import d_, lb_, lr_, s_, z_
 
 # Lets try to keep a revision tracking via commit number.
-revision = 'c+165'
+revision = 'c+172'
 
 # Set this for parameters checking.
-hyped_skus = ['BY9612', 'BY1605', 'BY9611']
+hyped_skus = ['BY9612', 'BY1605', 'BY9611', 'BY1604']
 
 # Code to indicate a shitty exit from the script.
 exit_code = 1
@@ -77,7 +77,10 @@ class Config:
 
     # Pull info necessary for a Yeezy drop
     duplicateField = c.get('duplicate', 'duplicate')
+
+    # Cookie handling
     cookies = c.get('cookie', 'cookie')
+    preloadURL = c.get('cookie', 'preloadURL')
 
     # Just incase we nee to run an external script.
     scriptURL = c.get('script', 'scriptURL')
@@ -114,6 +117,7 @@ class Config:
         print(d_(), s_('Market Site Key'), lb_(self.sitekey))
         print(d_(), s_('Captcha Duplicate'), lb_(self.duplicateField))
         print(d_(), s_('Cookie'), lb_(self.cookies))
+        print(d_(), s_('Preload URL'), lb_(self.preloadURL))
         print(d_(), s_('Process Captcha'), lb_(self.processCaptcha))
         print(d_(), s_('Use Duplicate'), lb_(self.processCaptchaDuplicate))
         print(d_(), s_('Product ID'), lb_(self.masterPid))
