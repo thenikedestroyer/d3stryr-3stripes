@@ -3,10 +3,8 @@
 # https://github.com/thenikedestroyer/d3stryr-3stripes/blob/master/docs/CONFIG.md
 
 [cart]
-masterPid = S81910
-#masterPids = BA7325, BA7326
-#masterPids = BY9612, BY1605, BY9611
-mySizes = 9, 10, 11, 7, 42 2/3
+masterPid = S80206
+mySizes = 3.5, 4, 4.5, 5, 5.5, 6, 9, 10, 11, 7, 42 2/3
 isYeezyProduct = False
 
 [locale]
@@ -64,10 +62,11 @@ AU = 6LfmqykTAAAAAPkpAt5TNBSeZl81VlbRl7pZpM9m
 duplicate = x-PrdRt
 
 [cookie]
-cookie = XGQPHM=true;
+cookie = neverywhere=neverytime;
+preloadURL = http://www.adidas.com/us/nmd_r1-shoes/S80206.html/
 
 [script]
-scriptURL = http://www.adidas.com/us/nmd_assets/json/35198324896.js
+scriptURL = None
 
 [market]
 AE = en_AE
