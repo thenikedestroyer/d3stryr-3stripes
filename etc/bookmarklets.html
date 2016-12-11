@@ -64,12 +64,13 @@ javascript:(function(){
 javascript:prompt("Press CMD+C (Mac) or CTRL+C (Win)", window.OCAPI_KEY);
 })();
 '><font color="orange">clientId Updated</font></a> retrieval (<font color="green">click after splash</font>)</p>
+      <p>Bookmarklet for <a href='
+javascript:(function(){
+  var code=prompt("Enter the injection Code","Code");
+  eval(code);
+})();
+'><font color="orange">Injection</font></a> Usage (<font color="green">Click bookmarklet. Paste injection code.</font>)</p>
       <p>Captcha Duplicate Field Name:<br><font color="green">Save the page source after splash.<br>Then pastebin the page source.<br>Share the link to the pastebin.<br>Does not need to be done immediately - checkout first then do it.</p></font>
-              <p>Code for injection bookmarklet<p><pre>
-javascript:(function(){var url=prompt("Enter the injection URL","URL");
-document.getElementById(document.querySelector("[id^='dwfrm_cart']").id).action = url})();
-document.getElementById(document.querySelector("[id^='dwfrm_cart']").id).submit();
-</pre>
           </td>
         </tr>
       </table>
